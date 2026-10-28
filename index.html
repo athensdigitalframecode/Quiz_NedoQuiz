@@ -2672,7 +2672,9 @@ $("tabScope").onclick=e=>{const b=e.target.closest("button");if(b){rankScope=b.d
 
 /* ---------- звук, фон, конфетти ---------- */
 let ac;
-function note(f,d,type,vol,when){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.type=type||"sine";o.connect(g);g.connect(ac.destination);const t=ac.currentTime+(when||0);o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(vol||.1,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.start(t);o.stop(t+d+.02)}catch(e){}}
+const LOWPWR=(()=>{try{return /Android|iPhone|iPad|iPod|Mobi/i.test(navigator.userAgent)||matchMedia("(pointer:coarse)").matches||(navigator.hardwareConcurrency||8)<=4}catch(e){return false}})();
+function mkAC(){const A=window.AudioContext||window.webkitAudioContext;try{return new A({latencyHint:"playback"})}catch(e){return new A()}}
+function note(f,d,type,vol,when){try{ac=ac||mkAC();const o=ac.createOscillator(),g=ac.createGain();o.type=type||"sine";o.connect(g);g.connect(ac.destination);const t=ac.currentTime+(when||0);o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(vol||.1,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.start(t);o.stop(t+d+.02)}catch(e){}}
 function beep(ok){ok?(note(660,.12),note(990,.2,"sine",.1,.1)):note(300,.2,"triangle",.12)}
 function tick(){note(1000,.06,"square",.04)}
 function buzz(){note(150,.45,"sawtooth",.1);note(110,.5,"sawtooth",.1,.2)}
@@ -2692,7 +2694,7 @@ const MTR={
   bet:{mel:1,rev:1,seed:83,bpm:72,v:"ep",mv:.08,pw:500,pad:1.4,bass:[0,8],ch:[[38,53,57,60,64],[34,50,53,57,62],[41,53,57,60,65],[33,52,55,60,64]],sc:[60,62,64,65,67,69,72,74],rh:[[0,8],[0,6,12],[4,10],[0,12]],rest:.2},
   end:{mel:1,rev:1,seed:97,bpm:72,v:"bell",mv:.1,pad:1.4,bass:[0,8],ch:[[36,52,60,64,67],[43,55,62,67,71],[33,57,60,64,67],[41,57,60,64,69]],sc:[64,67,69,72,74,76,79,81],rh:[[0,6,12],[0,4,8],[0,8,12],[0,6,10,14]]}
 };
-function musCtx(){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();return ac}catch(e){return null}}
+function musCtx(){try{ac=ac||mkAC();return ac}catch(e){return null}}
 function musNote(t,f,d,type,v,dest,lp){
   const c=ac,o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.value=f;
   let n=o;if(lp){const b=c.createBiquadFilter();b.type="lowpass";b.frequency.value=lp;o.connect(b);n=b}
@@ -2708,7 +2710,7 @@ function musKS(m){
   return KS[key]=b;
 }
 function musIR(){
-  const c=ac,sr=c.sampleRate,len=Math.floor(sr*6),b=c.createBuffer(2,len,sr);
+  const c=ac,sr=c.sampleRate,len=Math.floor(sr*(LOWPWR?2:6)),b=c.createBuffer(2,len,sr);
   for(let ch=0;ch<2;ch++){const d=b.getChannelData(ch);let lp=0;for(let i=0;i<len;i++){const w=Math.random()*2-1;lp=lp*.55+w*.45;d[i]=lp*Math.pow(1-i/len,2.2)}}
   return b;
 }
@@ -2721,12 +2723,12 @@ function musAmb(T,step,t,dest){
     rf.type="lowpass";rf.frequency.value=150;root.connect(rf);r2.connect(rf);rf.connect(rg);rg.connect(dst);
     rg.gain.setValueAtTime(0,t);rg.gain.linearRampToValueAtTime(.09,t+d*.4);rg.gain.linearRampToValueAtTime(.07,t+d*.75);rg.gain.linearRampToValueAtTime(0,t+d);
     root.start(t);r2.start(t);root.stop(t+d+.05);r2.stop(t+d+.05);
-    ch.forEach((m,i)=>{[-6,6].forEach(dt=>{
+    ch.forEach((m,i)=>{(LOWPWR?[0]:[-6,6]).forEach(dt=>{
       const o=c.createOscillator(),g=c.createGain(),b=c.createBiquadFilter(),lf=c.createOscillator(),lg=c.createGain();
       o.type="sawtooth";o.frequency.value=mtof(m);o.detune.value=dt;
       b.type="lowpass";b.Q.value=.5;b.frequency.value=450;lf.frequency.value=.04+Math.random()*.04;lg.gain.value=260;lf.connect(lg);lg.connect(b.frequency);
       o.connect(b);b.connect(g);g.connect(dst);
-      const v=.016;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+d*.45);g.gain.linearRampToValueAtTime(v*.8,t+d*.75);g.gain.linearRampToValueAtTime(0,t+d);
+      const v=LOWPWR?.026:.016;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+d*.45);g.gain.linearRampToValueAtTime(v*.8,t+d*.75);g.gain.linearRampToValueAtTime(0,t+d);
       o.start(t);lf.start(t);o.stop(t+d+.05);lf.stop(t+d+.05)})});
     [ch[2]+24,ch[3]+24].forEach((m,i)=>{ // мерцающая высота
       const o=c.createOscillator(),g=c.createGain(),lf=c.createOscillator(),lg=c.createGain();
@@ -2741,7 +2743,7 @@ function musAmb(T,step,t,dest){
     g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.022,t+4);g.gain.linearRampToValueAtTime(0,t+9);
     s.connect(b);b.connect(g);g.connect(dst);s.start(t);s.stop(t+9.1);
   }
-  if(step%2===0&&Math.random()<.07){ // далёкие «звёзды»
+  if(step%2===0&&Math.random()<(LOWPWR?.04:.07)){ // далёкие «звёзды»
     const m=T.pent[Math.floor(Math.random()*T.pent.length)],f=mtof(m),len=5;
     [[1,.03],[1.003,.02],[2,.01]].forEach(([k,v])=>{const o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.value=f*k;o.connect(g);g.connect(dst);
       g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.4);g.gain.exponentialRampToValueAtTime(.0001,t+len);o.start(t);o.stop(t+len+.05)});
@@ -2757,9 +2759,9 @@ function musRnd(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=M
 function musMel(T,step,t,dest){
   const c=ac,spb=60/T.bpm,s16=spb/4,n=T.ch.length,bar=Math.floor(step/16),s=step%16,ch=T.ch[bar%n],dst=MUS.ei||dest;
   if(s===0){ // мягкая подложка и бас
-    const d=spb*4.2;ch.slice(1).forEach(m=>[-5,5].forEach(dt=>{const o=c.createOscillator(),g=c.createGain(),b=c.createBiquadFilter();
+    const d=spb*4.2;ch.slice(1).forEach(m=>(LOWPWR?[0]:[-5,5]).forEach(dt=>{const o=c.createOscillator(),g=c.createGain(),b=c.createBiquadFilter();
       o.type="triangle";o.frequency.value=mtof(m);o.detune.value=dt;b.type="lowpass";b.frequency.value=T.pw||700;o.connect(b);b.connect(g);g.connect(dst);
-      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.018*(T.pad||1),t+d*.3);g.gain.linearRampToValueAtTime(.012*(T.pad||1),t+d*.8);g.gain.linearRampToValueAtTime(0,t+d);o.start(t);o.stop(t+d+.05)}));
+      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.018*(LOWPWR?1.7:1)*(T.pad||1),t+d*.3);g.gain.linearRampToValueAtTime(.012*(LOWPWR?1.7:1)*(T.pad||1),t+d*.8);g.gain.linearRampToValueAtTime(0,t+d);o.start(t);o.stop(t+d+.05)}));
   }
   if(T.bass.includes(s)){const o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.value=mtof(ch[0]);o.connect(g);g.connect(dest);
     g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.16,t+.03);g.gain.exponentialRampToValueAtTime(.001,t+spb*1.6);o.start(t);o.stop(t+spb*1.7)}
@@ -2795,7 +2797,7 @@ function musStep(T,step,t,dest){
 function musSched(){
   if(!MUS.tr||!ac||ac.state!=="running")return;
   const T=MTR[MUS.cur];if(!T)return;
-  while(MUS.nt<ac.currentTime+.4){if(MUS.nt<ac.currentTime-.2)MUS.nt=ac.currentTime+.05;musStep(T,MUS.st,MUS.nt,MUS.tg);MUS.nt+=60/T.bpm/4;MUS.st++}
+  const LA=LOWPWR?1.1:.4;while(MUS.nt<ac.currentTime+LA){if(MUS.nt<ac.currentTime-.2)MUS.nt=ac.currentTime+.1;musStep(T,MUS.st,MUS.nt,MUS.tg);MUS.nt+=60/T.bpm/4;MUS.st++}
 }
 function musSet(name){
   const c=musCtx();if(!c)return;
@@ -2839,7 +2841,7 @@ function musBtn(){const b=document.getElementById("musBtn");if(b){b.classList.to
   ["pointerdown","pointerup","touchend","click","keydown"].forEach(ev=>addEventListener(ev,wake,{passive:true,capture:true}));
   MUS.started=true;try{const c=musCtx();if(MUS.on&&c)c.resume().catch(()=>{})}catch(e){}
   setInterval(()=>{const b=document.getElementById("musBtn");if(b)b.classList.toggle("wait",!!(MUS.on&&ac&&ac.state!=="running"&&!document.hidden))},400);
-  setInterval(musSync,120);
+  setInterval(musSync,LOWPWR?240:120);
   document.addEventListener("visibilitychange",()=>{if(ac){if(document.hidden)ac.suspend().catch(()=>{});else if(MUS.on)ac.resume().catch(()=>{})}});
   musBtn();
 })();
