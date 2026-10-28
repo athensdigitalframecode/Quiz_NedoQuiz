@@ -705,6 +705,8 @@ html[data-theme="sunset"]{--b1:#ffd0a3;--b2:#ffa45c;--b3:#d9733a;--bg:#12060c;--
 .thpick button i{width:34px;height:34px;border-radius:50%;border:2px solid rgba(255,255,255,.18);box-shadow:0 4px 10px rgba(0,0,0,.35)}
 .thpick button.on{border-color:var(--gold);color:var(--txt);background:rgba(var(--gr),.1)}
 .thpick button.on i{border-color:var(--gold)}
+@keyframes muspulse{0%,100%{box-shadow:0 0 0 0 rgba(var(--gr),.55)}60%{box-shadow:0 0 0 12px rgba(var(--gr),0)}}
+#musBtn.wait{animation:muspulse 1.6s ease-out infinite}
 </style>
 
 
@@ -1142,7 +1144,7 @@ html[data-theme="sunset"]{--b1:#ffd0a3;--b2:#ffa45c;--b3:#d9733a;--bg:#12060c;--
   <div class="card"><h2>Рейтинг и звания</h2>
     <p>У каждого вида игры свой рейтинг, у игроков и команд. Все начинают с 1000 очков. Победа добавляет очки, поражение отнимает. Звания идут от «Новичка» до «Легенды».</p></div>
   <div class="card"><h2>Источник вопросов</h2>
-    <p style="color:var(--mut);font-size:13px;line-height:1.5">Вопросы взяты из <a href="https://opentdb.com" target="_blank" rel="noopener" style="color:var(--gold)">Open Trivia Database</a> (opentdb.com), переведены на русский и распространяются по лицензии <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener" style="color:var(--gold)">CC BY-SA 4.0</a>. Часть вопросов отобрана и изменена при переводе. Картинки для вопросов взяты из <a href="https://commons.wikimedia.org" target="_blank" rel="noopener" style="color:var(--gold)">Wikimedia Commons</a> и Wikidata (свободные лицензии, названия на русском из Википедии).</p></div>
+    <p style="color:var(--mut);font-size:13px;line-height:1.5">Вопросы взяты из <a href="https://opentdb.com" target="_blank" rel="noopener" style="color:var(--gold)">Open Trivia Database</a> (opentdb.com), переведены на русский и распространяются по лицензии <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener" style="color:var(--gold)">CC BY-SA 4.0</a>. Часть вопросов отобрана и изменена при переводе автором игры. Картинки для вопросов взяты из <a href="https://commons.wikimedia.org" target="_blank" rel="noopener" style="color:var(--gold)">Wikimedia Commons</a> и Wikidata (свободные лицензии, названия на русском из Википедии).</p></div>
 </section>
 
 </div>
@@ -2803,8 +2805,10 @@ function musBtn(){const b=document.getElementById("musBtn");if(b){b.classList.to
 (function(){
   const b=document.createElement("button");b.id="musBtn";b.type="button";b.className="mus";b.textContent="♪";b.setAttribute("aria-label","Музыка");document.body.appendChild(b);
   b.onclick=()=>{MUS.on=!MUS.on;try{localStorage.setItem("quiz_music",MUS.on?"1":"0")}catch(e){}MUS.started=true;musSync()};
-  const first=()=>{if(MUS.started)return;MUS.started=true;const c=musCtx();if(c&&c.state==="suspended")c.resume().catch(()=>{});musSync()};
-  addEventListener("pointerdown",first,{once:false});addEventListener("keydown",first);
+  const wake=()=>{MUS.started=true;if(!MUS.on)return;const c=musCtx();if(c&&c.state!=="running")c.resume().catch(()=>{});musSync()};
+  ["pointerdown","pointerup","touchend","click","keydown"].forEach(ev=>addEventListener(ev,wake,{passive:true,capture:true}));
+  MUS.started=true;try{const c=musCtx();if(MUS.on&&c)c.resume().catch(()=>{})}catch(e){}
+  setInterval(()=>{const b=document.getElementById("musBtn");if(b)b.classList.toggle("wait",!!(MUS.on&&ac&&ac.state!=="running"&&!document.hidden))},400);
   setInterval(musSync,120);
   document.addEventListener("visibilitychange",()=>{if(ac){if(document.hidden)ac.suspend().catch(()=>{});else if(MUS.on)ac.resume().catch(()=>{})}});
   musBtn();
