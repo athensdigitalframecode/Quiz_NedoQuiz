@@ -1292,6 +1292,8 @@ const RND_AT=[0,4,8,12],INTRO_MS=5000;
 const rndOf=q=>q>=12?3:q>=8?2:q>=4?1:0;
 const isRndStart=q=>RND_AT.includes(q);
 const EVE_LV=[0,0,0,0, 0,0,1,1, 1,1,1,2, 2,2,2];
+const QP_PLAN=Array.from({length:15},(_,k)=>({L:EVE_LV[k],P:k>=4&&k<8,nl:k<4}));
+const RND_NAMES=["Разминка","Картинки","Основной раунд","Финал"];
 const EVE_PLAN=Array.from({length:15},(_,k)=>({L:EVE_LV[k],P:k>=4&&k<8,nl:k<4||(k>=8&&k<12)}));
 let introAt={},curBet=1,betQ="",hid={};
 const RANKS=[{min:0,n:"Новичок",i:"🌱"},{min:900,n:"Любитель",i:"🎯"},{min:1050,n:"Знаток",i:"📚"},{min:1200,n:"Эрудит",i:"🧠"},{min:1350,n:"Мастер",i:"🏅"},{min:1500,n:"Грандмастер",i:"💎"},{min:1700,n:"Легенда",i:"👑"}];
@@ -2028,7 +2030,7 @@ $("plSearch").addEventListener("input",()=>drawPlayers());
 async function startAsyncTeam(tid){
   if(!BANK.length||!ME||!ME.team||!teams[tid])return;
   try{
-    const qsA=pickQs(curTopic),id=newCode()+newCode(),ms={[ME.team]:members(ME.team),[tid]:members(tid)},now=Date.now();
+    const qsA=pickQs(curTopic,QP_PLAN),id=newCode()+newCode(),ms={[ME.team]:members(ME.team),[tid]:members(tid)},now=Date.now();
     await db.doc("challenges/"+id).set({by:uid,teams:[ME.team,tid],ms,topic:curTopic,qs:qsA,sq:sqOf(qsA),createdAt:now,deadline:now+86400000,statsDone:false});tgNotify("team",members(tid));
     challenges[id]={by:uid,teams:[ME.team,tid],ms,topic:curTopic,createdAt:now,deadline:now+86400000};
     await playAsync(id);
@@ -2056,7 +2058,7 @@ async function startAsync(target){
   if(!BANK.length){$("pl-err").textContent="Вопросы пока не загружены";return}
   if(!target||!profiles[target]||target===uid)return;
   try{
-    const id=newCode()+newCode(),qsA=pickQs(curTopic);
+    const id=newCode()+newCode(),qsA=pickQs(curTopic,QP_PLAN);
     await db.doc("challenges/"+id).set({by:uid,invited:target,topic:curTopic,qs:qsA,sq:sqOf(qsA),createdAt:Date.now(),statsDone:false});tgNotify("challenge",target);
     challenges[id]={by:uid,invited:target,topic:curTopic,createdAt:Date.now()};
     await playAsync(id);
@@ -2166,7 +2168,7 @@ const CHARS="ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 const newCode=()=>Array.from({length:4},()=>CHARS[Math.floor(Math.random()*CHARS.length)]).join("");
 async function makeGame(mode,teamsArr,extra){
   let c,tries=0;
-  const qs0=pickQs(curTopic,mode==="evening"?EVE_PLAN:null);
+  const qs0=pickQs(curTopic,mode==="evening"?EVE_PLAN:QP_PLAN);
   do{c=newCode();tries++}while(tries<6&&(await db.doc("games/"+c).get()).exists);
   await db.doc("games/"+c).set({mode,status:"lobby",qi:0,outs:[],qText:"",qOpts:[],ans:"",createdAt:Date.now(),by:uid,teams:teamsArr||[],time:MODES[mode].time,topic:curTopic,qs:qs0,sq:sqOf(qs0),...(extra||{})});
   return c;
@@ -2299,7 +2301,7 @@ function drawGame(){
   if(game.status==="q"||game.status==="reveal"){const sk=game.qs&&game.qs[q];if(sk!=null)seenAdd(sk)}
   if(game.status==="reveal")recAnswer(q);
   $("gbadge").textContent=MODES[m].name;
-  {const bx0=bq(game,q);$("qno").textContent=(m==="evening"?"Раунд "+(rndOf(q)+1)+" · "+RND[rndOf(q)].n+" · ":"")+`Вопрос ${q+1} из ${TOTAL}`+(bx0&&bx0.by?" · от "+nickOf(bx0.by):"")}$("qtxt").textContent=game.qText||qOf(game,q);
+  {const bx0=bq(game,q);$("qno").textContent="Раунд "+(rndOf(q)+1)+" · "+(m==="evening"?RND[rndOf(q)].n:RND_NAMES[rndOf(q)])+" · "+`Вопрос ${q+1} из ${TOTAL}`+(bx0&&bx0.by?" · от "+nickOf(bx0.by):"")}$("qtxt").textContent=game.qText||qOf(game,q);
   {const bx=bq(game,q),im=$("qimg");if(bx&&bx.i){if(im.dataset.q!==String(q)+":"+game.qs[q]){im.src=bx.i;im.dataset.q=String(q)+":"+game.qs[q]}im.hidden=false}else{im.hidden=true;im.removeAttribute("src");im.dataset.q=""}}
   if(!$("steps").children.length)$("steps").innerHTML=Array.from({length:TOTAL},()=>"<i></i>").join("");
   [...$("steps").children].forEach((el,i)=>{el.className=i<q||(i===q&&!run)?"done":i===q?"cur":""});
@@ -3297,7 +3299,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
- {id:"u11",d:"28 октября",t:"Раунды Квиз-вечера как в «Квиз, плиз!»",items:["Разминка → Картинки → Блиц → Ставка","Вопросы идут от лёгких к сложным и внутри раундов, и от раунда к раунду","Самые сложные вопросы остались на раунд со ставкой"]},
+ {id:"u11",d:"28 октября",t:"Раунды как в «Квиз, плиз!»",items:["Во всех играх вопросы идут от лёгких к сложным, внутри раундов и от раунда к раунду","Раунды: Разминка → Картинки → Основной раунд → Финал; в Квиз-вечере: Разминка → Картинки → Блиц → Ставка","Номер и название раунда показываются над вопросом"]},
  {id:"u10",d:"28 октября",t:"Больше вопросов",items:["+290 новых вопросов по всем темам","Особенно больше стало комиксов, видеоигр, аниме, мюзиклов, гаджетов и мультфильмов","Исправлены устаревшие и спорные вопросы"]},
  {id:"u9",d:"28 октября",t:"Статистика игры",items:["Раздел «📊 Статистика» в меню «Ещё»","Сколько игроков и игр, какие режимы популярнее","Самые сложные и самые лёгкие вопросы","На каком вопросе чаще всего выбывают в блице"]},
  {id:"u8",d:"28 октября",t:"Таблица обновлений",items:["Кнопка «Обновления» слева внизу на главной","Красная точка, пока не прочитаете новое"]},
