@@ -769,6 +769,12 @@ html[data-theme="light"] .updbtn{background:rgba(255,255,255,.88);color:#8a5f12}
 .gsq{padding:10px 12px;margin:6px 0;border-radius:14px;background:var(--card);border:1px solid var(--line);font-size:13px;line-height:1.35}
 .gsq .m{margin-top:5px;color:var(--mut);font-size:12px}
 .gsq .m b{color:var(--gold)}
+
+/* пожертвование — справа внизу, музыка уходит наверх */
+body.on-home a.donate:not([hidden]){position:fixed!important;display:block!important;left:auto!important;top:auto!important;right:12px!important;bottom:calc(92px + env(safe-area-inset-bottom,0px))!important;z-index:60;max-width:178px!important;margin:0!important;padding:8px 13px!important;border-radius:16px;text-align:right!important;font-size:12px!important;line-height:1.25;box-shadow:0 10px 24px -10px rgba(0,0,0,.8)}
+body.on-home a.donate small{font-size:10px!important}
+body.on-home .mus{top:max(10px,env(safe-area-inset-top,0px))!important;bottom:auto!important;right:10px!important}
+@media(max-width:370px){body.on-home a.donate:not([hidden]){max-width:150px!important;padding:7px 10px!important}body.on-home a.donate small{display:none}}
 </style>
 
 
