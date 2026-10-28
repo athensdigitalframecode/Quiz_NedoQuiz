@@ -720,6 +720,18 @@ html[data-theme="sunset"]{--b1:#ffd0a3;--b2:#ffa45c;--b3:#d9733a;--bg:#12060c;--
 .sharerow{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:-2px 0 12px}
 .sharerow .btn{width:auto;display:inline-block;padding:9px 16px;font-size:13px}
 .pwahint{margin:6px 4px 10px;padding:10px 12px;border-radius:12px;background:var(--card2);border:1px solid var(--line);color:var(--mut);font-size:13px;line-height:1.45;text-align:left}
+
+/* премиальная плашка «Сделано для» */
+.madeby{top:max(12px,env(safe-area-inset-top,0px)) !important;left:12px!important;max-width:none!important;padding:9px 16px 10px 14px!important;border-radius:14px!important;
+ background:linear-gradient(135deg,rgba(255,233,168,.14),rgba(20,28,48,.72) 38%,rgba(181,107,255,.16))!important;
+ border:1px solid rgba(228,194,122,.38)!important;box-shadow:0 8px 28px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.14)!important;
+ -webkit-backdrop-filter:blur(14px) saturate(140%);backdrop-filter:blur(14px) saturate(140%);
+ font:600 9.5px/1 Inter,system-ui,sans-serif!important;letter-spacing:.26em!important;text-transform:uppercase;color:rgba(228,194,122,.9)!important;text-shadow:none!important;white-space:nowrap}
+.madeby::before{content:"";display:block;width:22px;height:1px;margin:0 0 7px;background:linear-gradient(90deg,#e4c27a,transparent)}
+.madeby b{margin-top:6px!important;font:italic 700 20px/1.05 "Playfair Display",Georgia,serif!important;letter-spacing:.005em!important;text-transform:none;white-space:nowrap}
+.madeby b::after{content:" ✦";font-style:normal;font-size:11px;-webkit-text-fill-color:#e4c27a;margin-left:4px;vertical-align:3px}
+html[data-theme="light"] .madeby{background:linear-gradient(135deg,rgba(255,250,235,.92),rgba(255,255,255,.7))!important;border-color:rgba(160,110,30,.4)!important;box-shadow:0 6px 20px rgba(120,90,30,.18)!important;color:#8a5f12!important}
+@media(max-width:380px){.madeby{padding:8px 13px 9px 12px!important}.madeby b{font-size:17px!important}}
 </style>
 
 
