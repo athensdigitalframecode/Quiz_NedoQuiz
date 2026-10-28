@@ -613,7 +613,7 @@ html[data-theme="light"] .mode[data-m="duel"]{--mc:#3f62d8;--mc2:#9db3ff}
 html[data-theme="light"] .mode[data-m="mass"]{--mc:#8a4bd1;--mc2:#cfa8ff}
 /* нижняя панель и «Ещё» */
 .bnav{display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:70;width:min(94vw,520px);padding:6px;border-radius:22px;background:var(--glass);border:1px solid var(--glass-line);-webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%);box-shadow:0 18px 40px -14px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.1);justify-content:space-between;gap:2px}
-body[data-scr="s-home"] .bnav,body[data-scr="s-rank"] .bnav,body[data-scr="s-teams"] .bnav,body[data-scr="s-me"] .bnav,body[data-scr="s-players"] .bnav,body[data-scr="s-suggest"] .bnav,body[data-scr="s-pprof"] .bnav{display:flex}
+body[data-scr="s-home"] .bnav,body[data-scr="s-rank"] .bnav,body[data-scr="s-teams"] .bnav,body[data-scr="s-me"] .bnav,body[data-scr="s-players"] .bnav,body[data-scr="s-suggest"] .bnav,body[data-scr="s-pprof"] .bnav,body[data-scr="s-gstats"] .bnav{display:flex}
 body[data-scr="s-home"] .wrap,body[data-scr="s-rank"] .wrap,body[data-scr="s-teams"] .wrap,body[data-scr="s-me"] .wrap,body[data-scr="s-players"] .wrap,body[data-scr="s-suggest"] .wrap,body[data-scr="s-pprof"] .wrap{padding-bottom:104px}
 .bn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 2px 7px;border:0;border-radius:16px;background:transparent;color:var(--mut);cursor:pointer;font:inherit;transition:color .2s,background .25s,transform .15s}
 .bn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -695,7 +695,7 @@ body.guest #guestBox{display:block;text-align:center;border:1px solid rgba(var(-
 #guestBox h2{margin:0 0 6px}#guestBox p{margin:0 0 14px;color:var(--mut);font-size:14px}
 body.guest .me-bar,body.guest #invites,body.guest #daily,body.guest #seenInfo{display:none!important}
 body.guest[data-scr="s-rules"] .bnav,body.guest[data-scr="s-faq"] .bnav,body.guest[data-scr="s-modes"] .bnav{display:flex}
-body.guest .shi[data-act="suggest"]{display:none}
+body.guest .shi[data-act="suggest"],body.guest .shi[data-act="gstats"]{display:none}
 body.guest .playbig,body.guest .modes,body.guest .topicbox,body.guest #s-home .card:not(#guestBox){opacity:.5;filter:saturate(.6)}
 body.guest .playbig *,body.guest .modes *{cursor:not-allowed}
 .tcard .pic{width:48px;height:48px;flex:none;border:2px solid var(--line)}
@@ -753,6 +753,22 @@ html[data-theme="light"] .updbtn{background:rgba(255,255,255,.88);color:#8a5f12}
 .updit .t{margin:5px 0 6px;font:600 15px/1.25 system-ui,sans-serif;color:var(--txt)}
 .updit .t em{font-style:normal;margin-left:6px;padding:2px 7px;border-radius:8px;background:rgba(255,201,60,.16);color:var(--gold);font-size:10px;letter-spacing:.06em;vertical-align:2px}
 .updit ul{margin:0;padding-left:18px;color:var(--mut);font-size:13px;line-height:1.5}
+
+/* статистика игры */
+#s-gstats{padding-bottom:96px}
+.gskpi{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:6px 0 14px}
+.gskpi div{padding:12px;border-radius:16px;background:var(--card);border:1px solid var(--line);text-align:center}
+.gskpi b{display:block;font:700 26px/1.1 var(--disp);color:var(--gold)}
+.gskpi span{display:block;margin-top:4px;color:var(--mut);font-size:12px}
+.gsh{margin:18px 2px 8px;font:600 14px/1.2 system-ui;color:var(--txt)}
+.gsh small{display:block;margin-top:3px;color:var(--mut);font-weight:400;font-size:12px}
+.gsrow{display:grid;grid-template-columns:104px 1fr 38px;gap:8px;align-items:center;margin:5px 0;font-size:12px;color:var(--mut)}
+.gsbar{height:10px;border-radius:6px;background:var(--card2);overflow:hidden}
+.gsbar i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#e4c27a,#b56bff)}
+.gsrow b{color:var(--txt);text-align:right}
+.gsq{padding:10px 12px;margin:6px 0;border-radius:14px;background:var(--card);border:1px solid var(--line);font-size:13px;line-height:1.35}
+.gsq .m{margin-top:5px;color:var(--mut);font-size:12px}
+.gsq .m b{color:var(--gold)}
 </style>
 
 
@@ -1103,6 +1119,14 @@ html[data-theme="light"] .updbtn{background:rgba(255,255,255,.88);color:#8a5f12}
 </section>
 
 <!-- Правила -->
+<!-- Статистика игры -->
+<section id="s-gstats" class="screen">
+  <div class="top"><button class="btn alt small" id="gsBack">← Назад</button></div>
+  <h1>📊 Статистика игры</h1>
+  <p class="sub">Как играют все игроки</p>
+  <div id="gsBox"><div class="empty">Загружаем…</div></div>
+</section>
+
 <section id="s-faq" class="screen rules">
   <div class="top"><button class="btn alt small" id="faqBack">← Назад</button></div>
   <h1>❓ FAQ</h1>
@@ -1217,6 +1241,7 @@ html[data-theme="light"] .updbtn{background:rgba(255,255,255,.88);color:#8a5f12}
     <button type="button" class="shi" data-act="modes">🎮 Виды игр</button>
     <button type="button" class="shi" data-act="rules">📖 Правила</button>
     <button type="button" class="shi" data-act="faq">❓ FAQ</button>
+    <button type="button" class="shi" data-act="gstats">📊 Статистика</button>
   </div>
   <div class="lab" style="text-align:center;margin:4px 0">Тема оформления</div><div class="thpick" id="thPick"></div>
   <div class="setrow"><button class="btn alt small" id="pwaBtn" type="button" hidden>📲 Установить на телефон</button></div>
@@ -1541,7 +1566,7 @@ window.addEventListener("unhandledrejection",e=>bootFail(String((e.reason&&e.rea
 })();
 
 /* ---------- навигация ---------- */
-const SCREENS={pprof:drawPprof,suggest:drawSuggest,home:drawHome,me:drawMe,teams:drawTeams,team:drawTeam,challenge:drawChallenge,rank:drawRank,profile:drawProfile,newteam:drawNewTeam,players:drawPlayers};
+const SCREENS={pprof:drawPprof,suggest:drawSuggest,home:drawHome,me:drawMe,teams:drawTeams,team:drawTeam,challenge:drawChallenge,rank:drawRank,profile:drawProfile,newteam:drawNewTeam,players:drawPlayers,gstats:drawGStats};
 function nav(id,arg){cur=id;curArg=arg;show("s-"+id);(SCREENS[id]||(()=>{}))();scrollTo(0,0)}
 function refresh(){
   if(code){ if(cur==="game"||cur==="lobby"||cur==="end"||cur==="boot"||cur==="game-wait")renderGame(); return }
@@ -1573,6 +1598,7 @@ document.addEventListener("click",e=>{
   else if(k==="rank"){rankBack=cur;if(code&&game&&MODES[game.mode])rankMode=game.mode;nav("rank")}
   else if(k==="rules"){if(cur!=="modes")rulesBack=cur;show("s-rules");scrollTo(0,0)}
   else if(k==="modes"){rulesBack=cur;show("s-modes");scrollTo(0,0)}
+  else if(k==="gstats"){rulesBack=cur;nav("gstats")}
   else if(k==="faq"){if(cur!=="modes")rulesBack=cur;show("s-faq");scrollTo(0,0)}
   else if(k==="editprof"){draft={photo:(ME&&ME.photo)||"",charIdx:-1,create:false};nav("profile")}
   else if(k==="new")newGame(m);
@@ -3214,7 +3240,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   bg.onclick=closeSh;
   sh.addEventListener("click",e=>{if(e.target.closest("[data-act]"))closeSh()});
   addEventListener("keydown",e=>{if(e.key==="Escape")closeSh()});
-  new MutationObserver(()=>{if(!sh.hidden&&!["s-home","s-rank","s-teams","s-me","s-players","s-suggest","s-pprof"].includes(document.body.dataset.scr))closeSh()}).observe(document.body,{attributes:true,attributeFilter:["data-scr"]});
+  new MutationObserver(()=>{if(!sh.hidden&&!["s-home","s-rank","s-teams","s-me","s-players","s-suggest","s-pprof","s-gstats"].includes(document.body.dataset.scr))closeSh()}).observe(document.body,{attributes:true,attributeFilter:["data-scr"]});
 })();
 
 /* ---------- печатающаяся подсказка в поле кода ---------- */
@@ -3255,6 +3281,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+ {id:"u9",d:"28 октября",t:"Статистика игры",items:["Раздел «📊 Статистика» в меню «Ещё»","Сколько игроков и игр, какие режимы популярнее","Самые сложные и самые лёгкие вопросы","На каком вопросе чаще всего выбывают в блице"]},
  {id:"u8",d:"28 октября",t:"Таблица обновлений",items:["Кнопка «Обновления» слева внизу на главной","Красная точка, пока не прочитаете новое"]},
  {id:"u7",d:"28 октября",t:"Звук на телефонах",items:["Музыка и звуки меньше лагают на мобильных","Облегчённое эхо и меньше фоновых голосов"]},
  {id:"u6",d:"28 октября",t:"Новая плашка «Сделано для»",items:["Премиальный вид: стекло, золотая рамка, курсив"]},
@@ -3277,6 +3304,37 @@ const UPDATES=[
   addEventListener("keydown",e=>{if(e.key==="Escape"&&!box.hidden)open(false)});
   mark();
 })();
+
+/* ---- статистика игры ---- */
+let GSQ=null;
+$("gsBack").onclick=()=>nav(rulesBack&&rulesBack!=="gstats"&&rulesBack!=="rules"?rulesBack:"home");
+async function drawGStats(){
+  const box=$("gsBox");box.innerHTML='<div class="empty">Загружаем…</div>';
+  let hs=[],qs=[];
+  try{hs=(await db.collection("history").get()).docs.map(d=>d.data())}catch(e){}
+  try{qs=(await db.collection("qstats").get()).docs.map(d=>({h:d.id,...d.data()}))}catch(e){}
+  if(!$("s-gstats").classList.contains("on"))return;
+  if(!GSQ){GSQ={};BANK.forEach(q=>{GSQ[String(hstr(q.q))]=q.q})}
+  const now=Date.now(),wk=now-7*86400000,pr=Object.keys(profiles||{}).length;
+  const week=hs.filter(h=>(+h.at||0)>wk),act=new Set();week.forEach(h=>(h.ps||[]).forEach(p=>p.u&&act.add(p.u)));
+  const all=new Set();hs.forEach(h=>(h.ps||[]).forEach(p=>p.u&&all.add(p.u)));
+  const byMode={};hs.forEach(h=>{const m=h.ch?"pvp":h.mode;byMode[m]=(byMode[m]||0)+1});
+  const mx=Math.max(1,...Object.values(byMode));
+  const modeRows=Object.keys(MODES).filter(m=>byMode[m]).sort((a,b)=>byMode[b]-byMode[a]).map(m=>`<div class="gsrow"><span>${esc(MODES[m].name)}</span><div class="gsbar"><i style="width:${Math.round(100*byMode[m]/mx)}%"></i></div><b>${byMode[m]}</b></div>`).join("")||'<div class="empty">Пока нет данных</div>';
+  // блиц: на каком вопросе выбывают
+  const out=new Array(TOTAL+1).fill(0);let bg=0,win=0;
+  hs.filter(h=>h.mode==="blitz").forEach(h=>{bg++;(h.ps||[]).forEach(p=>{if(p.a){win++;return}const n=Math.max(1,Math.min(TOTAL,(+p.s||0)));out[n]++})});
+  const omx=Math.max(1,...out);
+  const outRows=bg?out.map((v,i)=>i?`<div class="gsrow"><span>Вопрос ${i}</span><div class="gsbar"><i style="width:${Math.round(100*v/omx)}%"></i></div><b>${v}</b></div>`:"").join(""):'<div class="empty">Блиц ещё не играли</div>';
+  const rows=qs.filter(x=>(+x.n||0)>=3&&GSQ[x.h]).map(x=>({q:GSQ[x.h],n:+x.n,p:Math.round(100*(+x.ok||0)/(+x.n))}));
+  const hard=[...rows].sort((a,b)=>a.p-b.p||b.n-a.n).slice(0,10),easy=[...rows].sort((a,b)=>b.p-a.p||b.n-a.n).slice(0,5);
+  const qc=x=>`<div class="gsq">${esc(x.q)}<div class="m"><b>${x.p}%</b> верно · ответов: ${x.n}</div></div>`;
+  box.innerHTML=`<div class="gskpi"><div><b>${pr}</b><span>игроков в игре</span></div><div><b>${act.size}</b><span>играли за неделю</span></div><div><b>${hs.length}</b><span>игр всего</span></div><div><b>${week.length}</b><span>игр за неделю</span></div></div>
+  <div class="gsh">Что играют чаще<small>Количество сыгранных игр по режимам</small></div>${modeRows}
+  <div class="gsh">Где выбывают в блице<small>${bg?`Игр в блице: ${bg}, до конца дошли: ${win}. Столбец — сколько игроков выбыло на этом вопросе`:""}</small></div>${outRows}
+  <div class="gsh">Самые сложные вопросы<small>Меньше всего верных ответов (от 3 ответов)</small></div>${hard.length?hard.map(qc).join(""):'<div class="empty">Пока мало данных: нужно хотя бы 3 ответа на вопрос</div>'}
+  ${easy.length?`<div class="gsh">Самые лёгкие вопросы</div>${easy.map(qc).join("")}`:""}`;
+}
 </script>
 
 </body>
