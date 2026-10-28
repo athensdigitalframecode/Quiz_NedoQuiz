@@ -707,7 +707,7 @@ html[data-theme="sunset"]{--b1:#ffd0a3;--b2:#ffa45c;--b3:#d9733a;--bg:#12060c;--
 .thpick button.on i{border-color:var(--gold)}
 @keyframes muspulse{0%,100%{box-shadow:0 0 0 0 rgba(var(--gr),.55)}60%{box-shadow:0 0 0 12px rgba(var(--gr),0)}}
 #musBtn.wait{animation:muspulse 1.6s ease-out infinite}
-.sharerow{display:flex;justify-content:center;margin:-2px 0 12px}
+.sharerow{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:-2px 0 12px}
 .sharerow .btn{width:auto;display:inline-block;padding:9px 16px;font-size:13px}
 </style>
 
@@ -767,7 +767,7 @@ html[data-theme="sunset"]{--b1:#ffd0a3;--b2:#ffa45c;--b3:#d9733a;--bg:#12060c;--
 <section id="s-home" class="screen">
   <h1>Квиз <em>или</em> Недоквиз</h1>
   <p class="sub">Блиц-квиз · дуэли команд · массовые турниры</p>
-  <div class="sharerow"><button class="btn alt small" id="shareHome" type="button">📨 Поделиться игрой</button></div>
+  <div class="sharerow"><button class="btn alt small" id="shareHome" type="button">📨 Поделиться</button><button class="btn alt small" id="shareTg" type="button">✈️ В Telegram</button></div>
   <div class="card guestcard" id="guestBox">
     <h2>Чтобы играть, создайте аккаунт</h2>
     <p>Профиль нужен, чтобы сохранялись рейтинг, команды и достижения.</p>
@@ -1455,7 +1455,7 @@ document.addEventListener("click",e=>{
   if(g){e.preventDefault();e.stopPropagation();guestGo(g.dataset.guest);return}
   if(e.target.closest("#auBack")){e.preventDefault();e.stopPropagation();guestHome();return}
   const home=e.target.closest("#s-home");
-  if(home&&!e.target.closest("#guestBox,a.donate,#shareHome")&&e.target.closest("button,a,input,select,.mode,.chip,[data-act],.chipsmore,label")){e.preventDefault();e.stopPropagation();guestGo("up")}
+  if(home&&!e.target.closest("#guestBox,a.donate,#shareHome,#shareTg")&&e.target.closest("button,a,input,select,.mode,.chip,[data-act],.chipsmore,label")){e.preventDefault();e.stopPropagation();guestGo("up")}
 },true);
 document.addEventListener("focusin",e=>{if(document.body.classList.contains("guest")&&e.target.closest&&e.target.closest("#s-home input,#s-home select")&&!e.target.closest("#guestBox")){e.target.blur();guestGo("up")}});
 
@@ -2854,10 +2854,14 @@ $("invite").onclick=async()=>{
   setTimeout(()=>b.textContent=old,2200);
 };
 $("shareHome").onclick=async()=>{
-  const b=$("shareHome"),old="📨 Поделиться игрой",txt="Го играть в «Квиз или Недоквиз»! 🎯 Блиц-квиз, дуэли команд и турниры для своих.",url=GAME_URL;
+  const b=$("shareHome"),old="📨 Поделиться",txt="Го играть в «Квиз или Недоквиз»! 🎯 Блиц-квиз, дуэли команд и турниры для своих.",url=GAME_URL;
   try{if(navigator.share){await navigator.share({title:"Квиз или Недоквиз",text:txt,url});return}}catch(e){if(e&&e.name==="AbortError")return}
   try{await navigator.clipboard.writeText(txt+"\n"+url);b.textContent="Ссылка скопирована ✓"}catch(e){b.textContent=url}
   setTimeout(()=>b.textContent=old,2400);
+};
+$("shareTg").onclick=()=>{
+  const txt="Го играть в «Квиз или Недоквиз»! 🎯 Блиц-квиз, дуэли команд и турниры для своих.";
+  window.open("https://t.me/share/url?url="+encodeURIComponent(GAME_URL)+"&text="+encodeURIComponent(txt),"_blank","noopener");
 };
 const ONB=[
   {e:"🎯",t:"Как играть",p:"Нажмите «Новая игра», выберите режим и отправьте друзьям код из четырёх букв. Они вводят его на главной странице. Когда все нажмут «Я готов», игра стартует. Можно играть и одному."},
