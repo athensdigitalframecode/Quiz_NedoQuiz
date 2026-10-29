@@ -901,6 +901,13 @@ body[data-scr=s-tv] .bnav,body[data-scr=s-tv] #donate,body[data-scr=s-tv] #updBt
 .pwabar[hidden]{display:none}
 .pwat{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}.pwat small{color:#aab3cc;font-size:12px;line-height:1.3}
 .pwax{background:none;border:0;color:#aab3cc;font-size:24px;line-height:1;padding:0 4px;cursor:pointer}
+
+.dlgbg{position:fixed;inset:0;z-index:90;background:rgba(5,8,20,.72);display:grid;place-items:center;padding:16px}
+.dlg{width:100%;max-width:420px;background:#162046;border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.dlg h2{margin:0 0 8px}.dlg p{margin:0 0 10px;line-height:1.4}.dlg input{width:100%;box-sizing:border-box}
+.dlgrow{display:flex;gap:10px;margin-top:12px}.dlgrow .btn{flex:1}
+.dangerbtn{color:#ff8a8a!important;border-color:rgba(255,120,120,.5)!important}
+.dlgrow .dangerbtn{background:rgba(220,60,60,.25)}.dlgrow .dangerbtn:disabled{opacity:.4}
 </style>
 
 
@@ -1690,7 +1697,7 @@ async function boot(){
   document.body.classList.remove("guest");$("auBack").hidden=true;
   await Promise.all([
     sub(db.collection("profiles"),s=>{profiles={};s.docs.forEach(d=>profiles[d.id]=d.data());ME=profiles[uid]||null}),
-    sub(db.collection("teams"),s=>{teams={};s.docs.forEach(d=>teams[d.id]=d.data())}),
+    sub(db.collection("teams"),s=>{teams={};s.docs.forEach(d=>teams[d.id]=d.data());if(ME&&ME.team&&!teams[ME.team]){const t=ME.team;setTimeout(()=>{if(ME&&ME.team===t&&!teams[t])db.doc("profiles/"+uid).update({team:""}).catch(()=>{})},2500)}}),
     sub(db.collection("disputes"),s=>{DISPS={};s.docs.forEach(d=>DISPS[d.id]=d.data())}),
     sub(db.collection("dailyans").where("key","==",dayKey()),s=>{DAILY={};s.docs.forEach(d=>DAILY[d.data().u]=d.data())}),
     sub(db.collection("suggest"),s=>{SUG={};s.docs.forEach(d=>SUG[d.id]=d.data())}),
@@ -1796,6 +1803,7 @@ document.addEventListener("click",e=>{
   else if(k==="jointeam")joinTeam(id);
   else if(k==="leaveteam")joinTeam("");
   else if(k==="mkcap")setCaptain(id);
+  else if(k==="delteam")askDelTeam(id);
   else if(k==="clrlogo"){db.doc("teams/"+curArg).update({logo:""}).catch(()=>{})}
 });
 let rankBack="home",rulesBack="home";
@@ -2598,7 +2606,7 @@ async function drawTeam(){
   ms.sort((x,y)=>(y===capId)-(x===capId)||(((+profiles[x].at||0))-((+profiles[y].at||0))));
   const row=u=>`<div class="m">${pic(u)}<b style="flex:1;overflow-wrap:anywhere">${esc(nickOf(u))}${profiles[u]&&profiles[u].status?`<small class="statusline" style="display:block">${esc(profiles[u].status)}</small>`:""}</b>${u===capId?'<span class="chip2">👑 капитан</span>':""}${u===uid?'<span class="chip2">вы</span>':""}${isCap&&u!==uid?`<button class="btn alt small" data-act="mkcap" data-id="${u}">Сделать капитаном</button>`:""}</div>`;
   $("teamBox").innerHTML=`<div style="text-align:center"><div class="em teamhead" style="width:96px;height:96px;margin:0 auto;border-radius:26px;display:grid;place-items:center;font-size:50px;background:${esc(T.color||"#3b4a7a")}33;border:2px solid ${esc(T.color||"#3b4a7a")}">${emIn(T)}</div><h1 style="margin-top:12px">${esc(T.name)}</h1><p class="sub">${isCap?"Личный кабинет команды · вы капитан":"Участников: "+ms.length}</p></div>
-  ${isCap?`<div class="card capcard"><h2>Кабинет капитана</h2><p class="hint" style="margin:0 0 10px">Вы отвечаете за команду: выбираете логотип и можете передать капитанство любому участнику. Участников: <b>${ms.length}</b>.</p><div class="photo-edit"><div class="em" style="width:64px;height:64px;border-radius:18px;display:grid;place-items:center;font-size:32px;background:${esc(T.color||"#3b4a7a")}33;border:2px solid ${esc(T.color||"#3b4a7a")}">${emIn(T)}</div><div><label class="btn alt small" for="teamLogoIn" style="cursor:pointer">${T.logo?"Заменить логотип":"Загрузить логотип"}</label><input type="file" id="teamLogoIn" accept="image/*" hidden>${T.logo?'<button type="button" class="btn alt small" data-act="clrlogo" style="margin-left:8px">Убрать</button>':""}</div></div><div class="err" id="cap-err"></div></div><div class="gap"></div>`:(capId&&profiles[capId]?`<p class="hint" style="text-align:center">Капитан команды: <b>${esc(nickOf(capId))}</b> 👑</p>`:"")}
+  ${isCap?`<div class="card capcard"><h2>Кабинет капитана</h2><p class="hint" style="margin:0 0 10px">Вы отвечаете за команду: выбираете логотип и можете передать капитанство любому участнику. Участников: <b>${ms.length}</b>.</p><div class="photo-edit"><div class="em" style="width:64px;height:64px;border-radius:18px;display:grid;place-items:center;font-size:32px;background:${esc(T.color||"#3b4a7a")}33;border:2px solid ${esc(T.color||"#3b4a7a")}">${emIn(T)}</div><div><label class="btn alt small" for="teamLogoIn" style="cursor:pointer">${T.logo?"Заменить логотип":"Загрузить логотип"}</label><input type="file" id="teamLogoIn" accept="image/*" hidden>${T.logo?'<button type="button" class="btn alt small" data-act="clrlogo" style="margin-left:8px">Убрать</button>':""}</div></div><div class="err" id="cap-err"></div><button type="button" class="btn alt small dangerbtn" data-act="delteam" data-id="${id}" style="margin-top:10px">🗑️ Удалить команду</button></div><div class="gap"></div>`:(capId&&profiles[capId]?`<p class="hint" style="text-align:center">Капитан команды: <b>${esc(nickOf(capId))}</b> 👑</p>`:"")}
   <button class="btn ${mine?"alt":""}" data-act="${mine?"leaveteam":"jointeam"}" data-id="${id}">${mine?"Выйти из команды":(ME&&ME.team?"Перейти в эту команду":"Вступить в команду")}</button>
   <h2 style="margin-top:16px">Состав</h2><div class="members">${ms.map(row).join("")||'<div class="empty">Пока никого</div>'}</div>
   <h2 style="margin-top:16px">Рейтинг команды</h2><div id="teamStats" class="card"><div class="empty">Загружаем…</div></div>`;
@@ -2612,6 +2620,24 @@ document.addEventListener("change",async e=>{
   try{const logo=await readSquare(f,160);await db.doc("teams/"+id).update({logo})}catch(err){const x=$("cap-err");if(x)x.textContent="Не удалось сохранить логотип"}
   e.target.value="";
 });
+function askDelTeam(id){
+  const T=teams[id];if(!T||(T.captain||T.owner)!==uid)return;
+  const n=members(id).length,w=document.createElement("div");w.className="dlgbg";
+  w.innerHTML=`<div class="dlg" role="dialog" aria-modal="true"><h2>Удалить команду?</h2><p>Команда «${esc(T.name)}» будет удалена безвозвратно. Участников: ${n}, все они останутся без команды. Рейтинг команды тоже пропадёт.</p><p class="hint">Для подтверждения введите название команды:</p><input type="text" id="dlgIn" autocomplete="off" placeholder="${esc(T.name)}"><div class="err" id="dlgErr"></div><div class="dlgrow"><button type="button" class="btn alt" id="dlgNo">Отмена</button><button type="button" class="btn dangerbtn" id="dlgYes" disabled>Удалить</button></div></div>`;
+  document.body.appendChild(w);
+  const inp=w.querySelector("#dlgIn"),yes=w.querySelector("#dlgYes"),close=()=>w.remove();
+  inp.oninput=()=>{yes.disabled=norm(inp.value)!==norm(T.name)};
+  w.querySelector("#dlgNo").onclick=close;w.onclick=e=>{if(e.target===w)close()};
+  yes.onclick=async()=>{yes.disabled=true;try{await doDelTeam(id);close()}catch(e){w.querySelector("#dlgErr").textContent="Не удалось удалить: "+(e.message||e.code||"ошибка");yes.disabled=false}};
+  setTimeout(()=>inp.focus(),50);
+}
+async function doDelTeam(id){
+  const T=teams[id];if(!T||(T.captain||T.owner)!==uid)throw new Error("нужны права капитана");
+  for(const u of members(id)){try{await db.doc("profiles/"+u).update({team:""});if(profiles[u])profiles[u].team=""}catch(e){}}
+  await db.doc("teams/"+id).delete();delete teams[id];
+  for(const m of ["duel","mass"]){try{await db.doc(`stats/${m}/teams/${id}`).delete()}catch(e){}}
+  if(ME)ME.team="";statsCache={};nav("teams");
+}
 async function setCaptain(u){
   const id=curArg,T=teams[id];if(!T||!ME||ME.team!==id||(T.captain||T.owner)!==uid||!profiles[u]||profiles[u].team!==id)return;
   try{await db.doc("teams/"+id).update({captain:u})}catch(e){}
@@ -3796,6 +3822,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
  {id:"u18",d:"29 октября",t:"Тематические наверху",items:["Пункт «Тематические (скоро)» теперь первый в списке тем"]},
+ {id:"u20",d:"29 октября",t:"Удаление команды",items:["Капитан может удалить свою команду: в кабинете капитана есть кнопка «Удалить команду», для подтверждения нужно ввести название"]},
  {id:"u19",d:"29 октября",t:"Рейтинг дуэлей, жалобы и установка",items:["Дуэли 1×1 теперь с рейтингом как в шахматах: победа над сильным соперником даёт больше очков, после игры видно, сколько вы получили или потеряли, и есть кнопка «Таблица дуэлянтов»","На экране ответа появилась кнопка «Ошибка в вопросе». Если на вопрос пожаловались трое разных игроков, он перестаёт выпадать в новых играх","На телефоне при повторном заходе игра предложит добавить её на главный экран"]},
  {id:"u17",d:"29 октября",t:"Пароли надёжнее",items:["При регистрации и смене пароля нужно минимум 8 символов, слишком простые пароли не принимаются","Вход со старым паролем работает как раньше"]},
  {id:"u16",d:"29 октября",t:"Скоро: тематические вопросы",items:["В списке тем появился пункт «Тематические», он пока в разработке"]},
