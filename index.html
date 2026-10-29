@@ -800,6 +800,23 @@ body.on-home.at-end a.donate:not([hidden]){opacity:1!important;transform:none!im
 .feedi{display:flex;justify-content:space-between;gap:8px;padding:7px 12px;margin-bottom:5px;border-radius:10px;background:rgba(255,255,255,.04);font-size:13px}
 .feedi small{opacity:.55;white-space:nowrap}
 body.guest #rankbar,body.guest #nowplay,body.guest #boards{display:none!important}
+
+.stk{display:flex;align-items:center;gap:10px;margin:0 2px 10px;padding:9px 12px;border-radius:12px;background:linear-gradient(90deg,rgba(255,138,30,.18),rgba(255,138,30,.05));border:1px solid rgba(255,150,50,.35);font-size:13px}
+.stk .fl{font-size:20px;filter:drop-shadow(0 0 6px rgba(255,140,30,.7))}.stk b{color:#ffb347}
+.stk.risk{border-color:rgba(255,90,70,.55);animation:stkp 2s ease-in-out infinite}
+.stk.off{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1);opacity:.85}.stk.off .fl{filter:grayscale(1)}
+.stk .ck{margin-left:auto;font-style:normal;color:#3ddc84;font-weight:700}
+@keyframes stkp{50%{box-shadow:0 0 0 4px rgba(255,90,70,.15)}}
+.resumebtn{margin:0 0 10px;background:linear-gradient(135deg,#2fe38a,#1fb36a)!important;color:#06281a!important;display:flex;flex-direction:column;align-items:center;gap:2px}
+.resumebtn small{font-weight:500;opacity:.8;font-size:12px}
+.rcts{display:flex;flex-direction:column;gap:8px;margin-bottom:6px}
+.rct{padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}
+.rcn{display:flex;align-items:center;gap:8px;margin-bottom:6px}.rcn b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}
+.rcn .rcg{font-size:13px;white-space:nowrap}
+.rce{display:flex;gap:6px}.rce button{flex:1;padding:6px 0;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);font-size:18px;cursor:pointer}
+.rce button.on{border-color:#f5c542;background:rgba(245,197,66,.18)}
+body.guest #streak,body.guest #resume{display:none!important}
+.rcn .pic{width:34px;height:34px;border-radius:50%;object-fit:cover;flex:none}
 </style>
 
 
@@ -867,6 +884,8 @@ body.guest #rankbar,body.guest #nowplay,body.guest #boards{display:none!importan
     <button class="btn alt small" type="button" data-guest="in">Уже есть аккаунт? Войти</button>
   </div>
   <div class="me-bar" data-act="me"><img class="pic" id="homePic" alt=""><div class="nm"><b id="homeNick"></b><small id="homeStatus" class="statusline"></small><small id="homeTeam"></small></div><span class="chip2" id="homeRank"></span></div>
+  <div id="streak"></div>
+  <div id="resume"></div>
   <div id="rankbar"></div>
   <div id="invites"></div>
   <div id="nowplay"></div>
@@ -1061,6 +1080,10 @@ body.guest #rankbar,body.guest #nowplay,body.guest #boards{display:none!importan
   <h1 id="endTitle">🏆 Финал</h1>
   <div id="endBody"></div>
   <div id="endExtra"></div>
+  <div class="card chat" id="chat2" hidden>
+    <div class="chlog" id="chLog2"></div>
+    <div class="chform"><input type="text" id="chIn2" maxlength="140" placeholder="Комментарий после игры…" autocomplete="off"><button class="btn small" id="chSend2" type="button">➤</button></div>
+  </div>
   <div class="gap"></div>
   <button class="btn alt" data-act="rank">🏆 Рейтинг и статистика</button>
   <div class="gap"></div>
@@ -1488,6 +1511,7 @@ function sbCol(path,flt){
 function tgNotify(kind,to,extra){try{const t=(Array.isArray(to)?to:[to]).filter(x=>x&&x!==uid);if(t.length)sb.functions.invoke("tg-notify",{body:{kind,to:t,...(extra||{})}}).catch(()=>{})}catch(e){}}
 
 /* ---- вход ---- */
+let PJ=(()=>{try{const m=/[#&?]g=([A-Za-z0-9]{4})\b/.exec(location.hash+location.search);if(m){const c=m[1].toUpperCase();localStorage.setItem("quiz_pj",JSON.stringify({c,at:Date.now()}));return c}const o=JSON.parse(localStorage.getItem("quiz_pj")||"null");if(o&&Date.now()-o.at<6*3600*1000)return o.c}catch(e){}return""})();
 let auMode="in",recovering=/type=recovery/.test(location.hash);
 function authShow(){show("s-auth");auSet(recovering?"recover":"in")}
 function auSet(m){
@@ -1555,7 +1579,7 @@ async function boot(){
   if(teams.sbornaya){try{await db.doc("teams/sbornaya").delete()}catch(e){} delete teams.sbornaya}
   if(ME&&ME.team&&!teams[ME.team]){try{await db.doc("profiles/"+uid).update({team:""});ME.team=""}catch(e){}}
   $("code-in").value="";
-  if(!ME){draft={photo:"",charIdx:-1,create:true};nav("profile")}else nav("home");
+  if(!ME){draft={photo:"",charIdx:-1,create:true};nav("profile")}else{nav("home");if(PJ){const c=PJ;PJ="";try{localStorage.removeItem("quiz_pj")}catch(e){}try{history.replaceState(null,"",location.pathname)}catch(e){}openGame(c)}}
 }
 /* ---- гость: главная видна, игры закрыты до регистрации ---- */
 function guestHome(){
@@ -1725,8 +1749,8 @@ function drawHome(){
   const sc=statsCache[uid];
   $("homeRank").textContent=sc?`${sc.top.i} ${sc.top.n}`:"…";
   if(!sc)loadMyStats().then(()=>{if(cur==="home")drawHome()});
-  if(!ACH)loadAch().then(()=>{if(cur==="home")drawDaily()});
-  drawDaily();drawRankBar();drawBoards();
+  if(!ACH)loadAch().then(()=>{if(cur==="home"){drawDaily();drawStreak()}});
+  drawDaily();drawStreak();drawResume();drawRankBar();drawBoards();
   const mine=ME.team;
   const items=[];
   Object.keys(challenges).sort((a,b)=>((+challenges[b].createdAt||0))-((+challenges[a].createdAt||0))).forEach(id=>{
@@ -1814,6 +1838,62 @@ async function drawBoards(){
     html+=`<div class="lab">Новое от друзей</div>`+feed.slice(0,5).map(f=>`<div class="feedi"><span>${f[1]}</span><small>${ago(f[0])}</small></div>`).join("")}
   el.innerHTML=html;
 }
+
+/* ---- серия, продолжить, реакции ---- */
+function drawStreak(){
+  const el=$("streak");if(!el)return;
+  const a=ACH;if(!a){el.innerHTML="";return}
+  const st=curStreak(a),today=a.lastDay===dayKey();
+  if(!st){el.innerHTML=`<div class="stk off"><span class="fl">🔥</span><span>Сыграйте сегодня, чтобы начать серию дней подряд</span></div>`;return}
+  const w=st%10===1&&st%100!==11?"день":(st%10>=2&&st%10<=4&&(st%100<10||st%100>=20))?"дня":"дней";
+  el.innerHTML=`<div class="stk${today?"":" risk"}"><span class="fl">🔥</span><span>Играете <b>${st} ${w}</b> подряд${today?"":". Сыграйте сегодня, чтобы не потерять серию"}</span>${today?'<i class="ck">✓</i>':""}</div>`;
+}
+let resChk={c:"",at:0,ok:false};
+async function drawResume(){
+  const el=$("resume");if(!el)return;
+  let o=null;try{o=JSON.parse(LSg("quiz_last")||"null")}catch(e){}
+  if(!o||!o.c||Date.now()-o.at>4*3600*1000||code){el.innerHTML="";return}
+  if(resChk.c!==o.c||Date.now()-resChk.at>15000){
+    resChk={c:o.c,at:Date.now(),ok:false,m:""};
+    try{
+      const g=await db.doc("games/"+o.c).get(),p=await db.doc(`games/${o.c}/players/${uid}`).get();
+      const d=g.exists?g.data():null;
+      resChk.ok=!!(d&&d.status!=="end"&&p.exists&&!(p.data()||{}).dq&&!d.ch);resChk.m=d?d.mode:"";
+    }catch(e){}
+    if(cur!=="home")return;
+  }
+  if(!resChk.ok){el.innerHTML="";return}
+  el.innerHTML=`<button class="btn resumebtn" type="button" data-act="open" data-id="${esc(o.c)}">▶ Продолжить игру<small>${esc(((MODES[resChk.m]||{}).name||"Игра").replace(/^[^А-Яа-я]+/,""))} · код ${esc(o.c)}</small></button>`;
+}
+let reacts=[],unsubR=null;const REM=["🔥","😂","👏","😮","💀"];
+function reactStart(){reactStop();reacts=[];try{unsubR=gref.collection("react").onSnapshot(s=>{reacts=s.docs.map(d=>({id:d.id,...d.data()}));if(cur==="end")endExtra()},()=>{})}catch(e){}}
+function reactStop(){if(unsubR){unsubR();unsubR=null}}
+async function reactSet(to,e){
+  if(!gref||!uid||to===uid)return;
+  const id=uid+"_"+to,old=reacts.find(r=>r.id===id);
+  try{if(old&&old.e===e)await gref.collection("react").doc(id).delete();else await gref.collection("react").doc(id).set({f:uid,t:to,e,at:Date.now()})}catch(x){}
+}
+function reactHtml(){
+  if(!game||game.ch||players.length<2||game.mode==="solo")return"";
+  const ps=[...players].filter(p=>p.id!==uid).sort((a,b)=>(b.pts|0)-(a.pts|0)).slice(0,10);
+  if(!ps.length)return"";
+  return `<div class="gap"></div><div class="lab">Реакции на игру</div><div class="rcts">`+ps.map(p=>{
+    const got=reacts.filter(r=>r.t===p.id),cnt={};got.forEach(r=>cnt[r.e]=(cnt[r.e]||0)+1);
+    const mine=(reacts.find(r=>r.id===uid+"_"+p.id)||{}).e;
+    return `<div class="rct"><div class="rcn">${pic(p.id)}<b>${esc(nickOf(p.id))}</b><span class="rcg">${Object.keys(cnt).map(e=>`${e}${cnt[e]>1?"×"+cnt[e]:""}`).join(" ")}</span></div><div class="rce">${REM.map(e=>`<button type="button" class="${mine===e?"on":""}" data-rt="${esc(p.id)}" data-re="${e}">${e}</button>`).join("")}</div></div>`}).join("")+`</div>`;
+}
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-rt]");if(b){e.preventDefault();reactSet(b.dataset.rt,b.dataset.re)}});
+let chat2Sig="";
+function drawChat2(){
+  const box=$("chat2");if(!box||!game)return;
+  const on=game.status==="end"&&game.mode!=="solo"&&!game.ch&&players.length>1;box.hidden=!on;if(!on)return;
+  const sig=chatMsgs.map(m=>m.id).join(",");if(sig===chat2Sig)return;chat2Sig=sig;
+  const log=$("chLog2");
+  log.innerHTML=chatMsgs.length?chatMsgs.map(m=>`<div class="cm${m.u===uid?" me":""}"><b>${esc(nickOf(m.u))}</b> ${esc(String(m.t||"").slice(0,140))}</div>`).join(""):'<div class="empty" style="padding:6px 0">Напишите комментарий к игре</div>';
+  log.scrollTop=log.scrollHeight;
+}
+$("chSend2").onclick=()=>chatSend($("chIn2"));
+$("chIn2").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();chatSend($("chIn2"))}};
 async function loadMyStats(){
   const out={};let best=RANKS[0],bestR=-1;
   for(const m of Object.keys(MODES)){
@@ -1999,6 +2079,7 @@ function endExtra(){
   const el=$("endExtra");if(!el||!game)return;
   const rec=REC[code]||{},keys=Object.keys(rec).map(Number).sort((a,b)=>a-b),nw=ENDNEW[code]||[];
   let h=nw.length?`<div class="invite"><span>Новое достижение: ${nw.map(id=>esc(ACHS.find(x=>x.id===id).n)).join(", ")}</span></div>`:"";
+  h+=reactHtml();
   h+=`<div class="gap"></div><button class="btn" data-act="share">Поделиться результатом</button>`;
   if(players.length>1&&!game.ch)h+=`<div class="gap"></div><button class="btn alt" data-act="table">🖼️ ${game.mode==="evening"?"Сохранить итоги вечера":"Сохранить таблицу результатов"}</button>`;
   if(keys.length)h+=`<div class="gap"></div><button class="btn alt" data-act="review">${revOpen?"Скрыть разбор":"Разбор вопросов"}</button>`;
@@ -2270,7 +2351,7 @@ async function openGame(c){
 /* ---------- сессия игры ---------- */
 async function enter(c){
   leaveGame(true);code=c;loaded=false;game=null;players=[];endAt={};revealAt={};introAt={};tried={};shownQ=-1;readySince=0;ansAllSince=0;
-  gref=db.doc("games/"+c);pcol=gref.collection("players");chatStart();
+  gref=db.doc("games/"+c);pcol=gref.collection("players");chatStart();reactStart();LSs("quiz_last",JSON.stringify({c,at:Date.now()}));
   try{if(location.hash)history.replaceState(null,"",location.pathname+location.search)}catch(e){}$("code-in").value="";
   cur="lobby";show("s-lobby");
   await new Promise(res=>{
@@ -2282,7 +2363,7 @@ async function enter(c){
 }
 function leaveGame(silent){
   if(unsubG){unsubG();unsubG=null}if(unsubP){unsubP();unsubP=null}
-  if(typeof chatStop==="function")chatStop();
+  if(typeof chatStop==="function")chatStop();if(typeof reactStop==="function")reactStop();
   code=null;game=null;players=[];gref=pcol=null;
 }
 document.querySelectorAll("[data-leave]").forEach(b=>b.onclick=async()=>{
@@ -2721,7 +2802,7 @@ function drawEndCh(){
     $("endBody").innerHTML=`<div class="champ"><div class="av">${pic(uid)}</div><h2>${my} очков</h2><p>${p.okc|0} из ${TOTAL} верно</p></div><p class="sub">Результат дуэли появится, когда сыграет ${esc(nickOf(opp))}. Он будет на главном экране.</p>`;
   }
 }
-function drawEnd(){drawEnd0();endExtra();onEnd()}
+function drawEnd(){drawEnd0();endExtra();drawChat2();onEnd()}
 function drawEnd0(){
   if(game.ch){drawEndCh();return}
   const m=game.mode,ps=players;
@@ -3015,12 +3096,12 @@ $("fsBtn").onclick=()=>{uiFs=(uiFs+1)%3;LSs("quiz_fs",uiFs);uiApply()};
 uiApply();
 $("invite").onclick=async()=>{
   if(!code)return;
-  const g=game||{},mn=(MODES[g.mode]||{}).name||"квиз",
-    txt=`Го играть в «Квиз или Недоквиз»! 🎯\nРежим: ${mn}\nКод игры: ${code}\nОткрой игру и введи код: ${GAME_URL}`;
+  const g=game||{},mn=(MODES[g.mode]||{}).name||"квиз",link=GAME_URL+"#g="+code,
+    txt=`Го играть в «Квиз или Недоквиз»! 🎯\nРежим: ${mn}\nЖми на ссылку и сразу попадёшь в игру (код ${code}):\n${link}`;
   const b=$("invite"),old="📨 Позвать друзей";
   try{if(navigator.share){await navigator.share({text:txt});return}}catch(e){if(e&&e.name==="AbortError")return}
-  try{await navigator.clipboard.writeText(txt);b.textContent="Сообщение скопировано ✓"}catch(e){b.textContent="Код: "+code}
-  setTimeout(()=>b.textContent=old,2200);
+  const w=window.open("https://t.me/share/url?url="+encodeURIComponent(link)+"&text="+encodeURIComponent(`Го играть в «Квиз или Недоквиз»! 🎯 Режим: ${mn}. Код: ${code}`),"_blank","noopener");
+  if(!w){try{await navigator.clipboard.writeText(txt);b.textContent="Сообщение скопировано ✓"}catch(e){b.textContent="Код: "+code}setTimeout(()=>b.textContent=old,2200)}
 };
 $("shareHome").onclick=async()=>{
   const b=$("shareHome"),old="📨 Поделиться",txt="Го играть в «Квиз или Недоквиз»! 🎯 Блиц-квиз, дуэли команд и турниры для своих.",url=GAME_URL;
@@ -3076,6 +3157,7 @@ function chatStart(){
 }
 function chatStop(){if(unsubC){unsubC();unsubC=null}chatMsgs=[];chatSig=""}
 function drawChat(){
+  drawChat2();
   const box=$("chat");if(!box||!game)return;
   const on=game.status==="lobby"&&game.mode!=="solo"&&!game.ch;box.hidden=!on;if(!on)return;
   const sig=chatMsgs.map(m=>m.id).join(",");if(sig===chatSig)return;chatSig=sig;
@@ -3083,13 +3165,13 @@ function drawChat(){
   log.innerHTML=chatMsgs.length?chatMsgs.map(m=>`<div class="cm${m.u===uid?" me":""}"><b>${esc(nickOf(m.u))}</b> ${esc(String(m.t||"").slice(0,140))}</div>`).join(""):'<div class="empty" style="padding:6px 0">Напишите первое сообщение</div>';
   if(near||chatMsgs.length<3)log.scrollTop=log.scrollHeight;
 }
-async function chatSend(){
-  const inp=$("chIn"),t=inp.value.trim().slice(0,140);
+async function chatSend(inp){
+  inp=inp&&inp.tagName?inp:$("chIn");const t=inp.value.trim().slice(0,140);
   if(!t||!gref||!uid||Date.now()-chatLast<700)return;
   chatLast=Date.now();inp.value="";
   try{await gref.collection("chat").doc(uid+"_"+Date.now().toString(36)+Math.floor(Math.random()*1e3)).set({u:uid,t,at:Date.now()})}catch(e){}
 }
-$("chSend").onclick=chatSend;
+$("chSend").onclick=()=>chatSend($("chIn"));
 $("chIn").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();chatSend()}};
 /* таблица результатов картинкой */
 async function tableCard(){
@@ -3367,6 +3449,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+ {id:"u14",d:"29 октября",t:"Друзья, серия и реакции",items:["Кнопка «Позвать друзей» даёт ссылку: друг открывает её и сразу попадает в лобби","Огонёк «играете N дней подряд» на главной","Кнопка «Продолжить игру», если закрыли вкладку посреди партии","Эмодзи-реакции и комментарии после игры"]},
  {id:"u13",d:"29 октября",t:"Главная стала живее",items:["Лидеры недели: три лучших игрока","Полоска прогресса до следующего звания","«Сейчас играют»: открытые игры в один тап","«Новое от друзей»: короткая лента побед","Ещё 43 вопроса в теме «Логика и мышление»"]},
  {id:"u12",d:"29 октября",t:"Ещё 250 вопросов",items:["Новые вопросы во всех темах","Особенно прибавилось в мюзиклах и театре, видеоиграх, комиксах и аниме"]},
  {id:"u11",d:"28 октября",t:"Раунды как в «Квиз, плиз!»",items:["Во всех играх вопросы идут от лёгких к сложным, внутри раундов и от раунда к раунду","Раунды: Разминка → Картинки → Основной раунд → Финал; в Квиз-вечере: Разминка → Картинки → Блиц → Ставка","Номер и название раунда показываются над вопросом"]},
