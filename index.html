@@ -2791,6 +2791,8 @@ $("copycode").onclick=async()=>{try{await navigator.clipboard.writeText(code);$(
 const Tq=(g,q)=>{const x=bq(g,q);if(g&&g.mode==="evening"){const b=RND[rndOf(q)].t;return x&&x.c===25&&b>=25?120:b}return x&&x.c===25?120:(g&&g.time||60)};
 const Tof=q=>Tq(game,q);
 function teamScores(){const s={};teamsInGame().forEach(t=>s[t]=0);players.forEach(p=>{if(!p.dq&&p.team in s)s[p.team]+=p.pts|0});return s}
+const OKEMO=["🔥","🎯","🧠","⚡","🚀","💪","🌟","👏","😎","🏆","🤩","✨"];
+const okEmo=q=>OKEMO[hstr(String(code)+":"+q)%OKEMO.length];
 function drawGame(){
   const q=game.qi|0,run=game.status==="q",mine=me(),m=game.mode,T=Tof(q);
   if(run&&shownQ!==q){shownQ=q;popQ();capSel="";if(!endAt[q])endAt[q]=Date.now()+T*1000;ansAllSince=0}
@@ -2834,9 +2836,9 @@ function drawGame(){
   $("ans").hidden=!(game.status==="reveal"&&game.ans);$("anst").textContent=game.ans||"";flagDraw();
   const bn=$("banner");let names=[];
   if(game.status==="reveal"){
-    if(solo||pvp||ev){const ok=mine&&mine.ok===1;bn.textContent=ok?`Верно! +${mine.gain|0} очков 🔥`:"Не угадали";bn.className="banner "+(ok?"green":"red");if(pvp){const o=players.find(p=>p.id!==uid);if(o)bn.textContent+=" · соперник: "+(o.ok===1?"верно":"мимо")}}
+    if(solo||pvp||ev){const ok=mine&&mine.ok===1;bn.textContent=ok?`Верно! +${mine.gain|0} очков ${okEmo(q)}`:"Не угадали";bn.className="banner "+(ok?"green":"red");if(pvp){const o=players.find(p=>p.id!==uid);if(o)bn.textContent+=" · соперник: "+(o.ok===1?"верно":"мимо")}}
     else if(blitz){names=(game.outs||[]).map(id=>nickOf(id));
-      if(names.length){bn.textContent="Выбывают: "+names.join(", ");bn.className="banner red"}else{bn.textContent="Все остаются в игре! 🔥";bn.className="banner green"}}
+      if(names.length){bn.textContent="Выбывают: "+names.join(", ");bn.className="banner red"}else{bn.textContent="Все остаются в игре! "+okEmo(q);bn.className="banner green"}}
     else{const tt=teamsInGame().filter(t=>players.some(p=>p.team===t&&!p.dq)),k=tt.filter(t=>players.some(p=>p.team===t&&!p.dq&&p.ok===1)).length;bn.textContent=`Верно ответили команд: ${k} из ${tt.length}`;bn.className="banner "+(k?"green":"red")}
   }else{bn.textContent="";bn.className="banner"}
   if(ev&&game.status==="reveal"&&mine&&mine.gain<0)bn.textContent="Не угадали: "+mine.gain+" очков";
@@ -3822,6 +3824,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
  {id:"u18",d:"29 октября",t:"Тематические наверху",items:["Пункт «Тематические (скоро)» теперь первый в списке тем"]},
+ {id:"u22",d:"29 октября",t:"Разные смайлики за верный ответ",items:["За правильный ответ теперь показываются разные смайлики"]},
  {id:"u21",d:"29 октября",t:"Без смайликов при ошибке",items:["После неправильного ответа убраны смайлики в плашке результата"]},
  {id:"u20",d:"29 октября",t:"Удаление команды",items:["Капитан может удалить свою команду: в кабинете капитана есть кнопка «Удалить команду», для подтверждения нужно ввести название"]},
  {id:"u19",d:"29 октября",t:"Рейтинг дуэлей, жалобы и установка",items:["Дуэли 1×1 теперь с рейтингом как в шахматах: победа над сильным соперником даёт больше очков, после игры видно, сколько вы получили или потеряли, и есть кнопка «Таблица дуэлянтов»","На экране ответа появилась кнопка «Ошибка в вопросе». Если на вопрос пожаловались трое разных игроков, он перестаёт выпадать в новых играх","На телефоне при повторном заходе игра предложит добавить её на главный экран"]},
