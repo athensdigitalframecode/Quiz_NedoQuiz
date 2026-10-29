@@ -893,6 +893,14 @@ body[data-scr=s-tv] .bnav,body[data-scr=s-tv] #donate,body[data-scr=s-tv] #updBt
 .pod.p1{padding-top:5vh;background:rgba(245,197,66,.14);border:2px solid #f5c542}
 @media (max-width:760px){.tvl{grid-template-columns:1fr}.tvopts{grid-template-columns:1fr}.colgrid{grid-template-columns:repeat(3,1fr)}}
 .tchip.soon{opacity:.55;cursor:default;border-style:dashed}.tchip.soon i{background:rgba(245,197,66,.2);color:#f5c542}
+
+.flagq{display:block;margin:10px auto 0;background:none;border:1px solid rgba(255,255,255,.18);color:#c9cfe0;border-radius:999px;padding:6px 12px;font:inherit;font-size:12px;cursor:pointer}
+.flagq[hidden]{display:none}
+.flagq:disabled{opacity:.6;cursor:default}
+.pwabar{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:60;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;background:#162046;border:1px solid rgba(228,194,122,.5);box-shadow:0 8px 30px rgba(0,0,0,.45);max-width:520px;margin:0 auto}
+.pwabar[hidden]{display:none}
+.pwat{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}.pwat small{color:#aab3cc;font-size:12px;line-height:1.3}
+.pwax{background:none;border:0;color:#aab3cc;font-size:24px;line-height:1;padding:0 4px;cursor:pointer}
 </style>
 
 
@@ -1135,7 +1143,7 @@ body[data-scr=s-tv] .bnav,body[data-scr=s-tv] #donate,body[data-scr=s-tv] #updBt
     <div style="min-width:0"><div class="qno" id="qno"></div><div class="qtxt" id="qtxt"></div></div>
   </div>
   <img class="qimg" id="qimg" alt="" hidden>
-  <div class="ans" id="ans" hidden><small>Правильный ответ</small><span id="anst"></span></div>
+  <div class="ans" id="ans" hidden><small>Правильный ответ</small><span id="anst"></span><button type="button" class="flagq" id="flagq" data-act="flag" hidden>⚠️ Ошибка в вопросе</button></div>
   <div class="banner" id="banner"></div>
   <div class="rxrow" id="rxRow" hidden></div>
   <div class="dqline" id="dqline"></div>
@@ -1447,7 +1455,7 @@ const qOf=(g,i)=>{const x=bq(g,i);return x?x.q:""};
 const aOf=(g,i)=>{const x=bq(g,i);return x?x.a:""};
 const optsOf=(g,i)=>{const x=bq(g,i);return x?shuffled([x.a,...x.w],rng(hstr((g.qs||[]).join(",")+":"+i))):[]};
 function pickQs(topic,plan){
-  const itm=k=>typeof k==="string"?sugItem(k.slice(2)):BANK[k],sk=sugOk().map(id=>"s_"+id).filter(k=>itm(k)),all=[...BANK.map((_,i)=>i),...sk],pool=all.filter(i=>topic<0||inTopic(itm(i),topic));
+  const itm=k=>typeof k==="string"?sugItem(k.slice(2)):BANK[k],sk=sugOk().map(id=>"s_"+id).filter(k=>itm(k)),all=[...BANK.map((_,i)=>i),...sk],HQ=hiddenQ(),okq=i=>typeof i==='string'||!HQ.size||!HQ.has(String(hstr(BANK[i].q))),pool=all.filter(i=>okq(i)&&(topic<0||inTopic(itm(i),topic)));
   const lv=x=>x.d==="e"?0:x.d==="h"?2:1,isP=x=>!!x.i,PICS=[0,2,4,7,12];
   const used=new Set(),cats=new Set(),out=[];
   const take=(src,f)=>{const c=shuffled(src.filter(i=>!used.has(i)&&f(itm(i))),Math.random);if(!c.length)return null;const nw=c.filter(i=>!seenHas(i));let g=nw.find(i=>!cats.has(itm(i).c));if(g==null)g=nw[0];if(g==null)g=c.find(i=>!cats.has(itm(i).c));return g!=null?g:c[0]};
@@ -1459,7 +1467,7 @@ function pickQs(topic,plan){
     if(i==null)i=take(pool,x=>lv(x)===L&&nl(x));
     if(i==null)i=take(pool,x=>isP(x)===P&&Math.abs(lv(x)-L)<=1);
     if(i==null)i=take(pool,()=>true);
-    if(i==null)i=take(all,()=>true);
+    if(i==null)i=take(all.filter(okq),()=>true);
     if(i==null)break;
     used.add(i);out.push(i);cats.add(itm(i).c);if(cats.size>=8)cats.clear();
   }
@@ -1762,6 +1770,8 @@ document.addEventListener("click",e=>{
   else if(k==="table")tableCard();
   else if(k==="review")toggleReview();
   else if(k==="disp")disputeQ(+a.dataset.q);
+  else if(k==="flag")flagQ();
+  else if(k==="rank-pvp"){rankBack=cur;rankMode="pvp";rankScope="players";rankPeriod="all";nav("rank")}
   else if(k==="sgv"){const s=SUG[id];if(s&&s.by!==uid){const v=+a.dataset.v,nv=s["v_"+uid]===v?0:v;s["v_"+uid]=nv;db.doc("suggest/"+id).update({["v_"+uid]:nv}).catch(()=>{});drawSuggest()}}
   else if(k==="sgr"){const s=SUG[id];if(s&&s.by!==uid&&!s["r_"+uid]){s["r_"+uid]=1;db.doc("suggest/"+id).update({["r_"+uid]:1}).catch(()=>{});drawSuggest()}}
   else if(k==="sgd"){const s=SUG[id];if(s&&s.by===uid){s.hide=true;db.doc("suggest/"+id).update({hide:true}).catch(()=>{});drawSuggest()}}
@@ -2378,6 +2388,19 @@ function endExtra(){
   if(h!==lastEx){lastEx=h;el.innerHTML=h}
 }
 async function toggleReview(){revOpen=!revOpen;lastEx="";if(revOpen)await loadQstats(REC[code]||{});endExtra()}
+const FLAG_N=3;
+const hiddenQ=()=>{const c={};Object.values(DISPS).forEach(d=>{if(d&&d.h&&d.by){(c[d.h]=c[d.h]||new Set()).add(d.by)}});const o=new Set();Object.keys(c).forEach(h=>{if(c[h].size>=FLAG_N)o.add(h)});return o};
+function flagDraw(){
+  const b=$("flagq");if(!b)return;
+  const x=game&&game.status==="reveal"?bq(game,game.qi|0):null;
+  b.hidden=!x;
+  if(x){const h=String(hstr(x.q)),done=DISPD[h+"_"+uid]||(DISPS[h+"_"+uid]);b.disabled=!!done;b.textContent=done?"✓ Жалоба отправлена":"⚠️ Ошибка в вопросе"}
+}
+async function flagQ(){
+  const x=bq(game,game.qi|0);if(!x||!uid)return;const h=String(hstr(x.q)),id=h+"_"+uid;
+  DISPD[id]=1;flagDraw();
+  try{await db.doc("disputes/"+id).set({h,q:x.q,a:x.a,by:uid,at:Date.now(),f:1})}catch(e){}
+}
 async function disputeQ(q){
   const r=(REC[code]||{})[q];if(!r)return;const id=r.h+"_"+uid;DISPD[id]=1;lastEx="";endExtra();
   try{await db.doc("disputes/"+id).set({h:r.h,q:r.q,a:r.c,by:uid,at:Date.now()})}catch(e){}
@@ -2524,8 +2547,10 @@ async function finishCh(g,ps){
   const r=await ref.collection("locks").doc("fin").acquire({holder:uid,ttlMs:25000});if(!r.acquired)return;
   if(((await ref.get()).data()||{}).statsDone)return;
   const sc=x=>x.dq?-1:(x.pts|0),winner=sc(A)===sc(B)?"":sc(A)>sc(B)?a:b,upd={};
+  const RT=await pvpRatings([a,b]);
   for(const [u,X] of [[a,A],[b,B]]){
-    const w=winner===u,d=X.dq?-20:w?20:winner?-16:0;
+    const o=u===a?b:a,OX=u===a?B:A,w=winner===u;let d=X.dq?-20:w?20:winner?-16:0;
+    if(!X.dq)d=eloD(RT[u],RT[o],OX.dq?1:w?1:winner?0:.5);
     await bump(`stats/pvp/players/${u}`,d,{win:w,score:X.dq?0:(X.pts|0)});upd["r_"+u]=d;
   }
   try{await db.doc("history/ch_"+id).set({mode:"pvp",at:Date.now(),rounds:TOTAL,winner,teams:[],ps:[{u:a,s:sc(A)<0?0:A.pts|0,k:A.okc|0,d:A.dq?1:0,dr:upd["r_"+a]},{u:b,s:sc(B)<0?0:B.pts|0,k:B.okc|0,d:B.dq?1:0,dr:upd["r_"+b]}],ch:1})}catch(e){}
@@ -2780,7 +2805,7 @@ function drawGame(){
     else if(mine&&!mine.alive)gs.textContent="Вы выбыли. Можно наблюдать за игрой";
     else gs.textContent="Вы наблюдаете за игрой";
   }
-  $("ans").hidden=!(game.status==="reveal"&&game.ans);$("anst").textContent=game.ans||"";
+  $("ans").hidden=!(game.status==="reveal"&&game.ans);$("anst").textContent=game.ans||"";flagDraw();
   const bn=$("banner");let names=[];
   if(game.status==="reveal"){
     if(solo||pvp||ev){const ok=mine&&mine.ok===1;bn.textContent=ok?`Верно! +${mine.gain|0} очков 🔥`:"Не угадали 😅";bn.className="banner "+(ok?"green":"red");if(pvp){const o=players.find(p=>p.id!==uid);if(o)bn.textContent+=" · соперник: "+(o.ok===1?"верно":"мимо")}}
@@ -3025,17 +3050,24 @@ async function bump(path,delta,o){
   const r=Math.max(0,(d.r==null?1000:+d.r)+delta);
   await ref.set({g:(+d.g||0)+1,w:(+d.w||0)+(o.win?1:0),r,pts:(+d.pts||0)+(o.score||0),best:Math.max(+d.best||0,o.score||0),last:Date.now()});
 }
+const eloExp=(a,b)=>1/(1+Math.pow(10,(b-a)/400));
+async function pvpRatings(ids){const o={};for(const u of ids){try{const s=await db.doc(`stats/pvp/players/${u}`).get();o[u]=s.exists&&s.data().r!=null?+s.data().r:1000}catch(e){o[u]=1000}}return o}
+function eloD(ra,rb,S){const d=Math.round(32*(S-eloExp(ra,rb)));return S===1?Math.max(2,d):S===0?Math.min(-2,d):d}
 async function saveStats(g,ps){
   if(g.ch){await finishCh(g,ps);return}
   const q=g.qi|0,m=g.mode,hist={mode:m,at:Date.now(),rounds:q+1,winner:"",teams:[],ps:[]};
   if(m==="pvp"){
     const sc=p=>p.dq?-1:(p.pts|0),top=Math.max(...ps.map(sc)),wn=ps.filter(p=>sc(p)===top);
     hist.winner=wn.length===1&&top>=0?wn[0].id:"";
+    const RT=ps.length===2?await pvpRatings(ps.map(p=>p.id)):null,rd={};
     for(const p of ps){
-      const k=p.okc|0,w=hist.winner===p.id,draw=!hist.winner&&!p.dq,d=p.dq?-20:w?20:draw?0:-16;
+      const k=p.okc|0,w=hist.winner===p.id,draw=!hist.winner&&!p.dq;let d=p.dq?-20:w?20:draw?0:-16;
+      if(RT&&!p.dq){const o=ps.find(x=>x.id!==p.id);d=eloD(RT[p.id],RT[o.id],o.dq?1:w?1:hist.winner?0:.5)}
+      rd[p.id]=d;
       await bump(`stats/pvp/players/${p.id}`,d,{win:w,score:p.dq?0:(p.pts|0)});
       hist.ps.push({u:p.id,s:p.dq?0:(p.pts|0),k,d:p.dq?1:0,dr:d});
     }
+    try{await db.doc("games/"+code).update({rd})}catch(e){}
   }else if(m==="evening"){
     const sc=p=>p.dq?-1e9:(p.pts|0),ord=[...ps].sort((a,b)=>sc(b)-sc(a)),N=ps.length,place={};
     ord.forEach((p,i)=>{place[p.id]=(i>0&&sc(p)===sc(ord[i-1]))?place[ord[i-1].id]:i+1});
@@ -3107,7 +3139,7 @@ function drawEnd0(){
   if(m==="pvp"){
     const sc=p=>p.dq?-1:(p.pts|0),a=[...ps].sort((x,y)=>sc(y)-sc(x)),tie=a.length>1&&sc(a[0])===sc(a[1])&&!a.some(p=>p.dq),w=tie?null:a[0];
     $("endTitle").textContent=tie?"Ничья":"Победа в дуэли";
-    $("endBody").innerHTML=(w?`<div class="champ"><div class="av">${pic(w.id)}</div><h2>${esc(nickOf(w.id))}</h2><p>${w.dq?"":(w.pts|0)+" очков"}</p></div>`:"")+`<div class="scoreboard">${a.map(p=>`<div class="t"><small>${esc(nickOf(p.id))} · ${p.okc|0}/${TOTAL}</small><b>${p.dq?"—":(p.pts|0)}</b></div>`).join("")}</div><button class="btn" style="margin-top:14px" data-act="players">К списку игроков</button>`;
+    $("endBody").innerHTML=(w?`<div class="champ"><div class="av">${pic(w.id)}</div><h2>${esc(nickOf(w.id))}</h2><p>${w.dq?"":(w.pts|0)+" очков"}</p></div>`:"")+`<div class="scoreboard">${a.map(p=>`<div class="t"><small>${esc(nickOf(p.id))} · ${p.okc|0}/${TOTAL}</small><b>${p.dq?"—":(p.pts|0)}</b></div>`).join("")}</div>${game.rd?`<div class="members" style="margin-top:12px">${a.map(p=>{const d=game.rd[p.id]|0;return `<div class="m">${pic(p.id)}<b style="flex:1;overflow-wrap:anywhere">${esc(nickOf(p.id))}</b><span class="chip2" style="color:${d>0?"#6fe39a":d<0?"#ff8a8a":"inherit"}">${d>0?"+":""}${d} рейтинг</span></div>`}).join("")}</div><p class="hint" style="text-align:center">Рейтинг как в шахматах (Эло): победа над сильным соперником даёт больше очков.</p>`:""}<button class="btn" style="margin-top:14px" data-act="rank-pvp">🏆 Таблица дуэлянтов</button><button class="btn alt" style="margin-top:8px" data-act="players">К списку игроков</button>`;
   }else if(m==="evening"){
     const a=[...ps].sort((x,y)=>(y.dq?-1e9:y.pts|0)-(x.dq?-1e9:x.pts|0)),w=a[0];
     $("endTitle").textContent=a.length>1?"Итоги вечера":"Результат";
@@ -3737,8 +3769,23 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   const ios=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
   let dp=null;
   window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();dp=e;btn.hidden=false});
-  window.addEventListener("appinstalled",()=>{btn.hidden=true;hint.hidden=true;dp=null});
+  window.addEventListener("appinstalled",()=>{btn.hidden=true;hint.hidden=true;dp=null;const b=document.querySelector(".pwabar");if(b)b.hidden=true;try{localStorage.setItem("qpd",String(Date.now()+365*86400000))}catch(e){}});
   if(ios)btn.hidden=false;
+  const LS=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}};
+  {const n=(+LS("qvc")||0)+1;LS("qvc",String(n))}
+  const bar=document.createElement("div");bar.className="pwabar";bar.hidden=true;
+  bar.innerHTML='<div class="pwat"><b>📲 Игра как приложение</b><small id="pwaTxt"></small></div><button type="button" class="btn small" id="pwaGo">Установить</button><button type="button" class="pwax" aria-label="Закрыть" id="pwaX">×</button>';
+  document.body.appendChild(bar);
+  const mobile=/android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)||ios;
+  const barTxt=()=>{bar.querySelector("#pwaTxt").textContent=ios?"Нажмите «Поделиться» в Safari → «На экран Домой»":"Откроется сразу с экрана телефона, без браузера";bar.querySelector("#pwaGo").hidden=ios};
+  barTxt();
+  bar.querySelector("#pwaX").onclick=()=>{bar.hidden=true;LS("qpd",String(Date.now()))};
+  bar.querySelector("#pwaGo").onclick=async()=>{if(dp){dp.prompt();try{await dp.userChoice}catch(e){}dp=null;bar.hidden=true;btn.hidden=true;LS("qpd",String(Date.now()))}else{bar.querySelector("#pwaTxt").textContent="Откройте меню браузера (⋮) → «Установить приложение» или «Добавить на главный экран»"}};
+  setInterval(()=>{
+    const off=+LS("qpd")||0;
+    const ok=mobile&&uid&&cur==="home"&&(+LS("qvc")||0)>=2&&Date.now()-off>7*86400000&&(dp||ios||true);
+    if(ok&&bar.hidden&&!standalone())bar.hidden=false;else if(!ok&&!bar.hidden)bar.hidden=true;
+  },1500);
   btn.onclick=async()=>{
     if(dp){dp.prompt();try{await dp.userChoice}catch(e){}dp=null;btn.hidden=true;return}
     hint.hidden=!hint.hidden;
@@ -3749,6 +3796,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
  {id:"u18",d:"29 октября",t:"Тематические наверху",items:["Пункт «Тематические (скоро)» теперь первый в списке тем"]},
+ {id:"u19",d:"29 октября",t:"Рейтинг дуэлей, жалобы и установка",items:["Дуэли 1×1 теперь с рейтингом как в шахматах: победа над сильным соперником даёт больше очков, после игры видно, сколько вы получили или потеряли, и есть кнопка «Таблица дуэлянтов»","На экране ответа появилась кнопка «Ошибка в вопросе». Если на вопрос пожаловались трое разных игроков, он перестаёт выпадать в новых играх","На телефоне при повторном заходе игра предложит добавить её на главный экран"]},
  {id:"u17",d:"29 октября",t:"Пароли надёжнее",items:["При регистрации и смене пароля нужно минимум 8 символов, слишком простые пароли не принимаются","Вход со старым паролем работает как раньше"]},
  {id:"u16",d:"29 октября",t:"Скоро: тематические вопросы",items:["В списке тем появился пункт «Тематические», он пока в разработке"]},
  {id:"u15",d:"29 октября",t:"Режим «Хост» и коллекция",items:["Квиз-вечер с экраном ТВ: вопрос на большом экране, на телефонах кнопки A–D, вход по QR","Коллекция: рамки и аватары за серии, победы и идеальные игры (Ещё → Коллекция)","Telegram: оповещения о новых играх, дуэлях и «серия сгорит сегодня»"]},
