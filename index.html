@@ -892,6 +892,7 @@ body[data-scr=s-tv] .bnav,body[data-scr=s-tv] #donate,body[data-scr=s-tv] #updBt
 .pod .pic{width:11vh;height:11vh;border-radius:50%;object-fit:cover}.pod b{font-size:3.4vh}.pod em{font-style:normal;font:900 4.4vh var(--disp,inherit);color:#f5c542}.pod i{font-style:normal;font-size:6vh}
 .pod.p1{padding-top:5vh;background:rgba(245,197,66,.14);border:2px solid #f5c542}
 @media (max-width:760px){.tvl{grid-template-columns:1fr}.tvopts{grid-template-columns:1fr}.colgrid{grid-template-columns:repeat(3,1fr)}}
+.tchip.soon{opacity:.55;cursor:default;border-style:dashed}.tchip.soon i{background:rgba(245,197,66,.2);color:#f5c542}
 </style>
 
 
@@ -1846,8 +1847,9 @@ $("profDel").onclick=async()=>{
 
 /* ---------- главная ---------- */
 function fillTopics(){
-  const sel=$("topicSel");if(!sel||sel.dataset.init)return;sel.dataset.init="1";
-  sel.innerHTML='<option value="-1">🎲 Микс тем (от лёгких к сложным)</option>'+TOPICS.map((n,i)=>n&&topicCount(i)>=TOPIC_MIN?`<option value="${i}">${n} (${topicCount(i)})</option>`:"").join("");
+  const sel=$("topicSel");if(!sel||sel.dataset.init)return;
+  sel.innerHTML='<option value="-1">🎲 Микс тем (от лёгких к сложным)</option>'+TOPICS.map((n,i)=>n&&topicCount(i)>=TOPIC_MIN?`<option value="${i}">${n} (${topicCount(i)})</option>`:"").join("")+'<option value="soon" disabled>🎭 Тематические (скоро)</option>';
+  sel.dataset.init="1";
   sel.onchange=()=>{curTopic=+sel.value;drawChallengeTopic();seenSig="";seenDraw()};
 }
 const TOPIC_MIN=15;
@@ -3689,10 +3691,11 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
     if(box.dataset.sig===sig)return;box.dataset.sig=sig;
     box.innerHTML=opts.map(o=>{
       const m=/\((\d+)\)\s*$/.exec(o.textContent),lab=o.textContent.replace(/\s*\(.*\)\s*$/,"");
+      if(o.disabled)return `<button type="button" class="tchip soon" disabled>${esc(lab)}<i>скоро</i></button>`;
       return `<button type="button" class="tchip${o.value===sel.value?" on":""}" data-tv="${o.value}">${esc(lab)}${m?`<i>${m[1]}</i>`:""}</button>`}).join("");
     const on=box.querySelector(".on");if(on&&!box.dataset.sc){box.dataset.sc=1}
   }
-  box.addEventListener("click",e=>{const b=e.target.closest("[data-tv]");if(!b)return;sel.value=b.dataset.tv;if(sel.onchange)sel.onchange();box.dataset.sig="";chips()});
+  box.addEventListener("click",e=>{const b=e.target.closest("[data-tv]");if(!b||b.disabled)return;sel.value=b.dataset.tv;if(sel.onchange)sel.onchange();box.dataset.sig="";chips()});
   setInterval(chips,700);
   $("chipsMore").onclick=()=>{const o=box.classList.toggle("open");$("chipsMore").textContent=o?"Свернуть ▴":"Все темы ▾"};
   /* нижняя панель */
@@ -3743,6 +3746,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+ {id:"u16",d:"29 октября",t:"Скоро: тематические вопросы",items:["В списке тем появился пункт «Тематические», он пока в разработке"]},
  {id:"u15",d:"29 октября",t:"Режим «Хост» и коллекция",items:["Квиз-вечер с экраном ТВ: вопрос на большом экране, на телефонах кнопки A–D, вход по QR","Коллекция: рамки и аватары за серии, победы и идеальные игры (Ещё → Коллекция)","Telegram: оповещения о новых играх, дуэлях и «серия сгорит сегодня»"]},
  {id:"u14",d:"29 октября",t:"Друзья, серия и реакции",items:["Кнопка «Позвать друзей» даёт ссылку: друг открывает её и сразу попадает в лобби","Огонёк «играете N дней подряд» на главной","Кнопка «Продолжить игру», если закрыли вкладку посреди партии","Эмодзи-реакции и комментарии после игры"]},
  {id:"u13",d:"29 октября",t:"Главная стала живее",items:["Лидеры недели: три лучших игрока","Полоска прогресса до следующего звания","«Сейчас играют»: открытые игры в один тап","«Новое от друзей»: короткая лента побед","Ещё 43 вопроса в теме «Логика и мышление»"]},
