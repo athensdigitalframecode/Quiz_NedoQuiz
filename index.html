@@ -913,7 +913,7 @@ body[data-scr=s-tv] .bnav,body[data-scr=s-tv] #donate,body[data-scr=s-tv] #updBt
   <div class="card">
     <div class="auseg" id="auTabs"><button data-t="in" class="on">Вход</button><button data-t="up">Регистрация</button></div>
     <input type="email" id="auMail" autocomplete="email" inputmode="email" placeholder="Почта" autocapitalize="off">
-    <input type="password" id="auPass" autocomplete="current-password" placeholder="Пароль (от 6 символов)" style="margin-top:10px">
+    <input type="password" id="auPass" autocomplete="current-password" placeholder="Пароль" style="margin-top:10px">
     <input type="password" id="auPass2" autocomplete="new-password" placeholder="Повторите пароль" style="margin-top:10px" hidden>
     <div class="err" id="auErr"></div><div class="hint" id="auInfo" style="color:var(--gold)"></div>
     <div class="gap"></div>
@@ -1631,7 +1631,7 @@ function auSet(m){
   document.querySelectorAll("#auTabs button").forEach(b=>b.classList.toggle("on",b.dataset.t===m));
   const rec=m==="recover",up=m==="up";
   $("auTabs").hidden=rec;$("auMail").hidden=rec;$("auPass2").hidden=!(up||rec);$("auForgot").hidden=m!=="in";
-  $("auPass").placeholder=rec?"Новый пароль (от 6 символов)":"Пароль (от 6 символов)";
+  $("auPass").placeholder=rec?"Новый пароль (от 8 символов)":auMode==="up"?"Пароль (от 8 символов)":"Пароль";
   $("auPass").autocomplete=m==="in"?"current-password":"new-password";
   $("auGo").textContent=rec?"Сохранить пароль":up?"Создать аккаунт":"Войти";
   $("auSub").textContent=rec?"Придумайте новый пароль":"Войдите, чтобы играть с друзьями";
@@ -1640,7 +1640,7 @@ function auSet(m){
 const auMsg=e=>{const m=String((e&&e.message)||e||"");
   if(/invalid login/i.test(m))return"Неверная почта или пароль";
   if(/already registered|already been registered/i.test(m))return"Эта почта уже зарегистрирована. Нажмите «Вход»";
-  if(/password.*(at least|short)|weak/i.test(m))return"Пароль слишком короткий: нужно минимум 6 символов";
+  if(/password.*(at least|short)|weak/i.test(m))return"Пароль слишком короткий: нужно минимум 8 символов";
   if(/valid email|invalid.*email/i.test(m))return"Проверьте адрес почты";
   if(/rate|too many|seconds/i.test(m))return"Слишком много попыток, подождите минуту";
   if(/confirm/i.test(m))return"Подтвердите почту: письмо уже отправлено";
@@ -1649,7 +1649,8 @@ async function auGo(){
   const mail=$("auMail").value.trim(),pw=$("auPass").value,pw2=$("auPass2").value;
   $("auErr").textContent="";$("auInfo").textContent="";
   if(auMode!=="recover"&&!/^\S+@\S+\.\S+$/.test(mail)){$("auErr").textContent="Введите адрес почты";return}
-  if(pw.length<6){$("auErr").textContent="Пароль: минимум 6 символов";return}
+  if(pw.length<(auMode==="in"?1:8)){$("auErr").textContent=auMode==="in"?"Введите пароль":"Пароль: минимум 8 символов, лучше с цифрами и буквами";return}
+  if(auMode!=="in"&&(/^\d+$/.test(pw)||/^(.)\1+$/.test(pw)||/^(password|qwerty|12345678|йцукен)/i.test(pw))){$("auErr").textContent="Слишком простой пароль: добавьте буквы и цифры";return}
   if(auMode!=="in"&&pw!==pw2){$("auErr").textContent="Пароли не совпадают";return}
   $("auGo").disabled=true;
   try{
@@ -3746,6 +3747,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+ {id:"u17",d:"29 октября",t:"Пароли надёжнее",items:["При регистрации и смене пароля нужно минимум 8 символов, слишком простые пароли не принимаются","Вход со старым паролем работает как раньше"]},
  {id:"u16",d:"29 октября",t:"Скоро: тематические вопросы",items:["В списке тем появился пункт «Тематические», он пока в разработке"]},
  {id:"u15",d:"29 октября",t:"Режим «Хост» и коллекция",items:["Квиз-вечер с экраном ТВ: вопрос на большом экране, на телефонах кнопки A–D, вход по QR","Коллекция: рамки и аватары за серии, победы и идеальные игры (Ещё → Коллекция)","Telegram: оповещения о новых играх, дуэлях и «серия сгорит сегодня»"]},
  {id:"u14",d:"29 октября",t:"Друзья, серия и реакции",items:["Кнопка «Позвать друзей» даёт ссылку: друг открывает её и сразу попадает в лобби","Огонёк «играете N дней подряд» на главной","Кнопка «Продолжить игру», если закрыли вкладку посреди партии","Эмодзи-реакции и комментарии после игры"]},
