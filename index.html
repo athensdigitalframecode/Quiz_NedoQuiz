@@ -1849,7 +1849,7 @@ $("profDel").onclick=async()=>{
 /* ---------- главная ---------- */
 function fillTopics(){
   const sel=$("topicSel");if(!sel||sel.dataset.init)return;
-  sel.innerHTML='<option value="-1">🎲 Микс тем (от лёгких к сложным)</option>'+TOPICS.map((n,i)=>n&&topicCount(i)>=TOPIC_MIN?`<option value="${i}">${n} (${topicCount(i)})</option>`:"").join("")+'<option value="soon" disabled>🎭 Тематические (скоро)</option>';
+  sel.innerHTML='<option value="soon" disabled>🎭 Тематические (скоро)</option><option value="-1">🎲 Микс тем (от лёгких к сложным)</option>'+TOPICS.map((n,i)=>n&&topicCount(i)>=TOPIC_MIN?`<option value="${i}">${n} (${topicCount(i)})</option>`:"").join("");sel.value="-1";
   sel.dataset.init="1";
   sel.onchange=()=>{curTopic=+sel.value;drawChallengeTopic();seenSig="";seenDraw()};
 }
@@ -3747,6 +3747,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+ {id:"u18",d:"29 октября",t:"Тематические наверху",items:["Пункт «Тематические (скоро)» теперь первый в списке тем"]},
  {id:"u17",d:"29 октября",t:"Пароли надёжнее",items:["При регистрации и смене пароля нужно минимум 8 символов, слишком простые пароли не принимаются","Вход со старым паролем работает как раньше"]},
  {id:"u16",d:"29 октября",t:"Скоро: тематические вопросы",items:["В списке тем появился пункт «Тематические», он пока в разработке"]},
  {id:"u15",d:"29 октября",t:"Режим «Хост» и коллекция",items:["Квиз-вечер с экраном ТВ: вопрос на большом экране, на телефонах кнопки A–D, вход по QR","Коллекция: рамки и аватары за серии, победы и идеальные игры (Ещё → Коллекция)","Telegram: оповещения о новых играх, дуэлях и «серия сгорит сегодня»"]},
