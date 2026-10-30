@@ -949,6 +949,11 @@ body[data-scr=s-tv] .madewrap{display:none!important}
 #s-boot h1{font:italic 700 clamp(28px,8.4vw,46px)/1.1 "Playfair Display",Georgia,"Times New Roman",serif!important;letter-spacing:.005em;margin-top:26px;color:#f6efe0;text-shadow:none!important;white-space:nowrap}
 #s-boot h1 em{font-style:italic;background:linear-gradient(100deg,#fff1c4,#e4c27a 50%,#c9a6ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-shadow:none!important}
 @media(prefers-reduced-motion:reduce){#s-boot .bootico,#s-boot .bootico svg{animation:none}}
+#s-home .hero-ico{animation:bootx 3.4s ease-in-out infinite alternate;margin-bottom:6px}
+#s-home .hero-ico svg{animation:booty 1.7s ease-in-out infinite;transform-origin:50% 60%}
+#s-home h1{font:italic 700 clamp(28px,8.4vw,46px)/1.1 "Playfair Display",Georgia,"Times New Roman",serif!important;letter-spacing:.005em;color:#f6efe0;text-shadow:none!important;white-space:nowrap}
+#s-home h1 em{font-style:italic;background:linear-gradient(100deg,#fff1c4,#e4c27a 50%,#c9a6ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-shadow:none!important}
+@media(prefers-reduced-motion:reduce){#s-home .hero-ico,#s-home .hero-ico svg{animation:none}}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@1,600;1,700&display=swap" media="print" onload="this.media='all'">
 <canvas id="stars"></canvas>
@@ -1939,7 +1944,7 @@ $("profDel").onclick=async()=>{
 function fillTopics(){
   const sel=$("topicSel"),kb=KB(ME);if(!sel||sel.dataset.init===String(kb))return;
   if(kb){sel.innerHTML=`<option value="${kb}">${TOPICS[kb]} (${topicCount(kb)})</option>`;sel.value=String(kb);curTopic=kb}
-  else sel.innerHTML='<option value="soon" disabled>🎭 Тематические (скоро)</option><option value="-1">🎲 Микс тем (от лёгких к сложным)</option>'+[26,...TOPICS.keys()].filter((i,j)=>i!==26||j===0).map(i=>{const n=TOPICS[i];return n&&topicCount(i)>=TOPIC_MIN?`<option value="${i}">${n} (${topicCount(i)})</option>`:""}).join("");if(!kb){sel.value="-1";if(curTopic>=27)curTopic=-1}
+  else sel.innerHTML='<option value="soon" disabled>🎭 Тематические (скоро)</option><option value="-1">🎲 Микс тем (от лёгких к сложным)</option>'+[25,26,...TOPICS.keys()].filter((i,j)=>j<2||(i!==25&&i!==26)).map(i=>{const n=TOPICS[i];return n&&topicCount(i)>=TOPIC_MIN?`<option value="${i}">${n} (${topicCount(i)})</option>`:""}).join("");if(!kb){sel.value="-1";if(curTopic>=27)curTopic=-1}
   sel.dataset.init=String(kb);
   sel.onchange=()=>{curTopic=+sel.value;drawChallengeTopic();seenSig="";seenDraw()};
 }
