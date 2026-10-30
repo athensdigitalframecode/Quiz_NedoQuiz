@@ -1600,14 +1600,15 @@ function photoOfProfile(p){
   if(p&&typeof p.photo==="string"){
     if(p.photo.startsWith("c:")){const i=+p.photo.slice(2);if(AV[i])return AV[i]}
     else if(p.photo.startsWith("e:")){const x=AVC.find(y=>y.id===p.photo.slice(2));if(x)return avSrc(x)}
-    else if(p.photo.startsWith("data:image/"))return p.photo;
+    else if(/^data:image\/(png|jpe?g|webp|gif);base64,[A-Za-z0-9+\/=]+$/.test(p.photo))return p.photo;
   }
   return initialAv(p&&p.nick,"#3b4a7a");
 }
 const photoOf=id=>photoOfProfile(profiles[id]);
 const nickOf=id=>(profiles[id]&&profiles[id].nick)||"Игрок";
-const pic=(id,cls)=>`<img class="pic ${cls||""} ${frCls(profiles[id])}" src="${photoOf(id)}" alt="">`;
-const teamLabel=t=>teams[t]?`${teams[t].logo?`<img class="tlogo" src="${esc(teams[t].logo)}" alt="">`:(teams[t].emoji||"")} ${esc(teams[t].name)}`:"Без команды";
+const pic=(id,cls)=>`<img class="pic ${cls||""} ${frCls(profiles[id])}" src="${esc(photoOf(id))}" alt="">`;
+const colOK=c=>/^#[0-9a-fA-F]{3,8}$/.test(c)?c:"#3b4a7a";
+const teamLabel=t=>teams[t]?`${teams[t].logo?`<img class="tlogo" src="${esc(teams[t].logo)}" alt="">`:esc(teams[t].emoji||"")} ${esc(teams[t].name)}`:"Без команды";
 const members=t=>Object.keys(profiles).filter(u=>profiles[u].team===t);
 
 /* ---------- запуск ---------- */
@@ -1649,6 +1650,7 @@ function sbCol(path,flt){
     doc:id=>sbDoc(path+"/"+id),
     where:(f,o,v)=>sbCol(path,[f,v]),
     get:load,
+    async recent(n){const {data,error}=await sb.from("docs").select("id,data").eq("col",path).order("updated_at",{ascending:false}).limit(n);if(error)throw error;return wrap(data)},
     onSnapshot(fn,err){return sbWatch(raw,["col=eq."+path],r=>fn(wrap(r)),err,path.startsWith("games/")?3000:8000,p=>p.startsWith(path+"/")&&p.indexOf("/",path.length+1)<0)}
   };
 }
@@ -1966,7 +1968,7 @@ async function drawBoards(){
   const el=$("boards");if(!el)return;
   if(!boardH||Date.now()-boardAt>60000){
     if(boardBusy)return;boardBusy=true;
-    try{boardH=(await db.collection("history").get()).docs.map(d=>d.data());boardAt=Date.now()}catch(e){boardH=boardH||[]}
+    try{boardH=(await db.collection("history").recent(600)).docs.map(d=>d.data());boardAt=Date.now()}catch(e){boardH=boardH||[]}
     boardBusy=false;if(cur!=="home")return;
   }
   const hs=(boardH||[]).filter(h=>h&&h.at&&h.ps);
@@ -2484,7 +2486,7 @@ async function drawPprof(){
   try{
     for(const m of Object.keys(MODES)){try{const s=await db.doc(`stats/${m}/players/${u}`).get();by[m]=s.exists?s.data():null}catch(e){by[m]=null}}
     try{const s=await db.doc("ach/"+u).get();if(s.exists)ach={...emptyAch(),...s.data()}}catch(e){}
-    hs=(await db.collection("history").get()).docs.map(d=>({id:d.id,...d.data()}));
+    hs=(await db.collection("history").recent(600)).docs.map(d=>({id:d.id,...d.data()}));
   }catch(e){}
   if(cur!=="pprof"||curArg!==u)return;
   $("ppStats").innerHTML=Object.keys(MODES).map(m=>{
@@ -2591,7 +2593,7 @@ async function startPvp(target){
 /* ---------- команды ---------- */
 function drawTeams(){
   const ids=Object.keys(teams).sort((a,b)=>String(teams[a].name).localeCompare(String(teams[b].name),"ru"));
-  $("teamList").innerHTML=ids.map(t=>{const T=teams[t];return `<div class="tcard" data-act="team" data-id="${t}"><div class="em" style="background:${esc(T.color||"#3b4a7a")}33;border:1px solid ${esc(T.color||"#3b4a7a")}">${emIn(T)}</div><div class="nm"><b>${esc(T.name)}</b><small>участников: ${members(t).length}${ME&&ME.team===t?" · ваша команда":""}</small></div></div>`}).join("")||'<div class="empty">Команд пока нет</div>';
+  $("teamList").innerHTML=ids.map(t=>{const T=teams[t];return `<div class="tcard" data-act="team" data-id="${t}"><div class="em" style="background:${colOK(T.color)}33;border:1px solid ${colOK(T.color)}">${emIn(T)}</div><div class="nm"><b>${esc(T.name)}</b><small>участников: ${members(t).length}${ME&&ME.team===t?" · ваша команда":""}</small></div></div>`}).join("")||'<div class="empty">Команд пока нет</div>';
 }
 function drawNewTeam(){
   $("emPick").innerHTML=EMOJIS.map(x=>`<button data-em="${x}" class="${x===teamDraft.em?"on":""}">${x}</button>`).join("");
@@ -2622,8 +2624,8 @@ async function drawTeam(){
   const ms=members(id),mine=ME&&ME.team===id,capId=T.captain||T.owner||"",isCap=!!mine&&capId===uid;
   ms.sort((x,y)=>(y===capId)-(x===capId)||(((+profiles[x].at||0))-((+profiles[y].at||0))));
   const row=u=>`<div class="m">${pic(u)}<b style="flex:1;overflow-wrap:anywhere">${esc(nickOf(u))}${profiles[u]&&profiles[u].status?`<small class="statusline" style="display:block">${esc(profiles[u].status)}</small>`:""}</b>${u===capId?'<span class="chip2">👑 капитан</span>':""}${u===uid?'<span class="chip2">вы</span>':""}${isCap&&u!==uid?`<button class="btn alt small" data-act="mkcap" data-id="${u}">Сделать капитаном</button>`:""}</div>`;
-  $("teamBox").innerHTML=`<div style="text-align:center"><div class="em teamhead" style="width:96px;height:96px;margin:0 auto;border-radius:26px;display:grid;place-items:center;font-size:50px;background:${esc(T.color||"#3b4a7a")}33;border:2px solid ${esc(T.color||"#3b4a7a")}">${emIn(T)}</div><h1 style="margin-top:12px">${esc(T.name)}</h1><p class="sub">${isCap?"Личный кабинет команды · вы капитан":"Участников: "+ms.length}</p></div>
-  ${isCap?`<div class="card capcard"><h2>Кабинет капитана</h2><p class="hint" style="margin:0 0 10px">Вы отвечаете за команду: выбираете логотип и можете передать капитанство любому участнику. Участников: <b>${ms.length}</b>.</p><div class="photo-edit"><div class="em" style="width:64px;height:64px;border-radius:18px;display:grid;place-items:center;font-size:32px;background:${esc(T.color||"#3b4a7a")}33;border:2px solid ${esc(T.color||"#3b4a7a")}">${emIn(T)}</div><div><label class="btn alt small" for="teamLogoIn" style="cursor:pointer">${T.logo?"Заменить логотип":"Загрузить логотип"}</label><input type="file" id="teamLogoIn" accept="image/*" hidden>${T.logo?'<button type="button" class="btn alt small" data-act="clrlogo" style="margin-left:8px">Убрать</button>':""}</div></div><div class="err" id="cap-err"></div><button type="button" class="btn alt small dangerbtn" data-act="delteam" data-id="${id}" style="margin-top:10px">🗑️ Удалить команду</button></div><div class="gap"></div>`:(capId&&profiles[capId]?`<p class="hint" style="text-align:center">Капитан команды: <b>${esc(nickOf(capId))}</b> 👑</p>`:"")}
+  $("teamBox").innerHTML=`<div style="text-align:center"><div class="em teamhead" style="width:96px;height:96px;margin:0 auto;border-radius:26px;display:grid;place-items:center;font-size:50px;background:${colOK(T.color)}33;border:2px solid ${colOK(T.color)}">${emIn(T)}</div><h1 style="margin-top:12px">${esc(T.name)}</h1><p class="sub">${isCap?"Личный кабинет команды · вы капитан":"Участников: "+ms.length}</p></div>
+  ${isCap?`<div class="card capcard"><h2>Кабинет капитана</h2><p class="hint" style="margin:0 0 10px">Вы отвечаете за команду: выбираете логотип и можете передать капитанство любому участнику. Участников: <b>${ms.length}</b>.</p><div class="photo-edit"><div class="em" style="width:64px;height:64px;border-radius:18px;display:grid;place-items:center;font-size:32px;background:${colOK(T.color)}33;border:2px solid ${colOK(T.color)}">${emIn(T)}</div><div><label class="btn alt small" for="teamLogoIn" style="cursor:pointer">${T.logo?"Заменить логотип":"Загрузить логотип"}</label><input type="file" id="teamLogoIn" accept="image/*" hidden>${T.logo?'<button type="button" class="btn alt small" data-act="clrlogo" style="margin-left:8px">Убрать</button>':""}</div></div><div class="err" id="cap-err"></div><button type="button" class="btn alt small dangerbtn" data-act="delteam" data-id="${id}" style="margin-top:10px">🗑️ Удалить команду</button></div><div class="gap"></div>`:(capId&&profiles[capId]?`<p class="hint" style="text-align:center">Капитан команды: <b>${esc(nickOf(capId))}</b> 👑</p>`:"")}
   <button class="btn ${mine?"alt":""}" data-act="${mine?"leaveteam":"jointeam"}" data-id="${id}">${mine?"Выйти из команды":(ME&&ME.team?"Перейти в эту команду":"Вступить в команду")}</button>
   <h2 style="margin-top:16px">Состав</h2><div class="members">${ms.map(row).join("")||'<div class="empty">Пока никого</div>'}</div>
   <h2 style="margin-top:16px">Рейтинг команды</h2><div id="teamStats" class="card"><div class="empty">Загружаем…</div></div>`;
@@ -2650,7 +2652,6 @@ function askDelTeam(id){
 }
 async function doDelTeam(id){
   const T=teams[id];if(!T||(T.captain||T.owner)!==uid)throw new Error("нужны права капитана");
-  for(const u of members(id)){try{await db.doc("profiles/"+u).update({team:""});if(profiles[u])profiles[u].team=""}catch(e){}}
   await db.doc("teams/"+id).delete();delete teams[id];
   for(const m of ["duel","mass"]){try{await db.doc(`stats/${m}/teams/${id}`).delete()}catch(e){}}
   if(ME)ME.team="";statsCache={};nav("teams");
@@ -2696,7 +2697,7 @@ function drawChallenge(){
   if(!ME||!ME.team){$("chSub").textContent="Сначала вступите в команду";$("chList").innerHTML='<button class="btn" data-act="teams">К командам</button>';return}
   $("chSub").innerHTML="Ваша команда: "+teamLabel(ME.team)+". Кого вызываем?";
   const ids=Object.keys(teams).filter(t=>t!==ME.team&&members(t).length>0);
-  $("chList").innerHTML=ids.map(t=>{const T=teams[t];return `<div class="tcard" data-act="chal" data-id="${t}"><div class="em" style="background:${esc(T.color||"#3b4a7a")}33;border:1px solid ${esc(T.color||"#3b4a7a")}">${emIn(T)}</div><div class="nm"><b>${esc(T.name)}</b><small>участников: ${members(t).length}</small></div><button class="btn small ghost" data-act="chala" data-id="${t}">Отложенная</button></div>`}).join("")||'<div class="empty">Других команд с игроками пока нет</div>';
+  $("chList").innerHTML=ids.map(t=>{const T=teams[t];return `<div class="tcard" data-act="chal" data-id="${t}"><div class="em" style="background:${colOK(T.color)}33;border:1px solid ${colOK(T.color)}">${emIn(T)}</div><div class="nm"><b>${esc(T.name)}</b><small>участников: ${members(t).length}</small></div><button class="btn small ghost" data-act="chala" data-id="${t}">Отложенная</button></div>`}).join("")||'<div class="empty">Других команд с игроками пока нет</div>';
   $("ch-err").textContent="";drawChallengeTopic();
 }
 async function startDuel(tid){
@@ -3231,7 +3232,7 @@ async function drawRank(){
   $("rankSub").textContent=rankPeriod==="week"?"За последние 7 дней":"За всё время";
   try{
     rows=(await db.collection(`stats/${rankMode}/${rankScope}`).get()).docs.map(d=>({id:d.id,...d.data()}));
-    allH=(await db.collection("history").get()).docs.map(d=>({id:d.id,...d.data()}));
+    allH=(await db.collection("history").recent(600)).docs.map(d=>({id:d.id,...d.data()}));
     hist=allH.filter(h=>h.mode===rankMode).sort((a,b)=>((+b.at||0))-((+a.at||0))).slice(0,8);
   }catch(e){$("lbBox").innerHTML='<div class="empty">Не удалось загрузить</div>';return}
   if(!$("s-rank").classList.contains("on"))return;
@@ -3258,7 +3259,7 @@ async function drawRank(){
     else if(h.mode==="evening")head=(h.ps||[]).slice().sort((a,b)=>(b.s|0)-(a.s|0)).slice(0,3).map(x=>`${esc(nickOf(x.u))} ${x.s|0}`).join(" · ");
     else if(h.mode==="blitz")head=h.winner?"🏆 "+esc(nickOf(h.winner)):"без победителя";
     else head=(h.teams||[]).slice(0,3).map(t=>`${teamLabel(t.t)} ${t.s|0}`).join(" · ");
-    const chips=(h.ps||[]).slice(0,16).map(x=>`<img class="pic ${h.mode==="blitz"?(x.u===h.winner?"win":(x.a?"":"dead")):""}" src="${photoOf(x.u)}" alt="">`).join("");
+    const chips=(h.ps||[]).slice(0,16).map(x=>`<img class="pic ${h.mode==="blitz"?(x.u===h.winner?"win":(x.a?"":"dead")):""}" src="${esc(photoOf(x.u))}" alt="">`).join("");
     return `<div class="h"><div class="hh"><span>${when} · раундов: ${h.rounds|0}</span></div><div style="margin-bottom:6px;font-weight:600;overflow-wrap:anywhere">${head}</div><div class="chips">${chips}</div></div>`}).join(""):'<div class="empty">Игр пока не было</div>';
 }
 $("tabPeriod").onclick=e=>{const b=e.target.closest("button");if(b){rankPeriod=b.dataset.p;drawRank()}};
@@ -3841,6 +3842,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
  {id:"u18",d:"29 октября",t:"Тематические наверху",items:["Пункт «Тематические (скоро)» теперь первый в списке тем"]},
+ {id:"u25",d:"30 октября",t:"Защита и скорость",items:["Закрыты дыры в защите: вредный текст в профиле и команде больше не выполняется, а игроки могут менять только свои данные","Рейтинг и списки игр грузятся быстрее: читаются только последние игры"]},
  {id:"u23",d:"29 октября",t:"Обновлены FAQ и правила",items:["В FAQ добавлены ответы про режим «Хост», серию дней, коллекцию, Telegram, удаление команды, установку на телефон и пароль","Исправлено описание рейтинга дуэлей и жалоб на вопросы"]},
  {id:"u22",d:"29 октября",t:"Разные смайлики за верный ответ",items:["За правильный ответ теперь показываются разные смайлики"]},
  {id:"u21",d:"29 октября",t:"Без смайликов при ошибке",items:["После неправильного ответа убраны смайлики в плашке результата"]},
@@ -3884,7 +3886,7 @@ $("gsBack").onclick=()=>nav(rulesBack&&rulesBack!=="gstats"&&rulesBack!=="rules"
 async function drawGStats(){
   const box=$("gsBox");box.innerHTML='<div class="empty">Загружаем…</div>';
   let hs=[],qs=[];
-  try{hs=(await db.collection("history").get()).docs.map(d=>d.data())}catch(e){}
+  try{hs=(await db.collection("history").recent(600)).docs.map(d=>d.data())}catch(e){}
   try{qs=(await db.collection("qstats").get()).docs.map(d=>({h:d.id,...d.data()}))}catch(e){}
   if(!$("s-gstats").classList.contains("on"))return;
   if(!GSQ){GSQ={};BANK.forEach(q=>{GSQ[String(hstr(q.q))]=q.q})}
