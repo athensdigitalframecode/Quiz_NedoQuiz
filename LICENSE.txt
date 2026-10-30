@@ -12,7 +12,7 @@ author's written permission. Viewing the code on GitHub is permitted for
 reference only.
 
 Исключение / Exception: часть вопросов получена из Open Trivia DB
-(https://opentdb.com) и AI2 ARC (https://allenai.org/data/arc) и распространяется по лицензии CC BY-SA 4.0
+(https://opentdb.com) AI2 ARC (https://allenai.org/data/arc) и иллюстраций OpenMoji (https://openmoji.org, CC BY-SA 4.0) и распространяется по лицензии CC BY-SA 4.0
 (https://creativecommons.org/licenses/by-sa/4.0/). На эти вопросы
 действуют условия этой лицензии. / Part of the questions come from Open
 Trivia DB and remain under CC BY-SA 4.0; those questions are governed by
