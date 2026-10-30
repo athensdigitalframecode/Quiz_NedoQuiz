@@ -939,6 +939,7 @@ body.kid #chat,body.kid #chat2,body.kid #meTg,body.kid #donate,body.kid .shi[dat
 body:not(.on-home) .madewrap{display:none}
 body.scrolled .madewrap{opacity:0;transform:translateY(-12px);pointer-events:none}
 body[data-scr=s-tv] .madewrap{display:none!important}
+.invbox{margin:18px 0 6px}.invbox .sharerow{margin:8px 0 0}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@1,600;1,700&display=swap" media="print" onload="this.media='all'">
 <canvas id="stars"></canvas>
@@ -995,7 +996,7 @@ body[data-scr=s-tv] .madewrap{display:none!important}
 
 <!-- Главная -->
 <div class="madewrap"><div class="madeby" aria-hidden="false">Сделано для <b>Наших афинских</b></div>
-<div class="sharerow mwrow"><button class="btn alt small" id="shareHome" type="button">📨 Поделиться</button><button class="btn alt small" id="shareTg" type="button">✈️ В Telegram</button></div></div>
+</div>
 <section id="s-home" class="screen">
   <h1>Квиз <em>или</em> Недоквиз</h1>
   <p class="sub">Блиц-квиз · дуэли команд · массовые турниры</p>
@@ -1038,6 +1039,7 @@ body[data-scr=s-tv] .madewrap{display:none!important}
     <button class="btn alt" id="join">Войти</button>
     <div class="err" id="home-err"></div>
   </div>
+  <div class="invbox"><div class="lab" style="text-align:center">Позвать друзей</div><div class="sharerow"><button class="btn alt small" id="shareHome" type="button">📨 Поделиться</button><button class="btn alt small" id="shareTg" type="button">✈️ В Telegram</button></div></div>
   <p class="hint" style="text-align:center;margin:14px 0 4px">Вопросы: Open Trivia DB и AI2 ARC, CC BY-SA 4.0 (подробнее в правилах)</p>
   <p class="hint" style="text-align:center;margin:0 0 10px">© 2026 «Квиз или Недоквиз». Все права защищены.</p>
   <a class="donate" id="donate" href="#" target="_blank" rel="noopener" hidden title="Подписка на Instagram и пара лайков. Спасибо!">💛 «Пожертвование»<small>aka подписка на Instagram и парочка лайков. Спасибо!</small></a>
