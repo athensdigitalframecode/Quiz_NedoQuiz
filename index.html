@@ -940,6 +940,8 @@ body:not(.on-home) .madewrap{display:none}
 body.scrolled .madewrap{opacity:0;transform:translateY(-12px);pointer-events:none}
 body[data-scr=s-tv] .madewrap{display:none!important}
 .invbox{margin:18px 0 6px}.invbox .sharerow{margin:8px 0 0}
+.topicbox label.toplab{font-size:15px;font-weight:600;color:var(--gold);margin:16px 2px 8px}
+.topicbox label.toplab small{display:block;font-size:12px;font-weight:400;color:var(--mut);margin-top:2px}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@1,600;1,700&display=swap" media="print" onload="this.media='all'">
 <canvas id="stars"></canvas>
@@ -1015,7 +1017,7 @@ body[data-scr=s-tv] .madewrap{display:none!important}
   <div id="nowplay"></div>
   <div id="daily"></div>
   <div id="boards"></div>
-  <div class="topicbox"><label for="topicSel">Тема вопросов</label><select id="topicSel"></select><div class="chips" id="topicChips"></div><button type="button" class="chipsmore" id="chipsMore">Все темы ▾</button></div>
+  <div class="topicbox"><label for="topicSel" class="toplab">☝️ Сначала выберите тему вопросов<small>она действует во всех режимах ниже</small></label><select id="topicSel"></select><div class="chips" id="topicChips"></div><button type="button" class="chipsmore" id="chipsMore">Все темы ▾</button></div>
   <p class="hint seen" id="seenInfo"><span id="seenTxt"></span> <button type="button" class="linkbtn" id="seenRst" hidden>сбросить историю</button></p>
   <button class="btn playbig" data-act="new" data-mode="solo" type="button"><span class="pbi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg></span><span class="pbt"><b>Играть</b><small>Быстрая игра: 15 вопросов, вы против себя</small></span></button>
   <div class="modes">
