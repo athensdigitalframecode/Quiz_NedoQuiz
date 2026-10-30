@@ -2281,13 +2281,17 @@ async function drawMe(){
   const by=statsCache[uid].by;
   loadAch().then(a=>{if(cur!=="me")return;const have=achSet(a);
     $("meAch").innerHTML=`<div class="card" style="margin-bottom:12px"><div class="cardtitle"><h2 style="margin:0">Достижения</h2><span class="chip2">${have.size} из ${ACHS.length} · серия ${curStreak(a)} дн.</span></div><div class="tl">`+ACHS.map(x=>`<div class="tcard" style="cursor:default;${have.has(x.id)?"border-color:var(--gold)":"opacity:.45"}"><div class="nm"><b>${have.has(x.id)?"★ ":""}${esc(x.n)}</b><small>${esc(x.d)}</small></div></div>`).join("")+`</div></div>`});
+  const pl=await myPlaces(uid,by);if(cur!=="me")return;
   $("meStats").innerHTML=Object.keys(MODES).map(m=>{
     const d=by[m],r=d?+d.r||1000:1000,k=rankOf(r);
-    return `<div class="card" style="margin-bottom:12px"><div class="cardtitle"><h2 style="margin:0">${MODES[m].name}</h2><span class="chip2">${k.i} ${k.n}</span></div>
+    return `<div class="card" style="margin-bottom:12px"><div class="cardtitle"><h2 style="margin:0">${MODES[m].name}</h2><span>${placeChip(pl[m])}<span class="chip2">${k.i} ${k.n}</span></span></div>
     <div class="statgrid"><div><b>${r}</b><small>рейтинг</small></div><div><b>${d?d.g|0:0}</b><small>игр</small></div><div><b>${d?d.w|0:0}</b><small>побед</small></div></div></div>`}).join("");
 }
 
 
+const MEDAL=["🥇","🥈","🥉"];
+async function myPlaces(u,by){const o={};await Promise.all(Object.keys(MODES).map(async m=>{try{if(!by[m])return;const mr=+by[m].r||1000;const a=(await db.collection(`stats/${m}/players`).get()).docs;o[m]=1+a.filter(d=>(+d.data().r||1000)>mr).length}catch(e){}}));return o}
+const placeChip=p=>p?`<span class="chip2">${p<4?MEDAL[p-1]+" ":""}${p} место</span> `:"";
 /* ---------- вопросы от игроков ---------- */
 let SUG={},sgLvl="m";const SG_N=3,SG_TOPIC=25;
 const sgCnt=(s,p)=>Object.keys(s).filter(k=>k.startsWith(p)&&s[k]>0).length;
@@ -2512,10 +2516,11 @@ async function drawPprof(){
     try{const s=await db.doc("ach/"+u).get();if(s.exists)ach={...emptyAch(),...s.data()}}catch(e){}
     hs=(await db.collection("history").recent(600)).docs.map(d=>({id:d.id,...d.data()}));
   }catch(e){}
+  const pl=await myPlaces(u,by);
   if(cur!=="pprof"||curArg!==u)return;
   $("ppStats").innerHTML=Object.keys(MODES).map(m=>{
     const d=by[m],r=d?+d.r||1000:1000,k=rankOf(r);
-    return `<div class="card" style="margin-bottom:12px"><div class="cardtitle"><h2 style="margin:0">${MODES[m].name}</h2><span class="chip2">${k.i} ${k.n}</span></div><div class="statgrid"><div><b>${r}</b><small>рейтинг</small></div><div><b>${d?d.g|0:0}</b><small>игр</small></div><div><b>${d?d.w|0:0}</b><small>побед</small></div></div></div>`}).join("");
+    return `<div class="card" style="margin-bottom:12px"><div class="cardtitle"><h2 style="margin:0">${MODES[m].name}</h2><span>${placeChip(pl[m])}<span class="chip2">${k.i} ${k.n}</span></span></div><div class="statgrid"><div><b>${r}</b><small>рейтинг</small></div><div><b>${d?d.g|0:0}</b><small>игр</small></div><div><b>${d?d.w|0:0}</b><small>побед</small></div></div></div>`}).join("");
   const sgOk=Object.keys(SUG).filter(id=>SUG[id].by===u&&sgState(SUG[id])==="ok").length;
   const have=ACHS.filter(x=>x.f({...ach,sgOk}));
   $("ppAch").innerHTML=`<div class="card" style="margin-bottom:12px"><div class="cardtitle"><h2 style="margin:0">Достижения</h2><span class="chip2">${have.length} из ${ACHS.length}${curStreak(ach)?" · серия "+curStreak(ach)+" дн.":""}</span></div>${have.length?`<div class="tl">${have.map(x=>`<div class="tcard" style="cursor:default"><div class="nm"><b>${esc(x.n)}</b><small>${esc(x.d)}</small></div></div>`).join("")}</div>`:'<div class="empty">Пока нет достижений</div>'}</div>`;
@@ -3918,6 +3923,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+ {id:"u30",d:"30 октября",t:"Места в профиле",items:["В профиле по каждому режиму видно место в рейтинге, а у тройки лидеров ещё и медаль"]},
  {id:"u29",d:"30 октября",t:"Звания стали сложнее",items:["Пороги рейтинга для званий повышены: Знаток от 1150, Эрудит от 1350, Мастер от 1600, Грандмастер от 1900, Легенда от 2300"]},
  {id:"u28",d:"30 октября",t:"Места в рейтинге",items:["У тройки лидеров медали рядом с именем, при равном результате игроки делят место"]},
  {id:"u27",d:"30 октября",t:"Награды вечера",items:["После квиз-вечера можно сохранить картинку с наградами: самый быстрый, самый везучий и лучшая серия, и отправить её в чат"]},
