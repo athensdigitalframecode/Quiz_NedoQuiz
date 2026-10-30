@@ -1,0 +1,19 @@
+Copyright (c) 2026 «Квиз или Недоквиз». Все права защищены.
+Copyright (c) 2026 "Quiz or Nedoquiz". All rights reserved.
+
+Исходный код, дизайн, тексты и оригинальные вопросы этого проекта нельзя
+копировать, изменять, распространять и использовать (полностью или частично)
+без письменного разрешения автора. Просмотр кода на GitHub разрешён только
+для ознакомления.
+
+The source code, design, texts and original questions of this project may not
+be copied, modified, distributed or used, in whole or in part, without the
+author's written permission. Viewing the code on GitHub is permitted for
+reference only.
+
+Исключение / Exception: часть вопросов получена из Open Trivia DB
+(https://opentdb.com) и распространяется по лицензии CC BY-SA 4.0
+(https://creativecommons.org/licenses/by-sa/4.0/). На эти вопросы
+действуют условия этой лицензии. / Part of the questions come from Open
+Trivia DB and remain under CC BY-SA 4.0; those questions are governed by
+that licence.
