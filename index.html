@@ -1908,7 +1908,7 @@ $("profDel").onclick=async()=>{
 /* ---------- главная ---------- */
 function fillTopics(){
   const sel=$("topicSel");if(!sel||sel.dataset.init)return;
-  sel.innerHTML='<option value="soon" disabled>🎭 Тематические (скоро)</option><option value="-1">🎲 Микс тем (от лёгких к сложным)</option>'+TOPICS.map((n,i)=>n&&topicCount(i)>=TOPIC_MIN?`<option value="${i}">${n} (${topicCount(i)})</option>`:"").join("");sel.value="-1";
+  sel.innerHTML='<option value="soon" disabled>🎭 Тематические (скоро)</option><option value="-1">🎲 Микс тем (от лёгких к сложным)</option>'+[26,...TOPICS.keys()].filter((i,j)=>i!==26||j===0).map(i=>{const n=TOPICS[i];return n&&topicCount(i)>=TOPIC_MIN?`<option value="${i}">${n} (${topicCount(i)})</option>`:""}).join("");sel.value="-1";
   sel.dataset.init="1";
   sel.onchange=()=>{curTopic=+sel.value;drawChallengeTopic();seenSig="";seenDraw()};
 }
