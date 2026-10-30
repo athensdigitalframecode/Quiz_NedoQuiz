@@ -3270,10 +3270,10 @@ async function drawRank(){
     rows=Object.values(agg);rows.sort((a,b)=>(b.pts-a.pts)||(b.w-a.w));
   }else rows.sort((a,b)=>((+b.r||0)-(+a.r||0))||((b.w|0)-(a.w|0)));
   if(rankTeam)rows=rows.filter(r=>team?r.id===rankTeam:(profiles[r.id]&&profiles[r.id].team===rankTeam));
-  $("lbBox").innerHTML=rows.length?'<table class="st lb"><thead><tr><th>#</th><th>'+(team?"Команда":"Игрок")+'</th><th>'+(wk?"Очки":"Рейтинг")+'</th><th>Игр</th><th>'+(rankMode==="solo"&&!wk?"Рекорд":"Побед")+'</th></tr></thead><tbody>'+rows.map((r,i)=>{
+  $("lbBox").innerHTML=rows.length?'<table class="st lb"><thead><tr><th>#</th><th>'+(team?"Команда":"Игрок")+'</th><th>'+(wk?"Очки":"Рейтинг")+'</th><th>Игр</th><th>'+(rankMode==="solo"&&!wk?"Рекорд":"Побед")+'</th></tr></thead><tbody>'+(()=>{const key=r=>wk?r.pts|0:+r.r||1000;let pl=0;rows.forEach((r,i)=>{if(!i||key(r)!==key(rows[i-1]))pl=i+1;r._p=pl});return rows})().map((r,i)=>{
     const k=rankOf(+r.r||1000),isMe=team?(ME&&ME.team===r.id):r.id===uid;
     const who=team?`<span>${teamLabel(r.id)}</span>`:`${pic(r.id)}<span>${esc(nickOf(r.id))}</span>`;
-    return `<tr ${team?"":`data-act="pprof" data-id="${r.id}"`} style="cursor:${team?"default":"pointer"};${isMe?"background:rgba(255,201,60,.08)":""}"><td>${i+1}</td><td class="nm"><div class="who">${who}</div>${wk?"":`<span class="rk">${k.i} ${k.n}</span>`}</td><td class="w">${wk?r.pts|0:+r.r||1000}</td><td>${r.g|0}</td><td>${rankMode==="solo"&&!wk?(r.best|0):(r.w|0)}</td></tr>`}).join("")+"</tbody></table>":'<div class="empty">Пока никто не играл в этом режиме</div>';
+    return `<tr ${team?"":`data-act="pprof" data-id="${r.id}"`} style="cursor:${team?"default":"pointer"};${isMe?"background:rgba(255,201,60,.08)":""}"><td>${["🥇","🥈","🥉"][r._p-1]||r._p}</td><td class="nm"><div class="who">${who}</div>${wk?"":`<span class="rk">${k.i} ${k.n}</span>`}</td><td class="w">${wk?r.pts|0:+r.r||1000}</td><td>${r.g|0}</td><td>${rankMode==="solo"&&!wk?(r.best|0):(r.w|0)}</td></tr>`}).join("")+"</tbody></table>":'<div class="empty">Пока никто не играл в этом режиме</div>';
   $("histBox").innerHTML=hist.length?hist.map(h=>{
     const when=esc(new Date((+h.at||0)).toLocaleString("ru-RU",{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"}));
     let head;
@@ -3917,6 +3917,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+ {id:"u28",d:"30 октября",t:"Места в рейтинге",items:["Лучший в таблице всегда под номером 1, у тройки лидеров медали, а при равном результате игроки делят место"]},
  {id:"u27",d:"30 октября",t:"Награды вечера",items:["После квиз-вечера можно сохранить картинку с наградами: самый быстрый, самый везучий и лучшая серия, и отправить её в чат"]},
  {id:"u26",d:"30 октября",t:"Удобнее на телефоне и на ТВ",items:["Кнопки и вкладки стали крупнее, мелкий текст чуть больше, а при управлении с клавиатуры виден фокус","На главной кнопки «Поделиться» ушли под «Играть», чтобы главное действие было выше","На экране ТВ QR-код крупнее и кнопки больше не наезжают друг на друга","На картинке результата появились оценка и приглашение «Сыграй со мной» с адресом игры"]},
  {id:"u25",d:"30 октября",t:"Защита и скорость",items:["Закрыты дыры в защите: вредный текст в профиле и команде больше не выполняется, а игроки могут менять только свои данные","Рейтинг и списки игр грузятся быстрее: читаются только последние игры"]},
