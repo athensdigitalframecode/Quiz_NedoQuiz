@@ -942,6 +942,13 @@ body[data-scr=s-tv] .madewrap{display:none!important}
 .invbox{margin:18px 0 6px}.invbox .sharerow{margin:8px 0 0}
 .topicbox label.toplab{font-size:15px;font-weight:600;color:var(--gold);margin:16px 2px 8px}
 .topicbox label.toplab small{display:block;font-size:12px;font-weight:400;color:var(--mut);margin-top:2px}
+#s-boot .bootico{animation:bootx 3.4s ease-in-out infinite alternate;margin-top:18px;margin-bottom:6px}
+#s-boot .bootico svg{animation:booty 1.7s ease-in-out infinite;transform-origin:50% 60%}
+@keyframes bootx{from{transform:translateX(-96px)}to{transform:translateX(96px)}}
+@keyframes booty{0%,100%{transform:translateY(-16px) rotate(-8deg)}50%{transform:translateY(16px) rotate(8deg)}}
+#s-boot h1{font:italic 700 clamp(28px,8.4vw,46px)/1.1 "Playfair Display",Georgia,"Times New Roman",serif!important;letter-spacing:.005em;margin-top:26px;color:#f6efe0;text-shadow:none!important;white-space:nowrap}
+#s-boot h1 em{font-style:italic;background:linear-gradient(100deg,#fff1c4,#e4c27a 50%,#c9a6ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-shadow:none!important}
+@media(prefers-reduced-motion:reduce){#s-boot .bootico,#s-boot .bootico svg{animation:none}}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@1,600;1,700&display=swap" media="print" onload="this.media='all'">
 <canvas id="stars"></canvas>
