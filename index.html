@@ -1816,6 +1816,7 @@ document.addEventListener("click",e=>{
   else if(k==="review")toggleReview();
   else if(k==="disp")disputeQ(+a.dataset.q);
   else if(k==="flag")flagQ();
+  else if(k==="awards")awardsCard();
   else if(k==="rank-pvp"){rankBack=cur;rankMode="pvp";rankScope="players";rankPeriod="all";nav("rank")}
   else if(k==="sgv"){const s=SUG[id];if(s&&s.by!==uid){const v=+a.dataset.v,nv=s["v_"+uid]===v?0:v;s["v_"+uid]=nv;db.doc("suggest/"+id).update({["v_"+uid]:nv}).catch(()=>{});drawSuggest()}}
   else if(k==="sgr"){const s=SUG[id];if(s&&s.by!==uid&&!s["r_"+uid]){s["r_"+uid]=1;db.doc("suggest/"+id).update({["r_"+uid]:1}).catch(()=>{});drawSuggest()}}
@@ -2428,6 +2429,7 @@ function endExtra(){
   if((ENDCOL[code]||[]).length)h+=`<div class="invite"><span>🎖️ В коллекции открыто: ${ENDCOL[code].map(esc).join(", ")}</span><button class="btn small" data-act="coll">Открыть</button></div>`;
   h+=reactHtml();
   h+=`<div class="gap"></div><button class="btn" data-act="share">Поделиться результатом</button>`;
+  if(game.mode==="evening"&&players.length>1&&!game.ch)h+=`<div class="gap"></div><button class="btn alt" data-act="awards">🏅 Награды вечера</button>`;
   if(players.length>1&&!game.ch)h+=`<div class="gap"></div><button class="btn alt" data-act="table">🖼️ ${game.mode==="evening"?"Сохранить итоги вечера":"Сохранить таблицу результатов"}</button>`;
   if(keys.length)h+=`<div class="gap"></div><button class="btn alt" data-act="review">${revOpen?"Скрыть разбор":"Разбор вопросов"}</button>`;
   if(revOpen&&keys.length)h+=`<div class="tl">`+keys.map(q=>revItem(q,rec[q])).join("")+`</div>`;
@@ -2837,7 +2839,7 @@ function drawGame(){
   if(run&&shownQ!==q){shownQ=q;popQ();capSel="";if(!endAt[q])endAt[q]=Date.now()+T*1000;ansAllSince=0}
   if(game.status==="reveal"&&!revealAt[q])revealAt[q]=Date.now();
   if(game.status==="q"||game.status==="reveal"){const sk=game.qs&&game.qs[q];if(sk!=null)seenAdd(sk)}
-  if(game.status==="reveal")recAnswer(q);
+  if(game.status==="reveal"){recAnswer(q);trackAll(q)}
   $("gbadge").textContent=MODES[m].name;
   document.body.classList.toggle("padmode",!!(game.host&&mine&&game.status==="q"));
   {const bx0=bq(game,q);$("qno").textContent="Раунд "+(rndOf(q)+1)+" · "+(m==="evening"?RND[rndOf(q)].n:RND_NAMES[rndOf(q)])+" · "+`Вопрос ${q+1} из ${TOTAL}`+(bx0&&bx0.by?" · от "+nickOf(bx0.by):"")}$("qtxt").textContent=game.qText||qOf(game,q);
@@ -3571,6 +3573,59 @@ async function chatSend(inp){
 $("chSend").onclick=()=>chatSend($("chIn"));
 $("chIn").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();chatSend()}};
 /* таблица результатов картинкой */
+
+/* награды вечера: самый быстрый, самый везучий, лучшая серия (по тому, что видел этот экран) */
+const TRK={};
+function trackAll(q){
+  if(!game||game.mode!=="evening")return;
+  const R=TRK[code]||(TRK[code]={});if(R[q])return;
+  R[q]={T:Tof(q),p:{}};
+  players.forEach(p=>{R[q].p[p.id]=(p.aq===q&&!p.dq)?{ok:p.ok===1,rt:+p.rt||0}:{ok:false,rt:0,none:1}});
+}
+function awardsData(){
+  const R=TRK[code]||{},qs=Object.keys(R).map(Number).sort((a,b)=>a-b),ids=players.filter(p=>!p.dq).map(p=>p.id),st={};
+  ids.forEach(id=>st[id]={n:0,sum:0,run:0,best:0,lucky:0});
+  qs.forEach(q=>{
+    const r=R[q],ans=ids.filter(id=>r.p[id]&&!r.p[id].none),share=ans.length?ans.filter(id=>r.p[id].ok).length/ans.length:1;
+    ids.forEach(id=>{const v=r.p[id],t=st[id];
+      if(v&&v.ok){t.n++;t.sum+=Math.max(0,r.T-v.rt);t.run++;t.best=Math.max(t.best,t.run);if(share<=.4&&ans.length>=3)t.lucky++}else t.run=0})});
+  let fast=null;ids.forEach(id=>{const t=st[id];if(t.n>=3){const a=t.sum/t.n;if(!fast||a<fast.v)fast={id,v:a}}});
+  const top=f=>{let b=null;ids.forEach(id=>{const v=f(st[id]);if(!b||v>b.v)b={id,v}});return b&&b.v>=2?b:null};
+  const lucky=(()=>{let b=null;ids.forEach(id=>{const v=st[id].lucky;if(v>=1&&(!b||v>b.v))b={id,v}});return b})();
+  return{q:qs.length,fast,lucky,streak:top(t=>t.best)};
+}
+async function awardsCard(){
+  if(!game||players.length<2)return;
+  const A=awardsData(),sc=p=>p.dq?-1e9:(p.pts|0),win=[...players].sort((a,b)=>sc(b)-sc(a))[0];
+  const W=1080,H=1350,cv=document.createElement("canvas");cv.width=W;cv.height=H;const x=cv.getContext("2d");
+  const F=(w,z)=>`${w} ${z}px Unbounded, Inter, system-ui, sans-serif`;
+  const g=x.createLinearGradient(0,0,W,H);g.addColorStop(0,"#0b1330");g.addColorStop(1,"#1d1038");x.fillStyle=g;x.fillRect(0,0,W,H);
+  x.strokeStyle="rgba(228,194,122,.45)";x.lineWidth=3;x.strokeRect(40,40,W-80,H-80);
+  x.textAlign="center";x.fillStyle="#e4c27a";x.font=F(500,38);x.fillText("КВИЗ ИЛИ НЕДОКВИЗ",W/2,120);
+  x.fillStyle="#f1ede4";x.font=F(600,60);x.fillText("Награды вечера",W/2,200);
+  const load=id=>new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=photoOfProfile(profiles[id]||{})});
+  const av=async(id,cx,cy,R)=>{const im=await load(id);x.save();x.beginPath();x.arc(cx,cy,R,0,7);x.clip();if(im)x.drawImage(im,cx-R,cy-R,R*2,R*2);else{x.fillStyle="#3b4a7a";x.fill()}x.restore();x.beginPath();x.arc(cx,cy,R+4,0,7);x.strokeStyle="#e4c27a";x.lineWidth=4;x.stroke()};
+  const nm=id=>String(nickOf(id)).slice(0,18);
+  if(win&&!win.dq){await av(win.id,W/2,330,90);x.fillStyle="#f1ede4";x.font=F(600,52);x.fillText(nm(win.id),W/2,470);x.fillStyle="#e4c27a";x.font=F(500,34);x.fillText("победитель · "+(win.pts|0)+" очков",W/2,520)}
+  const rows=[];
+  if(A.fast)rows.push(["⚡","Самый быстрый",A.fast.id,"отвечал в среднем за "+A.fast.v.toFixed(1).replace(".",",")+" с"]);
+  if(A.lucky)rows.push(["🍀","Самый везучий",A.lucky.id,"угадал, когда большинство ошиблось: "+A.lucky.v+" раз"]);
+  if(A.streak)rows.push(["🔥","Лучшая серия",A.streak.id,A.streak.v+" верных ответов подряд"]);
+  const y0=620,RH=190;
+  if(!rows.length){x.fillStyle="#8b94ad";x.font=F(400,34);x.fillText("Пока мало данных для наград",W/2,y0+90);x.fillText("(экран должен видеть игру с самого начала)",W/2,y0+140)}
+  for(let i=0;i<rows.length;i++){
+    const [ic,ti,id,de]=rows[i],y=y0+i*RH;
+    x.fillStyle="rgba(255,255,255,.06)";x.beginPath();x.roundRect(90,y,W-180,RH-24,26);x.fill();
+    await av(id,190,y+(RH-24)/2,58);
+    x.textAlign="left";x.fillStyle="#e4c27a";x.font=F(500,32);x.fillText(ic+" "+ti,290,y+54);
+    x.fillStyle="#f1ede4";x.font=F(600,44);x.fillText(nm(id),290,y+104);
+    x.fillStyle="#8b94ad";x.font=F(400,24);const t=de.length>56?de.slice(0,55)+"…":de;x.fillText(t,290,y+138);x.textAlign="center";
+  }
+  x.fillStyle="#e4c27a";x.font=F(600,42);x.fillText("Сыграй с нами",W/2,1262);
+  x.fillStyle="#f1ede4";x.font=F(400,28);x.fillText((location.host+location.pathname).replace(/index\.html$/,"").replace(/\/$/,"").slice(0,48),W/2,1302);
+  const blob=await new Promise(r=>cv.toBlob(r,"image/png"));if(!blob)return;
+  await deliverImg(blob,"kviz-awards.png");
+}
 async function tableCard(){
   if(!game||players.length<2)return;
   const m=game.mode,ev=m==="evening",blitz=m==="blitz";
@@ -3863,6 +3918,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
  {id:"u18",d:"29 октября",t:"Тематические наверху",items:["Пункт «Тематические (скоро)» теперь первый в списке тем"]},
+ {id:"u27",d:"30 октября",t:"Награды вечера",items:["После квиз-вечера можно сохранить картинку с наградами: самый быстрый, самый везучий и лучшая серия, и отправить её в чат"]},
  {id:"u26",d:"30 октября",t:"Удобнее на телефоне и на ТВ",items:["Кнопки и вкладки стали крупнее, мелкий текст чуть больше, а при управлении с клавиатуры виден фокус","На главной кнопки «Поделиться» ушли под «Играть», чтобы главное действие было выше","На экране ТВ QR-код крупнее и кнопки больше не наезжают друг на друга","На картинке результата появились оценка и приглашение «Сыграй со мной» с адресом игры"]},
  {id:"u25",d:"30 октября",t:"Защита и скорость",items:["Закрыты дыры в защите: вредный текст в профиле и команде больше не выполняется, а игроки могут менять только свои данные","Рейтинг и списки игр грузятся быстрее: читаются только последние игры"]},
  {id:"u23",d:"29 октября",t:"Обновлены FAQ и правила",items:["В FAQ добавлены ответы про режим «Хост», серию дней, коллекцию, Telegram, удаление команды, установку на телефон и пароль","Исправлено описание рейтинга дуэлей и жалоб на вопросы"]},
