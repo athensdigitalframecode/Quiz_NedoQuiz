@@ -908,9 +908,28 @@ body[data-scr=s-tv] .bnav,body[data-scr=s-tv] #donate,body[data-scr=s-tv] #updBt
 .dlgrow{display:flex;gap:10px;margin-top:12px}.dlgrow .btn{flex:1}
 .dangerbtn{color:#ff8a8a!important;border-color:rgba(255,120,120,.5)!important}
 .dlgrow .dangerbtn{background:rgba(220,60,60,.25)}.dlgrow .dangerbtn:disabled{opacity:.4}
+
+/* --- доступность: размеры касаний, мелкий текст, фокус --- */
+.rk,.statgrid small,a.donate small,.rintro small,.daily .chip2,.wkc small,.col small,.madeby{font-size:12px}
+body.on-home a.donate small{font-size:12px!important}
+.madeby b::after{font-size:12px}
+@media (pointer:coarse),(max-width:700px){
+  .btn.small,#rankBack,#faqBack,.tabs button,#shareHome,#shareTg,#tgOn,#tgChk,#musBtn{min-height:44px}
+  #musBtn{min-width:44px}
+  .btn.small,#rankBack,#faqBack,#shareHome,#shareTg{padding-left:16px;padding-right:16px}
+  .tchip{min-height:40px}
+}
+button:focus-visible,a:focus-visible,[role=button]:focus-visible,[data-act]:focus-visible,.tchip:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+/* --- экран ведущего (ТВ) --- */
+body[data-scr="s-tv"] #musBtn{top:1.5vh;right:calc(1.5vw + 60px)}
+.tvqr{padding:16px;border-radius:22px}.tvqr svg{width:min(44vh,440px)}
+.tvurl{font-size:2.2vh;word-break:break-all;max-width:90%}
+
+@media (pointer:coarse),(max-width:700px){.btn{min-height:44px}#chipsMore,#updBtn{min-height:40px}}
+.bn small{font-size:11.5px}
+.madeby,.madeby *,.dstat,.tchip i,.tchip.soon i{font-size:12px!important}
+.daily .cardtitle h2{white-space:nowrap}
 </style>
-
-
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@1,600;1,700&display=swap" media="print" onload="this.media='all'">
 <canvas id="stars"></canvas>
 <canvas id="fx"></canvas>
@@ -966,7 +985,6 @@ body[data-scr=s-tv] .bnav,body[data-scr=s-tv] #donate,body[data-scr=s-tv] #updBt
 <section id="s-home" class="screen">
   <h1>Квиз <em>или</em> Недоквиз</h1>
   <p class="sub">Блиц-квиз · дуэли команд · массовые турниры</p>
-  <div class="sharerow"><button class="btn alt small" id="shareHome" type="button">📨 Поделиться</button><button class="btn alt small" id="shareTg" type="button">✈️ В Telegram</button></div>
   <div class="card guestcard" id="guestBox">
     <h2>Чтобы играть, создайте аккаунт</h2>
     <p>Профиль нужен, чтобы сохранялись рейтинг, команды и достижения.</p>
@@ -981,6 +999,7 @@ body[data-scr=s-tv] .bnav,body[data-scr=s-tv] #donate,body[data-scr=s-tv] #updBt
   <div id="invites"></div>
   <div id="nowplay"></div>
   <button class="btn playbig" data-act="new" data-mode="solo" type="button"><span class="pbi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg></span><span class="pbt"><b>Играть</b><small>Быстрая игра: 15 вопросов, вы против себя</small></span></button>
+  <div class="sharerow"><button class="btn alt small" id="shareHome" type="button">📨 Поделиться</button><button class="btn alt small" id="shareTg" type="button">✈️ В Telegram</button></div>
   <div id="daily"></div>
   <div id="boards"></div>
   <div class="topicbox"><label for="topicSel">Тема вопросов</label><select id="topicSel"></select><div class="chips" id="topicChips"></div><button type="button" class="chipsmore" id="chipsMore">Все темы ▾</button></div>
@@ -2012,7 +2031,7 @@ function drawTv(){
   const top=`<button type="button" class="tvx" data-tv="exit" title="Закрыть экран ведущего">✕</button>`;
   if(st==="lobby"){
     const i=startInfo(players,game),r=players.filter(p=>p.ready).length;
-    h=`${top}<div class="tvl"><div class="tvq"><small>Код игры</small><div class="tvcode">${esc(code)}</div><div class="tvqr">${qrSvg(link,300)}</div><div class="tvurl">Наведите камеру или откройте<br><b>${esc(link.replace(/^https?:\/\//,""))}</b></div></div>
+    h=`${top}<div class="tvl"><div class="tvq"><small>Код игры</small><div class="tvcode">${esc(code)}</div><div class="tvqr">${qrSvg(link,440)}</div><div class="tvurl">Наведите камеру или откройте<br><b>${esc(link.replace(/^https?:\/\//,""))}</b></div></div>
      <div class="tvp"><h2>Квиз-вечер · игроков: ${players.length}</h2><div class="tvgrid">${players.map(p=>`<div class="tvpl${p.ready?" rdy":""}">${pic(p.id)}<b>${esc(nickOf(p.id))}</b>${p.ready?"<i>✓</i>":""}</div>`).join("")||'<div class="tvempty">Ждём игроков…</div>'}</div>
      <p class="tvmsg" id="tvMsg">${esc(i.need||(i.ok?"":`Готовы: ${r} из ${players.length}`))}</p>
      <button class="btn big" data-tv="start"${players.length&&!game.hostGo?"":" disabled"}>${game.hostGo?"Запускаем…":"▶ Начать игру"}</button></div></div>`;
@@ -2451,17 +2470,19 @@ async function shareCard(){
   x.fillStyle="#8b94ad";x.font=F(400,32);x.fillText(mode+(rk?" · "+rk:""),W/2,600);
   x.fillStyle="#e4c27a";x.font=F(600,190);x.fillText(String(mm.dq?0:(mm.pts|0)),W/2,820);
   x.fillStyle="#8b94ad";x.font=F(400,34);x.fillText("очков",W/2,870);
-  x.fillStyle="#f1ede4";x.font=F(500,52);x.fillText(`${mm.okc|0} из ${TOTAL} верно`,W/2,970);
+  x.fillStyle="#f1ede4";x.font=F(500,52);x.fillText(`${mm.okc|0} из ${TOTAL} верно`,W/2,960);
+  {const k=mm.okc|0,v=mm.dq?"":k>=TOTAL?"Идеально, без ошибок":k>=13?"Блестяще":k>=10?"Отличный результат":k>=7?"Неплохо":"Есть куда расти";if(v){x.fillStyle="#e4c27a";x.font=F(500,36);x.fillText(v,W/2,1010)}}
   const rec=REC[code]||{},ok=Object.values(rec).filter(r=>r.a&&r.a===r.c);
   ok.sort((a,b)=>{const pa=QSTAT[a.h]&&QSTAT[a.h].n>=3?QSTAT[a.h].ok/QSTAT[a.h].n:(a.hard?.2:.6),pb=QSTAT[b.h]&&QSTAT[b.h].n>=3?QSTAT[b.h].ok/QSTAT[b.h].n:(b.hard?.2:.6);return pa-pb});
   if(ok[0]){
-    x.fillStyle="#e4c27a";x.font=F(500,28);x.fillText("ЛУЧШИЙ ОТВЕТ",W/2,1040);
-    x.fillStyle="#f1ede4";x.font=F(400,32);
+    x.fillStyle="#8b94ad";x.font=F(400,26);x.fillText("Лучший ответ",W/2,1075);
+    x.fillStyle="#f1ede4";x.font=F(400,30);
     const wrap=(t,w)=>{const ws=t.split(" "),L=[];let c2="";for(const s of ws){if(x.measureText(c2+" "+s).width>w&&c2){L.push(c2);c2=s}else c2=(c2?c2+" ":"")+s}L.push(c2);return L};
-    const L=wrap(ok[0].q.length>110?ok[0].q.slice(0,107)+"…":ok[0].q,860).slice(0,3);L.forEach((l,i)=>x.fillText(l,W/2,1090+i*44));
-    x.fillStyle="#e4c27a";x.font=F(500,34);x.fillText("→ "+ok[0].c.slice(0,50),W/2,1090+L.length*44+14);
+    const L=wrap(ok[0].q.length>110?ok[0].q.slice(0,107)+"…":ok[0].q,860).slice(0,2);L.forEach((l,i)=>x.fillText(l,W/2,1115+i*40));
+    x.fillStyle="#e4c27a";x.font=F(500,34);x.fillText("→ "+ok[0].c.slice(0,50),W/2,1115+L.length*40+14);
   }
-  x.fillStyle="#8b94ad";x.font=F(400,26);x.fillText(new Date().toLocaleDateString("ru"),W/2,H-62);
+  x.fillStyle="#e4c27a";x.font=F(600,42);x.fillText("Сыграй со мной",W/2,1262);
+  x.fillStyle="#f1ede4";x.font=F(400,28);x.fillText((location.host+location.pathname).replace(/index\.html$/,"").replace(/\/$/,"").slice(0,48),W/2,1302);
   const blob=await new Promise(r=>cv.toBlob(r,"image/png"));if(!blob)return;
   await deliverImg(blob,"kviz-result.png");
 }
@@ -3842,6 +3863,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
  {id:"u18",d:"29 октября",t:"Тематические наверху",items:["Пункт «Тематические (скоро)» теперь первый в списке тем"]},
+ {id:"u26",d:"30 октября",t:"Удобнее на телефоне и на ТВ",items:["Кнопки и вкладки стали крупнее, мелкий текст чуть больше, а при управлении с клавиатуры виден фокус","На главной кнопки «Поделиться» ушли под «Играть», чтобы главное действие было выше","На экране ТВ QR-код крупнее и кнопки больше не наезжают друг на друга","На картинке результата появились оценка и приглашение «Сыграй со мной» с адресом игры"]},
  {id:"u25",d:"30 октября",t:"Защита и скорость",items:["Закрыты дыры в защите: вредный текст в профиле и команде больше не выполняется, а игроки могут менять только свои данные","Рейтинг и списки игр грузятся быстрее: читаются только последние игры"]},
  {id:"u23",d:"29 октября",t:"Обновлены FAQ и правила",items:["В FAQ добавлены ответы про режим «Хост», серию дней, коллекцию, Telegram, удаление команды, установку на телефон и пароль","Исправлено описание рейтинга дуэлей и жалоб на вопросы"]},
  {id:"u22",d:"29 октября",t:"Разные смайлики за верный ответ",items:["За правильный ответ теперь показываются разные смайлики"]},
