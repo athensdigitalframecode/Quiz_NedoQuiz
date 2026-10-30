@@ -1857,6 +1857,7 @@ document.addEventListener("click",e=>{
   else if(k==="pvpch")startPvp(id);
   else if(k==="pvpa")startAsync(id);
   else if(k==="achplay")playAsync(id);
+  else if(k==="endg"){const g=lobbies.find(x=>x.id===id);if(g&&g.by===uid){lobbies=lobbies.filter(x=>x.id!==id);db.doc("games/"+id).update({status:"end"}).catch(()=>{});drawHome()}}
   else if(k==="newteam")nav("newteam");
   else if(k==="team")nav("team",id);
   else if(k==="rank"){rankBack=cur;if(code&&game&&MODES[game.mode])rankMode=game.mode;nav("rank")}
@@ -1992,11 +1993,11 @@ function drawHome(){
   lobbies.forEach(g=>{
     if(g.mode==="pvp"){
       if(g.invited===uid)items.push(`<div class="invite"><span>Дуэль 1×1: вас вызывает ${esc(nickOf(g.by))}</span><button class="btn small" data-act="open" data-id="${g.id}">Принять</button></div>`);
-      else if(g.by===uid)items.push(`<div class="invite"><span>Ваш вызов ждёт: ${esc(nickOf(g.invited))}</span><button class="btn small" data-act="open" data-id="${g.id}">Открыть</button></div>`);
+      else if(g.by===uid)items.push(`<div class="invite"><span>Ваш вызов ждёт: ${esc(nickOf(g.invited))}</span><button class="btn small" data-act="open" data-id="${g.id}">Открыть</button><button class="btn alt small" data-act="endg" data-id="${g.id}">Завершить</button></div>`);
       return;
     }
     if(g.mode==="solo")return;
-    if(g.mode==="duel"){ if(mine&&(g.teams||[]).includes(mine))items.push(`<div class="invite"><span>⚔️ ${teamLabel(g.teams[0])} против ${teamLabel(g.teams[1])}</span><button class="btn small" data-act="open" data-id="${g.id}">${g.teams[0]===mine?"Открыть":"Принять"}</button></div>`) }
+    if(g.mode==="duel"){ if(mine&&(g.teams||[]).includes(mine))items.push(`<div class="invite"><span>⚔️ ${teamLabel(g.teams[0])} против ${teamLabel(g.teams[1])}</span><button class="btn small" data-act="open" data-id="${g.id}">${g.teams[0]===mine?"Открыть":"Принять"}</button>${g.by===uid?`<button class="btn alt small" data-act="endg" data-id="${g.id}">Завершить</button>`:""}</div>`) }
     else live.push(g);
   });
   drawLive(live);
@@ -2009,7 +2010,7 @@ function drawLive(live){
   const ic={mass:"🏟️",evening:"🎭",blitz:"⚡"};
   el.innerHTML=`<div class="lab"><span class="livedot"></span>Сейчас играют · открытых игр: ${live.length}</div>`+live.map(g=>{
     const n=(g.players&&typeof g.players==="object"?Object.keys(g.players).length:0);
-    return `<div class="invite"><span>${ic[g.mode]||"🎮"} ${esc(((MODES[g.mode]||{}).name||g.mode).replace(/^[^А-Яа-я]+/,""))} от ${esc(nickOf(g.by))}${n?` · ${n} в лобби`:""}</span><button class="btn small" data-act="open" data-id="${g.id}">Войти</button></div>`}).join("");
+    return `<div class="invite"><span>${ic[g.mode]||"🎮"} ${esc(((MODES[g.mode]||{}).name||g.mode).replace(/^[^А-Яа-я]+/,""))} от ${esc(nickOf(g.by))}${n?` · ${n} в лобби`:""}</span><button class="btn small" data-act="open" data-id="${g.id}">Войти</button>${g.by===uid?`<button class="btn alt small" data-act="endg" data-id="${g.id}">Завершить</button>`:""}</div>`}).join("");
 }
 function drawRankBar(){
   const el=$("rankbar");if(!el)return;
@@ -3961,6 +3962,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+ {id:"u37",d:"30 октября",t:"Кнопка «Завершить»",items:["В «Открытых играх и вызовах» свои игры и вызовы теперь можно завершить кнопкой"]},
  {id:"u36",d:"30 октября",t:"Картинки для малышей",items:["В теме «Малыши» появилось 50 вопросов с яркими картинками: животные, еда, транспорт и предметы","Обновлены FAQ и правила: детский режим, таймер 2 минуты для «Что? Где? Зачем?»"]},
  {id:"u35",d:"30 октября",t:"Больше детских вопросов",items:["В детские темы «Школьники» и «Подростки» добавлено ещё 181 научный вопрос: природа, тело человека, космос, физика и химия"]},
  {id:"u34",d:"30 октября",t:"Детский режим",items:["При создании профиля можно выбрать «ребёнок» и возраст: 5–7, 8–10 или 11–13 лет","Для детей три отдельные темы вопросов, они не попадают в общий микс","У детей свой рейтинг и свои лидеры недели; чат, фото и Telegram для них отключены"]},
