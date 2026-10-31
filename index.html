@@ -953,6 +953,10 @@ body[data-scr=s-tv] .madewrap{display:none!important}
 #s-home h1{font:italic 700 clamp(28px,8.4vw,46px)/1.1 "Playfair Display",Georgia,"Times New Roman",serif!important;letter-spacing:.005em;color:#f6efe0;text-shadow:none!important;white-space:nowrap}
 #s-home h1 em{font-style:italic;background:linear-gradient(100deg,#fff1c4,#e4c27a 50%,#c9a6ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-shadow:none!important}
 @media(prefers-reduced-motion:reduce){#s-home .hero-ico,#s-home .hero-ico svg{animation:none}}
+/* пожертвование — внутри «Ещё» */
+#sheet a.donate:not([hidden]){position:static!important;display:block!important;width:auto!important;max-width:none!important;margin:14px 0 0!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;opacity:1!important;transform:none!important;pointer-events:auto!important;text-align:center!important;animation:none!important;box-shadow:none!important}
+#sheet a.donate small{display:block!important;font-size:12px!important}
+
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@1,600;1,700&display=swap" media="print" onload="this.media='all'">
 <canvas id="stars"></canvas>
@@ -1055,7 +1059,6 @@ body[data-scr=s-tv] .madewrap{display:none!important}
   <div class="invbox"><div class="lab" style="text-align:center">Позвать друзей</div><div class="sharerow"><button class="btn alt small" id="shareHome" type="button">📨 Поделиться</button><button class="btn alt small" id="shareTg" type="button">✈️ В Telegram</button></div></div>
   <p class="hint" style="text-align:center;margin:14px 0 4px">Вопросы: Open Trivia DB, AI2 ARC, картинки OpenMoji, CC BY-SA 4.0; тема English — Princeton WordNet (подробнее в правилах)</p>
   <p class="hint" style="text-align:center;margin:0 0 10px">© 2026 «Квиз или Недоквиз». Все права защищены.</p>
-  <a class="donate" id="donate" href="#" target="_blank" rel="noopener" hidden title="Подписка на Instagram и пара лайков. Спасибо!">💛 «Пожертвование»<small>aka подписка на Instagram и парочка лайков. Спасибо!</small></a>
 </section>
 
 <!-- Мой профиль -->
@@ -1473,6 +1476,7 @@ body[data-scr=s-tv] .madewrap{display:none!important}
   <div class="setrow"><button class="btn alt small" id="pwaBtn" type="button" hidden>📲 Установить на телефон</button></div>
   <div class="pwahint" id="pwaHint" hidden></div>
   <div class="setrow"><button class="btn alt small" id="fsBtn" type="button">Aa Шрифт</button></div>
+  <a class="donate" id="donate" href="#" target="_blank" rel="noopener" hidden title="Подписка на Instagram и пара лайков. Спасибо!">💛 «Пожертвование»<small>aka подписка на Instagram и парочка лайков. Спасибо!</small></a>
 </div>
 
 
@@ -3965,6 +3969,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u46",d:"31 октября",t:"«Пожертвование» теперь в разделе «Ещё»",items:["Кнопка больше не висит на главном экране, а лежит внизу меню «Ещё»"]},
   {id:"u45",d:"31 октября",t:"English Vocabulary Builder: слова с разными значениями",items:["Добавлено 85 вопросов про известные слова с неочевидными значениями (charge, spare, draw, nail и другие). Теперь в теме больше 730 вопросов"]},
   {id:"u44",d:"31 октября",t:"English Vocabulary Builder: ещё 199 слов",items:["В теме English Vocabulary Builder добавлено 199 новых слов, которых раньше не было: теперь в ней больше 650 вопросов"]},
   {id:"u43",d:"31 октября",t:"Исправлен подсчёт рейтинга",items:["Рейтинг 0 больше не показывается как 1000","Полоска «до следующего звания» считается по вашему лучшему рейтингу","Место в профиле считается среди игроков вашей возрастной группы, как в таблице","При ничьей в вечере и командных играх рейтинг больше не начисляется обоим как за победу","Достижения не засчитываются дважды, если открыть завершённую игру снова"]},
