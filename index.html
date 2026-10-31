@@ -1508,6 +1508,7 @@ const RND_NAMES=["Разминка","Картинки","Основной рау�
 const EVE_PLAN=Array.from({length:15},(_,k)=>({L:EVE_LV[k],P:k>=4&&k<8,nl:k<4||(k>=8&&k<12)}));
 let introAt={},curBet=1,betQ="",hid={};
 const RANKS=[{min:0,n:"Новичок",i:"🌱"},{min:950,n:"Любитель",i:"🎯"},{min:1150,n:"Знаток",i:"📚"},{min:1350,n:"Эрудит",i:"🧠"},{min:1600,n:"Мастер",i:"🏅"},{min:1900,n:"Грандмастер",i:"💎"},{min:2300,n:"Легенда",i:"👑"}];
+const R0=d=>d&&d.r!=null&&isFinite(+d.r)?+d.r:1000;
 const rankOf=r=>{let x=RANKS[0];for(const k of RANKS)if(r>=k.min)x=k;return x};
 const EMOJIS=["✨","🦉","🔥","🐺","🚀","🎯","🦊","🐉","⚡","🍀","🎲","👑"];
 const COLORS=["#ffc93c","#2fe38a","#6ab0ff","#ff4d63","#a67cff","#ff8a3c"];
@@ -2015,7 +2016,7 @@ function drawLive(live){
 function drawRankBar(){
   const el=$("rankbar");if(!el)return;
   const sc=statsCache[uid];if(!sc){el.innerHTML="";return}
-  let r=1000;Object.values(sc.by||{}).forEach(x=>{if(x&&(+x.r||1000)>r)r=+x.r||1000});
+  let r=-1;Object.values(sc.by||{}).forEach(x=>{if(x&&R0(x)>r)r=R0(x)});if(r<0)r=1000;
   const c=rankOf(r),idx=RANKS.findIndex(x=>x.n===c.n),nx=RANKS[idx+1];
   if(!nx){el.innerHTML=`<div class="rb"><div class="rbt">${c.i} ${c.n} — высшее звание!</div><div class="rbar"><i style="width:100%"></i></div></div>`;return}
   const left=Math.max(1,Math.ceil(nx.min-r)),pc=Math.max(3,Math.min(100,Math.round((r-c.min)/(nx.min-c.min)*100)));
@@ -2284,7 +2285,7 @@ async function loadMyStats(){
   const out={};let best=RANKS[0],bestR=-1;
   for(const m of Object.keys(MODES)){
     try{const s=await db.doc(`stats/${m}/players/${uid}`).get();out[m]=s.exists?s.data():null}catch(e){out[m]=null}
-    const r=out[m]?+out[m].r||1000:1000;if(out[m]&&r>bestR){bestR=r;best=rankOf(r)}
+    const r=R0(out[m]);if(out[m]&&r>bestR){bestR=r;best=rankOf(r)}
   }
   if(bestR<0)best=rankOf(1000);
   statsCache[uid]={by:out,top:best};
@@ -2321,14 +2322,14 @@ async function drawMe(){
     $("meAch").innerHTML=`<div class="card" style="margin-bottom:12px"><div class="cardtitle"><h2 style="margin:0">Достижения</h2><span class="chip2">${have.size} из ${ACHS.length} · серия ${curStreak(a)} дн.</span></div><div class="tl">`+ACHS.map(x=>`<div class="tcard" style="cursor:default;${have.has(x.id)?"border-color:var(--gold)":"opacity:.45"}"><div class="nm"><b>${have.has(x.id)?"★ ":""}${esc(x.n)}</b><small>${esc(x.d)}</small></div></div>`).join("")+`</div></div>`});
   const pl=await myPlaces(uid,by);if(cur!=="me")return;
   $("meStats").innerHTML=Object.keys(MODES).map(m=>{
-    const d=by[m],r=d?+d.r||1000:1000,k=rankOf(r);
+    const d=by[m],r=R0(d),k=rankOf(r);
     return `<div class="card" style="margin-bottom:12px"><div class="cardtitle"><h2 style="margin:0">${MODES[m].name}</h2><span>${placeChip(pl[m])}<span class="chip2">${k.i} ${k.n}</span></span></div>
     <div class="statgrid"><div><b>${r}</b><small>рейтинг</small></div><div><b>${d?d.g|0:0}</b><small>игр</small></div><div><b>${d?d.w|0:0}</b><small>побед</small></div></div></div>`}).join("");
 }
 
 
 const MEDAL=["🥇","🥈","🥉"];
-async function myPlaces(u,by){const o={};await Promise.all(Object.keys(MODES).map(async m=>{try{if(!by[m])return;const mr=+by[m].r||1000;const a=(await db.collection(`stats/${m}/players`).get()).docs;o[m]=1+a.filter(d=>(+d.data().r||1000)>mr).length}catch(e){}}));return o}
+async function myPlaces(u,by){const o={};await Promise.all(Object.keys(MODES).map(async m=>{try{if(!by[m])return;const mr=R0(by[m]);const a=(await db.collection(`stats/${m}/players`).get()).docs;o[m]=1+a.filter(d=>grpOf(d.id)===grpOf(u)&&R0(d.data())>mr).length}catch(e){}}));return o}
 const placeChip=p=>p?`<span class="chip2">${p<4?MEDAL[p-1]+" ":""}${p} место</span> `:"";
 /* ---------- вопросы от игроков ---------- */
 let SUG={},sgLvl="m";const SG_N=3,SG_TOPIC=25;
@@ -2443,6 +2444,7 @@ async function onEnd(){
   const m=game.mode,mm=me(),c=code,rec=REC[c]||{};if(!mm)return;
   try{
     const a={...(await loadAch())},ps=players,okc=mm.okc|0,before=achSet(a),cbef=colSet(a);let win=false;
+    if((a.seen||[]).includes(c))return;a.seen=[...(a.seen||[]),c].slice(-40);
     if(m==="solo")win=!mm.dq&&okc>=10;
     else if(m==="pvp"){const sc=p=>p.dq?-1:(p.pts|0),top=Math.max(...ps.map(sc));win=sc(mm)===top&&ps.filter(p=>sc(p)===top).length===1}
     else if(m==="evening"){const sc=p=>p.dq?-1e9:(p.pts|0),top=Math.max(...ps.map(sc));win=!mm.dq&&sc(mm)===top&&(ps.length>1||okc>=10)}
@@ -2557,7 +2559,7 @@ async function drawPprof(){
   const pl=await myPlaces(u,by);
   if(cur!=="pprof"||curArg!==u)return;
   $("ppStats").innerHTML=Object.keys(MODES).map(m=>{
-    const d=by[m],r=d?+d.r||1000:1000,k=rankOf(r);
+    const d=by[m],r=R0(d),k=rankOf(r);
     return `<div class="card" style="margin-bottom:12px"><div class="cardtitle"><h2 style="margin:0">${MODES[m].name}</h2><span>${placeChip(pl[m])}<span class="chip2">${k.i} ${k.n}</span></span></div><div class="statgrid"><div><b>${r}</b><small>рейтинг</small></div><div><b>${d?d.g|0:0}</b><small>игр</small></div><div><b>${d?d.w|0:0}</b><small>побед</small></div></div></div>`}).join("");
   const sgOk=Object.keys(SUG).filter(id=>SUG[id].by===u&&sgState(SUG[id])==="ok").length;
   const have=ACHS.filter(x=>x.f({...ach,sgOk}));
@@ -2578,8 +2580,8 @@ async function drawPlayers(){
   if(!plStats){try{plStats={};(await db.collection("stats/pvp/players").get()).docs.forEach(d=>plStats[d.id]=d.data())}catch(e){plStats=null}}
   const q=($("plSearch").value||"").trim().toLowerCase(),st=plStats||{};
   const ids=Object.keys(profiles).filter(u=>u!==uid&&profiles[u].nick&&sameG(u)&&(!q||String(profiles[u].nick).toLowerCase().includes(q)));
-  ids.sort((a,b)=>((+(st[b]||{}).r||1000)-(+(st[a]||{}).r||1000))||String(profiles[a].nick).localeCompare(String(profiles[b].nick),"ru"));
-  $("plList").innerHTML=ids.map(u=>{const P=profiles[u],d=st[u],r=d?+d.r||1000:1000,k=rankOf(r);
+  ids.sort((a,b)=>(R0(st[b])-R0(st[a]))||String(profiles[a].nick).localeCompare(String(profiles[b].nick),"ru"));
+  $("plList").innerHTML=ids.map(u=>{const P=profiles[u],d=st[u],r=R0(d),k=rankOf(r);
     return `<div class="tcard plc" style="cursor:default">${pic(u)}<div class="nm" style="cursor:pointer" data-act="pprof" data-id="${u}"><b>${esc(P.nick)}</b><small>${P.team&&teams[P.team]?teamLabel(P.team):"Без команды"}${P.status?" · "+esc(P.status):""}</small><small>${k.i} ${k.n} · ${r} · игр ${d?d.g|0:0}, побед ${d?d.w|0:0}</small></div><div class="plbtns"><button class="btn small" data-act="pvpch" data-id="${u}">Вызвать</button><button class="btn small ghost" data-act="pvpa" data-id="${u}" title="Соперник сыграет в любое время">Отложенная</button></div></div>`}).join("")||'<div class="empty">Пока нет других игроков</div>';
   $("pl-err").textContent="";
 }
@@ -2697,7 +2699,7 @@ async function drawTeam(){
   <h2 style="margin-top:16px">Состав</h2><div class="members">${ms.map(row).join("")||'<div class="empty">Пока никого</div>'}</div>
   <h2 style="margin-top:16px">Рейтинг команды</h2><div id="teamStats" class="card"><div class="empty">Загружаем…</div></div>`;
   const rows=[];
-  for(const m of ["duel","mass"]){try{const s=await db.doc(`stats/${m}/teams/${id}`).get();const d=s.exists?s.data():null;const r=d?+d.r||1000:1000,k=rankOf(r);rows.push(`<div class="cardtitle" style="margin:4px 0"><span>${MODES[m].name}</span><span><span class="chip2">${k.i} ${k.n}</span> <b>${r}</b> · игр ${d?d.g|0:0}, побед ${d?d.w|0:0}</span></div>`)}catch(e){}}
+  for(const m of ["duel","mass"]){try{const s=await db.doc(`stats/${m}/teams/${id}`).get();const d=s.exists?s.data():null;const r=R0(d),k=rankOf(r);rows.push(`<div class="cardtitle" style="margin:4px 0"><span>${MODES[m].name}</span><span><span class="chip2">${k.i} ${k.n}</span> <b>${r}</b> · игр ${d?d.g|0:0}, побед ${d?d.w|0:0}</span></div>`)}catch(e){}}
   if(cur==="team"&&curArg===id&&$("teamStats"))$("teamStats").innerHTML=rows.join("");
 }
 document.addEventListener("change",async e=>{
@@ -3186,8 +3188,8 @@ async function saveStats(g,ps){
     ord.forEach((p,i)=>{place[p.id]=(i>0&&sc(p)===sc(ord[i-1]))?place[ord[i-1].id]:i+1});
     hist.winner=ord.length&&!ord[0].dq&&(N===1||sc(ord[0])>sc(ord[1]))?ord[0].id:"";
     for(const p of ps){
-      const k=p.okc|0,pl=place[p.id],d=p.dq?-20:N>1?Math.round(25*(N+1-2*pl)/(N-1)):Math.round((k-7)*6);
-      await bump(`stats/evening/players/${p.id}`,d,{win:!p.dq&&(N>1?pl===1:k>=10),score:p.dq?0:(p.pts|0)});
+      const k=p.okc|0,pl=place[p.id],tied=ord.filter(x=>place[x.id]===pl).length,pm=pl+(tied-1)/2,d=p.dq?-20:N>1?Math.round(25*(N+1-2*pm)/(N-1)):Math.round((k-7)*6);
+      await bump(`stats/evening/players/${p.id}`,d,{win:!p.dq&&(N>1?hist.winner===p.id:k>=10),score:p.dq?0:(p.pts|0)});
       hist.ps.push({u:p.id,s:p.dq?0:(p.pts|0),k,d:p.dq?1:0,dr:d});
     }
   }else if(m==="solo"){
@@ -3212,9 +3214,10 @@ async function saveStats(g,ps){
     const N=order.length;
     const dT=t=>{
       if(m==="duel"){ if(N<2||adj(order[0])===adj(order[1]))return 0; return place[t]===1?25:-20 }
-      return N>1?Math.round(25*(N+1-2*place[t])/(N-1)):0;
+      const tied=order.filter(x=>place[x]===place[t]).length;
+      return N>1?Math.round(25*(N+1-2*(place[t]+(tied-1)/2))/(N-1)):0;
     };
-    const win=t=>place[t]===1&&!(m==="duel"&&N>1&&adj(order[0])===adj(order[1]));
+    const win=t=>place[t]===1&&!(N>1&&adj(order[0])===adj(order[1]));
     for(const t of order){await bump(`stats/${m}/teams/${t}`,dT(t),{win:win(t),score:sc[t]});hist.teams.push({t,s:sc[t]})}
     for(const p of ps){await bump(`stats/${m}/players/${p.id}`,p.dq?-20:Math.round(dT(p.team)*.8),{win:!p.dq&&win(p.team),score:p.dq?0:(p.pts|0)});hist.ps.push({u:p.id,s:p.dq?0:(p.pts|0),t:p.team,d:p.dq?1:0})}
     hist.winner=order.length&&win(order[0])?order[0]:"";
@@ -3312,13 +3315,13 @@ async function drawRank(){
         const win=h.mode==="solo"?((x.k|0)>=10&&!x.d):(h.mode==="pvp"||h.mode==="evening"||h.mode==="blitz")?h.winner===x.u:h.winner===x.t;if(win)a.w++});
     });
     rows=Object.values(agg);rows.sort((a,b)=>(b.pts-a.pts)||(b.w-a.w));
-  }else rows.sort((a,b)=>((+b.r||0)-(+a.r||0))||((b.w|0)-(a.w|0)));
+  }else rows.sort((a,b)=>(R0(b)-R0(a))||((b.w|0)-(a.w|0)));
   if(!team)rows=rows.filter(r=>sameG(r.id));
   if(rankTeam)rows=rows.filter(r=>team?r.id===rankTeam:(profiles[r.id]&&profiles[r.id].team===rankTeam));
-  $("lbBox").innerHTML=rows.length?'<table class="st lb"><thead><tr><th>#</th><th>'+(team?"Команда":"Игрок")+'</th><th>'+(wk?"Очки":"Рейтинг")+'</th><th>Игр</th><th>'+(rankMode==="solo"&&!wk?"Рекорд":"Побед")+'</th></tr></thead><tbody>'+(()=>{const key=r=>wk?r.pts|0:+r.r||1000;let pl=0;rows.forEach((r,i)=>{if(!i||key(r)!==key(rows[i-1]))pl=i+1;r._p=pl});return rows})().map((r,i)=>{
-    const k=rankOf(+r.r||1000),isMe=team?(ME&&ME.team===r.id):r.id===uid;
+  $("lbBox").innerHTML=rows.length?'<table class="st lb"><thead><tr><th>#</th><th>'+(team?"Команда":"Игрок")+'</th><th>'+(wk?"Очки":"Рейтинг")+'</th><th>Игр</th><th>'+(rankMode==="solo"&&!wk?"Рекорд":"Побед")+'</th></tr></thead><tbody>'+(()=>{const key=r=>wk?r.pts|0:R0(r);let pl=0;rows.forEach((r,i)=>{if(!i||key(r)!==key(rows[i-1]))pl=i+1;r._p=pl});return rows})().map((r,i)=>{
+    const k=rankOf(R0(r)),isMe=team?(ME&&ME.team===r.id):r.id===uid;
     const who=team?`<span>${teamLabel(r.id)}</span>`:`${pic(r.id)}<span>${esc(nickOf(r.id))}</span>`+(r._p<4?`<span class="medal">${["🥇","🥈","🥉"][r._p-1]}</span>`:"");
-    return `<tr ${team?"":`data-act="pprof" data-id="${r.id}"`} style="cursor:${team?"default":"pointer"};${isMe?"background:rgba(255,201,60,.08)":""}"><td>${r._p}</td><td class="nm"><div class="who">${who}</div>${wk?"":`<span class="rk">${k.i} ${k.n}</span>`}</td><td class="w">${wk?r.pts|0:+r.r||1000}</td><td>${r.g|0}</td><td>${rankMode==="solo"&&!wk?(r.best|0):(r.w|0)}</td></tr>`}).join("")+"</tbody></table>":'<div class="empty">Пока никто не играл в этом режиме</div>';
+    return `<tr ${team?"":`data-act="pprof" data-id="${r.id}"`} style="cursor:${team?"default":"pointer"};${isMe?"background:rgba(255,201,60,.08)":""}"><td>${r._p}</td><td class="nm"><div class="who">${who}</div>${wk?"":`<span class="rk">${k.i} ${k.n}</span>`}</td><td class="w">${wk?r.pts|0:R0(r)}</td><td>${r.g|0}</td><td>${rankMode==="solo"&&!wk?(r.best|0):(r.w|0)}</td></tr>`}).join("")+"</tbody></table>":'<div class="empty">Пока никто не играл в этом режиме</div>';
   $("histBox").innerHTML=hist.length?hist.map(h=>{
     const when=esc(new Date((+h.at||0)).toLocaleString("ru-RU",{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"}));
     let head;
@@ -3962,6 +3965,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u43",d:"31 октября",t:"Исправлен подсчёт рейтинга",items:["Рейтинг 0 больше не показывается как 1000","Полоска «до следующего звания» считается по вашему лучшему рейтингу","Место в профиле считается среди игроков вашей возрастной группы, как в таблице","При ничьей в вечере и командных играх рейтинг больше не начисляется обоим как за победу","Достижения не засчитываются дважды, если открыть завершённую игру снова"]},
   {id:"u42",d:"31 октября",t:"Темы остаются на своих местах",items:["Выбранная тема вопросов теперь только подсвечивается и больше не прыгает в начало списка"]},
   {id:"u41",d:"31 октября",t:"Новая тема: «Язык мой — друг мой»",items:["Добавили тему для любителей языка: ударения, происхождение слов, фразеологизмы, сленг, языки и алфавиты мира. В ней 158 вопросов"]},
  {id:"u40",d:"31 октября",t:"English Vocabulary Builder: ещё слова",items:["В теме English Vocabulary Builder добавлено ещё 157 непростых слов из лексической базы WordNet. Теперь в ней больше 450 вопросов"]},
