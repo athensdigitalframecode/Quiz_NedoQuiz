@@ -663,7 +663,6 @@ html[data-theme="light"] .madeby b{background:linear-gradient(100deg,#8a5f12,#c0
 @media(max-width:380px){.madeby{font-size:13px!important}.madeby b{font-size:19px!important}}
 .chips{flex-wrap:wrap!important;overflow:hidden!important;max-height:86px;margin:0!important;padding:2px!important;-webkit-mask-image:none!important;mask-image:none!important;transition:max-height .35s var(--ease)}
 .chips.open{max-height:900px}
-.chips .tchip.on{order:-1}
 .chipsmore{display:block;margin:2px auto 4px;background:none;border:0;color:var(--gold);font:600 13px Inter,system-ui;cursor:pointer;padding:6px 12px;letter-spacing:.02em}
 .chipsmore:hover{text-decoration:underline}
 /* спокойный фон: меньше, тоньше, бледнее */
@@ -3963,6 +3962,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u42",d:"31 октября",t:"Темы остаются на своих местах",items:["Выбранная тема вопросов теперь только подсвечивается и больше не прыгает в начало списка"]},
   {id:"u41",d:"31 октября",t:"Новая тема: «Язык мой — друг мой»",items:["Добавили тему для любителей языка: ударения, происхождение слов, фразеологизмы, сленг, языки и алфавиты мира. В ней 158 вопросов"]},
  {id:"u40",d:"31 октября",t:"English Vocabulary Builder: ещё слова",items:["В теме English Vocabulary Builder добавлено ещё 157 непростых слов из лексической базы WordNet. Теперь в ней больше 450 вопросов"]},
  {id:"u39",d:"31 октября",t:"English: больше слов",items:["В теме «English Vocabulary Builder» стало намного больше вопросов: добавили предложения из лексической базы WordNet (Принстонский университет)"]},
