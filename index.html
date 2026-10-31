@@ -1947,7 +1947,7 @@ $("profDel").onclick=async()=>{
 function fillTopics(){
   const sel=$("topicSel"),kb=KB(ME);if(!sel||sel.dataset.init===String(kb))return;
   if(kb){sel.innerHTML=`<option value="${kb}">${TOPICS[kb]} (${topicCount(kb)})</option>`;sel.value=String(kb);curTopic=kb}
-  else sel.innerHTML=(topicCount(30)>=TOPIC_MIN?`<option value="30">${TOPICS[30]} (${topicCount(30)})</option>`:"")+'<option value="soon" disabled>🎭 Тематические (скоро)</option><option value="-1">🎲 Микс тем (от лёгких к сложным)</option>'+[25,26,...TOPICS.keys()].filter((i,j)=>j<2||(i!==25&&i!==26&&i!==30)).map(i=>{const n=TOPICS[i];return n&&topicCount(i)>=TOPIC_MIN?`<option value="${i}">${n} (${topicCount(i)})</option>`:""}).join("");if(!kb){sel.value="-1";if(curTopic>=27&&curTopic<30)curTopic=-1}
+  else sel.innerHTML=[30].map(i=>topicCount(i)>=TOPIC_MIN?`<option value="${i}">${TOPICS[i]} (${topicCount(i)})</option>`:"").join("")+'<option value="soon" disabled>🎭 Тематические (скоро)</option><option value="-1">🎲 Микс тем (от лёгких к сложным)</option>'+[17,25,26,...TOPICS.keys()].filter((i,j)=>j<3||(i!==17&&i!==25&&i!==26&&i!==30)).map(i=>{const n=TOPICS[i];return n&&topicCount(i)>=TOPIC_MIN?`<option value="${i}">${n} (${topicCount(i)})</option>`:""}).join("");if(!kb){sel.value="-1";if(curTopic>=27&&curTopic<30)curTopic=-1}
   sel.dataset.init=String(kb);
   sel.onchange=()=>{curTopic=+sel.value;drawChallengeTopic();seenSig="";seenDraw()};
 }
