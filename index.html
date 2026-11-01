@@ -3071,7 +3071,10 @@ document.addEventListener("visibilitychange",()=>{
   if(document.hidden){wasHidden=true;hidAt=Date.now();clearTimeout(hidTm);hidTm=setTimeout(()=>{if(document.hidden)dqSelf()},GRACE)}
   else if(wasHidden){wasHidden=false;clearTimeout(hidTm);if(Date.now()-hidAt>GRACE+300)dqSelf()}
 });
-addEventListener("pagehide",dqSelf);
+/* экран не гаснет во время вопроса (wake lock); pagehide не дисквалифицирует: его даёт и блокировка экрана */
+let wlk=null;
+setInterval(()=>{if(wlk||!navigator.wakeLock||document.hidden||!code||!game||(game.status!=="q"&&game.status!=="reveal"))return;
+  navigator.wakeLock.request("screen").then(l=>{wlk=l;l.addEventListener("release",()=>{wlk=null})}).catch(()=>{})},2000);
 function capOf(ps,t,frozen){
   const mem=ps.filter(p=>p.team===t&&!p.dq);
   if(frozen&&mem.some(p=>p.id===frozen))return frozen;
@@ -3971,6 +3974,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u46",d:"1 ноября",t:"Экран не гаснет во время игры",items:["Во время вопроса экран телефона больше не гаснет сам, поэтому не будет дисквалификации за автозатухание"]},
   {id:"u45",d:"31 октября",t:"English Vocabulary Builder: слова с разными значениями",items:["Добавлено 85 вопросов про известные слова с неочевидными значениями (charge, spare, draw, nail и другие). Теперь в теме больше 730 вопросов"]},
   {id:"u44",d:"31 октября",t:"English Vocabulary Builder: ещё 199 слов",items:["В теме English Vocabulary Builder добавлено 199 новых слов, которых раньше не было: теперь в ней больше 650 вопросов"]},
   {id:"u43",d:"31 октября",t:"Исправлен подсчёт рейтинга",items:["Рейтинг 0 больше не показывается как 1000","Полоска «до следующего звания» считается по вашему лучшему рейтингу","Место в профиле считается среди игроков вашей возрастной группы, как в таблице","При ничьей в вечере и командных играх рейтинг больше не начисляется обоим как за победу","Достижения не засчитываются дважды, если открыть завершённую игру снова"]},
