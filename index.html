@@ -1029,8 +1029,19 @@ body[data-scr="s-home"] #bestFloat{display:block}
 #bestFloat .bfl{font:600 10px/1.1 Inter,system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#ffd23f;text-shadow:0 1px 4px rgba(0,0,0,.7)}
 /* два знака отталкиваются от центра, доходят чуть дальше краёв заголовка и с ускорением сталкиваются */
 :root{--bfa:150px;--bfd:46px}
-@keyframes bumpR{0%{transform:translateX(var(--bfd)) scale(1.12);animation-timing-function:cubic-bezier(.1,.75,.3,1)}45%{transform:translateX(var(--bfa)) scale(1);animation-timing-function:cubic-bezier(.8,0,.9,.5)}100%{transform:translateX(var(--bfd)) scale(1.12)}}
-@keyframes bumpL{0%{transform:translateX(calc(var(--bfd)*-1)) scale(1.12);animation-timing-function:cubic-bezier(.1,.75,.3,1)}45%{transform:translateX(calc(var(--bfa)*-1)) scale(1);animation-timing-function:cubic-bezier(.8,0,.9,.5)}100%{transform:translateX(calc(var(--bfd)*-1)) scale(1.12)}}
+/* удар: касание (96%), сжатие (100%/0%), только потом отскок; подход с ускорением, отскок с замедлением */
+@keyframes bumpR{
+0%{transform:translateX(calc(var(--bfd) - 4px)) scale(.88,1.08);animation-timing-function:cubic-bezier(.2,.6,.3,1)}
+7%{transform:translateX(var(--bfd)) scale(1.04,.98);animation-timing-function:cubic-bezier(.1,.75,.3,1)}
+46%{transform:translateX(var(--bfa)) scale(1);animation-timing-function:cubic-bezier(.8,0,.9,.5)}
+96%{transform:translateX(var(--bfd)) scale(1);animation-timing-function:cubic-bezier(.2,.8,.4,1)}
+100%{transform:translateX(calc(var(--bfd) - 4px)) scale(.88,1.08)}}
+@keyframes bumpL{
+0%{transform:translateX(calc(var(--bfd)*-1 + 4px)) scale(.88,1.08);animation-timing-function:cubic-bezier(.2,.6,.3,1)}
+7%{transform:translateX(calc(var(--bfd)*-1)) scale(1.04,.98);animation-timing-function:cubic-bezier(.1,.75,.3,1)}
+46%{transform:translateX(calc(var(--bfa)*-1)) scale(1);animation-timing-function:cubic-bezier(.8,0,.9,.5)}
+96%{transform:translateX(calc(var(--bfd)*-1)) scale(1);animation-timing-function:cubic-bezier(.2,.8,.4,1)}
+100%{transform:translateX(calc(var(--bfd)*-1 + 4px)) scale(.88,1.08)}}
 @media (prefers-reduced-motion:no-preference){#s-home .hero-ico{animation:bumpR 4.6s infinite}}
 /* отдельные слои для движущихся знаков и нижней панели: столкновение не перерисовывает размытие панели (не дёргается) */
 #s-home .hero-ico,#bestFloat .bfin,#bestFloat .bfy{will-change:transform;backface-visibility:hidden}
@@ -2153,6 +2164,8 @@ function bestFit(){
   const h=document.querySelector("#s-home .hero-ico");let top=96;
   if(h&&h.offsetParent){const r=h.getBoundingClientRect();if(r.height)top=Math.max(56,r.top+scrollY-12)}
   el.style.top=top+"px";el.classList.toggle("bfoff",scrollY>140);
+  const sv=document.querySelector("#s-home .hero-ico svg"),ph=document.querySelector("#bestFloat .bfp");
+  if(sv&&ph&&sv.getBBox&&h&&h.offsetParent){try{const cw=parseFloat(getComputedStyle(sv).width),vb=(sv.viewBox&&sv.viewBox.baseVal.width)||120,bb=sv.getBBox(),lv=cw*bb.width/vb,pw=ph.offsetWidth;if(lv>20&&pw>20)document.documentElement.style.setProperty("--bfd",((lv+pw)/4).toFixed(1)+"px")}catch(e){}}
   const t=document.querySelector("#s-home h1");
   if(t&&t.offsetParent){const rg=document.createRange();rg.selectNodeContents(t);const w=rg.getBoundingClientRect().width;if(w>50)document.documentElement.style.setProperty("--bfa",Math.max(90,Math.min(w/2+12,document.documentElement.clientWidth/2-72)).toFixed(0)+"px")}
 }
@@ -4284,7 +4297,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="c0d0f6215e20";
+  const BUILD="bf900e7e1105";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
