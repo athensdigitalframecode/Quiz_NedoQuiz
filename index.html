@@ -132,6 +132,42 @@ table.st{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
 .empty{color:var(--mut);text-align:center;padding:18px 0}
 canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:50}
 @media (prefers-reduced-motion:reduce){.screen.on,.pl.out .av,.champ .crown{animation:none}}
+body[data-scr="s-film"],body[data-scr="s-polina"]{--bg:#2b1a0e;--card:#3b2414;--card2:#4d3019;--line:#7a5430;--txt:#fff3df;--mut:#e2c9a0;--gold:#ffb347;--ok:#5fcf8a;--bad:#ff8f6b;--acc:#2ec4b6}
+body[data-scr="s-film"]::before,body[data-scr="s-polina"]::before{background:radial-gradient(900px 600px at 15% -5%,#6b3414 0%,transparent 60%),radial-gradient(800px 600px at 100% 100%,#40204a 0%,transparent 55%),var(--bg)}
+body[data-scr="s-film"] #stars,body[data-scr="s-film"] #stage,body[data-scr="s-film"] #mesh,body[data-scr="s-film"] .mus,body[data-scr="s-film"] .madewrap,body[data-scr="s-film"] .madeby,body[data-scr="s-film"] a.donate,body[data-scr="s-film"] .updbtn,body[data-scr="s-film"] .polbtn,body[data-scr="s-film"] .bnav,
+body[data-scr="s-polina"] #stars,body[data-scr="s-polina"] #stage,body[data-scr="s-polina"] #mesh,body[data-scr="s-polina"] .mus,body[data-scr="s-polina"] .madewrap,body[data-scr="s-polina"] .madeby,body[data-scr="s-polina"] a.donate,body[data-scr="s-polina"] .updbtn,body[data-scr="s-polina"] .polbtn,body[data-scr="s-polina"] .bnav{display:none!important}
+body[data-scr="s-film"] .wrap,body[data-scr="s-polina"] .wrap{max-width:900px}
+#s-film,#s-polina{font-size:var(--fz,22px);line-height:1.45}
+#s-film .top .btn,#s-polina .top .btn{width:auto;min-height:44px;padding:.5em 1em;font-size:.8em}
+#s-polina h1{font:700 1.5em/1.2 Georgia,"Times New Roman",serif;letter-spacing:0}
+#s-polina .sub{font-size:.85em;color:var(--mut)}
+#s-polina .card{margin:.8em 0;padding:1em}
+#s-polina label{display:block;color:var(--mut);font-size:.85em}
+#polCode{width:100%;margin:.5em 0;padding:.6em;font-size:1.2em;text-align:center;text-transform:uppercase;letter-spacing:.25em}
+.fmb{display:block;width:100%;min-height:3em;margin:.7em 0;padding:.7em 1em;border:0;border-radius:16px;background:linear-gradient(135deg,#ffd36e,#ff9ec4);color:#2a1405;font:800 1em/1.2 system-ui,sans-serif;cursor:pointer}
+.fmb.alt{background:var(--card2);color:var(--txt);border:1px solid var(--line)}
+.fmrow{display:flex;gap:.6em}.fmrow>*{flex:1}
+.fmhead{margin:.4em 0;text-align:center;color:var(--gold);font-weight:700;font-size:.8em;letter-spacing:.04em}
+.fmq,.fmh{margin:.3em 0 .7em;text-align:center;font:700 1.45em/1.3 Georgia,"Times New Roman",serif;letter-spacing:0}
+.fmh{font-size:1.1em;text-align:left;margin-top:1em}
+.fmo{display:flex;align-items:center;gap:.6em;width:100%;min-height:3.4em;margin:.5em 0;padding:.55em .9em;border:2px solid var(--line);border-radius:16px;background:var(--card);color:var(--txt);font:600 1em/1.3 system-ui,sans-serif;text-align:left;cursor:pointer}
+.fmo span{flex:none;display:grid;place-items:center;width:1.9em;height:1.9em;border-radius:50%;background:var(--card2);color:var(--gold);font-weight:800}
+.fmo em{margin-left:auto;font-style:normal;color:var(--mut);font-weight:700}
+.fmo.me{border-color:var(--gold)}
+.fmo.ok{border-color:var(--ok);background:rgba(95,207,138,.18)}
+.fmo.bad{border-color:var(--bad);background:rgba(255,143,107,.16)}
+.fmo.dim{opacity:.55}
+.fmo:disabled{cursor:default}
+.fmep{margin:.9em 0;padding:.9em 1em;border-radius:16px;background:var(--card2);border:1px solid var(--line)}
+.fmep small{display:block;margin-bottom:.3em;color:var(--gold);font-weight:700}
+.fmw{text-align:center;color:var(--mut);font-size:.85em}
+.fmc{text-align:center;margin:.6em 0}
+.fmc small{color:var(--mut)}
+.fmcode{font:800 3em/1.1 Georgia,"Times New Roman",serif;letter-spacing:.2em;color:var(--gold)}
+.fmqr{display:inline-block;margin:.5em 0;padding:.5em;border-radius:16px;background:#fff;line-height:0}
+.fmpl{display:flex;flex-wrap:wrap;gap:.6em}
+.fmp{display:flex;align-items:center;gap:.5em;padding:.4em .8em .4em .4em;border-radius:99px;background:var(--card);border:1px solid var(--line)}
+.fmp .pic{width:2em;height:2em;border-radius:50%}
 </style>
 <style>
 .pic{border-radius:50%;object-fit:cover;background:#111;display:block}
@@ -1344,10 +1380,17 @@ body[data-scr=s-tv] .madewrap{display:none!important}
 </section>
 
 <section id="s-polina" class="screen rules">
-  <div class="top"><button class="btn alt small" id="polBack">← Назад</button></div>
+  <div class="top"><button class="btn alt small" id="polBack">← Назад</button><button class="btn alt small" id="polAa" type="button" aria-label="Крупнее шрифт">А+</button></div>
   <h1>📚 Для Полины</h1>
   <p class="sub" style="text-align:center;margin:0 0 12px">Книжный клуб · встреча по фильму «Миллионер из трущоб»</p>
-  <div class="card"><p>Здравствуйте, Полина! Здесь скоро появится всё для вашей встречи: викторина и карточки для обсуждения фильма. Страница ещё готовится.</p></div>
+  <div class="card"><p>Вечер кино: 10 вопросов о фильме и карточки для обсуждения. Каждая участница отвечает со своего телефона. Нужен обычный аккаунт игры, зарегистрироваться можно заранее.</p>
+  <button class="fmb" id="polOpen" type="button">🎬 Открыть комнату (для Полины)</button></div>
+  <div class="card"><label for="polCode">Уже есть код от Полины?</label><input id="polCode" maxlength="4" autocomplete="off" inputmode="text" placeholder="КОД"><button class="fmb alt" id="polJoin" type="button">Войти в комнату</button>
+  <p id="polErr" class="fmw" style="color:var(--bad)"></p></div>
+</section>
+<section id="s-film" class="screen">
+  <div class="top"><button class="btn alt small" data-f="exit" type="button">← Выйти</button><button class="btn alt small" data-f="aa" type="button" aria-label="Крупнее шрифт">А+</button></div>
+  <div class="wrap"><div id="fmBody"></div><div id="fmFoot"></div></div>
 </section>
 <section id="s-faq" class="screen rules">
   <div class="top"><button class="btn alt small" id="faqBack">← Назад</button></div>
@@ -1909,7 +1952,7 @@ document.addEventListener("click",e=>{
 let rankBack="home",rulesBack="home";
 $("rulesBack").onclick=()=>{ if(code)renderGame(true);else nav(rulesBack==="rules"?"home":rulesBack,curArg) };
 $("modesBack").onclick=$("rulesBack").onclick;$("faqBack").onclick=$("rulesBack").onclick;
-$("polBtn").onclick=()=>{rulesBack=cur;show("s-polina");scrollTo(0,0)};$("polBack").onclick=$("rulesBack").onclick;
+$("polBtn").onclick=()=>{rulesBack=cur;$("polErr").textContent=document.body.classList.contains("guest")?"Сначала войдите или зарегистрируйтесь в игре":"";show("s-polina");scrollTo(0,0)};$("polBack").onclick=$("rulesBack").onclick;$("polAa").onclick=()=>filmFz(1);$("polOpen").onclick=filmCreate;$("polJoin").onclick=()=>{const c=$("polCode").value.trim().toUpperCase();if(c.length<4){$("polErr").textContent="Введите код из 4 символов";return}if(!uid||!ME){$("polErr").textContent="Сначала войдите в игру";return}openGame(c)};
 $("rankBack").onclick=()=>{ if(code&&game&&game.status==="end")show("s-end");else if(code)renderGame(true);else nav(rankBack==="rank"?"home":rankBack) };
 $("profBack").onclick=()=>{ if(!ME)return;nav("home") };
 
@@ -2805,10 +2848,113 @@ async function openGame(c){
   try{
     const s=await db.doc("games/"+c).get();
     if(!s.exists){$("home-err").textContent="Игра с таким кодом не найдена";nav("home");return}
-    const gd=s.data();await enter(c);
+    const gd=s.data();if(gd&&gd.mode==="film"){await filmEnter(c);return}await enter(c);
     if(gd&&gd.mode==="pvp"&&gd.invited===uid)await joinGame();
   }catch(e){$("home-err").textContent="Не удалось войти: "+(e.message||e.code)}
 }
+
+/* ---------- «Вечер кино» (книжный клуб): комната по коду, викторина без таймера и очков, карточки обсуждения ---------- */
+const FILM_Q=[
+ {q:"Кем работает взрослый Джамал в колл-центре?",o:["Оператором","Разносчиком чая","Охранником","Курьером"],a:1,ep:"Фильм начинается в комнате допроса: ведущий Прем Кумар подозревает, что разносчик чая из колл-центра не мог честно знать столько ответов."},
+ {q:"Как в школе в насмешку называет учитель Джамала и Салима?",o:["Тарзан и Маугли","Атос и Портос","Рама и Лакшман","Том и Джерри"],a:1,ep:"Учитель дразнит братьев Атосом и Портосом, а имени третьего мушкетёра они не знают. К этому вопросу фильм вернётся в самом конце."},
+ {q:"Как братья зарабатывают у Тадж-Махала?",o:["Продают сувениры","Играют на улице","Работают фальшивыми гидами и воруют обувь","Чистят туристам обувь"],a:2,ep:"Повзрослевшие братья ездят на крышах поездов, торгуют, подворовывают, а у Тадж-Махала притворяются гидами и крадут у туристов обувь."},
+ {q:"Вопрос шоу: «Кембридж-Серкус находится в каком британском городе?»",o:["Лондон","Кембридж","Оксфорд","Лидс"],a:0,ep:"Этот вопрос звучит сразу после эпизода в колл-центре, где Салим по телефону узнаёт голос брата."},
+ {q:"Что Джамал обещает Латике в доме Джаведа?",o:["Вернуться с деньгами","Ждать её каждый день в пять часов на вокзале","Прислать письмо","Увезти её к Тадж-Махалу"],a:1,ep:"Джамал пробирается в дом Джаведа, находит там Латику и обещает ждать её каждый день в пять часов на вокзале."},
+ {q:"Как Салим называет себя, когда требует от брата отдать Латику?",o:["«Королём Бомбея»","«Хозяином Джаведа»","«Человеком с кольтом»","«Братом Мамана»"],a:2,ep:"Салим уже работает на Джаведа. Он называет себя человеком с кольтом и требует, чтобы Джамал оставил Латику ему."},
+ {q:"Кому Джамал хочет позвонить по подсказке «звонок другу»?",o:["Латике","Салиму","Маману","Прему Кумару"],a:1,ep:"Перед последним вопросом Джамал просит позвонить брату Салиму."},
+ {q:"Какой подсказкой Джамал пользуется на вопросе о надписи под гербом Индии?",o:["50 на 50","Звонок другу","Помощь зала","Двойной шанс"],a:2,ep:"Это первая подсказка Джамала. Инспектор в комнате допроса замечает, что даже его пятилетняя дочь знала бы ответ."},
+ {q:"Вопрос на 10 миллионов рупий: кто забил больше всех сотен в первоклассном крикете?",o:["Сачин Тендулкар","Джек Хоббс","Рикки Понтинг","Майкл Слейтер"],a:1,ep:"На этом вопросе Джамал берёт подсказку «50 на 50». Тендулкар самый известный из вариантов, но не верный."},
+ {q:"На какой вопрос Джамал отвечает наугад, выбрав первый вариант, и выигрывает?",o:["Про револьвер","Про герб Индии","Про Кембридж-Серкус","Про третьего мушкетёра (Арамис)"],a:3,ep:"Джамал не знает ответа и угадывает. Пока идёт игра, Салим убивает Джаведа и погибает от рук его людей."}
+];
+const FILM_C=[
+ {t:"Знание",q:"Откуда Джамал знает ответы: из школы или из жизни? Что важнее?",o:["Жизненный опыт","Образование","Нужно и то и другое"]},
+ {t:"Судьба",q:"«Так было написано». Судьба это или цепочка случайностей?",o:["Судьба","Случайность","Немного и то и другое"]},
+ {t:"Герои",q:"Салим: герой или злодей?",o:["Герой","Злодей","И то и другое"]},
+ {t:"Герои",q:"Почему, по-вашему, ведущий Прем Кумар заподозрил Джамала и передал его полиции?",o:["Зависть","Недоверие к бедному парню","Привычка к власти"]},
+ {t:"Память",q:"Какой эпизод детства Джамала поразил вас сильнее всего?",o:["Побег на поезде","Тадж-Махал","Встреча с Латикой","Автограф Баччана"]},
+ {t:"Контраст",q:"В фильме жестокость и сказка идут рядом. Помогает ли сказка смотреть тяжёлое?",o:["Да, помогает","Нет, мешает","Зависит от сцены"]},
+ {t:"Любовь",q:"Джамал рискует всем ради Латики. Ради чего вы пошли бы на такой риск?",o:["Ради любимого человека","Ради семьи","Ради мечты","Ни ради чего"]},
+ {t:"Музыка",q:"Какая сцена запомнилась вам благодаря музыке, а не картинке?",o:["Финальный танец","Побег на поезде","Другая сцена"]},
+ {t:"Финал",q:"Финальный танец на вокзале: достойная награда или лишний эпизод?",o:["Достойная награда","Лишний эпизод","Не определилась"]},
+ {t:"Лично про вас",q:"Придумайте «вопрос на миллион» из вашей жизни. Откуда вы знаете ответ?",o:[]},
+ {t:"Лично про вас",q:"Какая сцена была для вас самой тяжёлой и что помогло досмотреть?",o:[]},
+ {t:"Финал",q:"Вы поверили в счастливый конец?",o:["Да","Нет","Хотелось бы верить"]}
+];
+/* состояние комнаты лежит в games/КОД (mode:"film", без status, чтобы комната не попадала в «Открытые игры»), ответы каждой участницы в games/КОД/fp/uid */
+let film=null;
+const FMZ=[22,28,34];
+function filmFz(step){let i=0;try{i=+localStorage.getItem("fmz")||0}catch(e){}if(step)i=(i+1)%FMZ.length;try{localStorage.setItem("fmz",String(i))}catch(e){}document.documentElement.style.setProperty("--fz",FMZ[i]+"px")}
+function filmLeave(){if(film){film.un.forEach(u=>{try{u()}catch(e){}});film=null}}
+async function filmCreate(){
+  if(!uid||!ME){$("polErr").textContent="Сначала войдите в игру";return}
+  try{
+    let c,tries=0;
+    do{c=newCode();tries++}while(tries<6&&(await db.doc("games/"+c).get()).exists);
+    await db.doc("games/"+c).set({mode:"film",by:uid,st:"wait",qi:0,ci:0,createdAt:Date.now()});
+    await filmEnter(c);
+  }catch(e){$("polErr").textContent="Не удалось открыть комнату: "+(e.message||e.code)}
+}
+async function filmEnter(c){
+  leaveGame(true);filmLeave();
+  const gref=db.doc("games/"+c),pcol=gref.collection("fp"),s=await gref.get();
+  if(!s.exists||!s.data()||s.data().mode!=="film")throw new Error("комната не найдена");
+  const f=film={c,gref,pcol,g:s.data(),ps:[],my:{a:{},v:{},at:Date.now()},un:[]};
+  const mine=await pcol.doc(uid).get();
+  if(mine.exists&&mine.data())f.my=Object.assign({a:{},v:{}},mine.data());else await pcol.doc(uid).set(f.my);
+  f.un.push(gref.onSnapshot(x=>{if(film!==f)return;if(!x.exists){filmLeave();nav("home");return}f.g=x.data();filmDraw()},()=>{}));
+  f.un.push(pcol.onSnapshot(x=>{if(film!==f)return;f.ps=x.docs.map(d=>({id:d.id,...d.data()}));filmDraw()},()=>{}));
+  try{if(location.hash)history.replaceState(null,"",location.pathname+location.search)}catch(e){}
+  cur="film";filmFz();show("s-film");filmDraw();scrollTo(0,0);
+}
+async function filmSave(){try{await film.pcol.doc(uid).set(film.my)}catch(e){}}
+async function filmSet(patch){Object.assign(film.g,patch);filmDraw();try{await film.gref.update(patch)}catch(e){}}
+function filmDraw(){
+  const f=film;if(!f||cur!=="film")return;
+  const g=f.g,host=g.by===uid,st=g.st,n=f.ps.length,tq=FILM_Q.length,tc=FILM_C.length;
+  const bar=(k,label,cnt,tot,on,att)=>{const p=tot?Math.round(cnt*100/tot):0;return `<button class="fmo${on?" me":""}" ${att}style="background:linear-gradient(90deg,rgba(255,179,71,.32) ${p}%,var(--card) ${p}%)"><span>${"АБВГ"[k]}</span>${esc(label)}<em>${cnt}</em></button>`};
+  let h="",foot="";
+  if(st==="wait"){
+    const link=GAME_URL+"#g="+f.c;
+    h=`<div class="fmc"><small>Код комнаты</small><div class="fmcode">${esc(f.c)}</div><div class="fmqr">${qrSvg(link,260)}</div><p class="fmw">Откройте игру, нажмите «для Полины» и введите код. Или наведите камеру на QR.</p></div>
+    <h2 class="fmh">Пришли: ${n}</h2><div class="fmpl">${f.ps.map(p=>`<div class="fmp">${pic(p.id)}<b>${esc(nickOf(p.id))}</b></div>`).join("")||'<p class="fmw">Ждём участниц…</p>'}</div>`;
+    foot=host?`<button class="fmb" data-f="start">▶ Начать викторину</button>`:`<p class="fmw">Ждём, когда ведущая начнёт…</p>`;
+  }else if(st==="q"||st==="rev"){
+    const i=g.qi|0,Q=FILM_Q[i],rev=st==="rev",mine=f.my.a[i];
+    const cnt=Q.o.map((_,k)=>f.ps.filter(p=>p.a&&p.a[i]===k).length),ans=f.ps.filter(p=>p.a&&p.a[i]!==undefined).length;
+    h=`<div class="fmhead">Вопрос ${i+1} из ${tq}</div><h2 class="fmq">${esc(Q.q)}</h2>`+Q.o.map((o,k)=>{
+      let c="fmo";if(!rev&&mine===k)c+=" me";if(rev)c+=k===Q.a?" ok":(mine===k?" bad":" dim");
+      return `<button class="${c}" data-f="ans" data-k="${k}"${rev?" disabled":""}><span>${"АБВГ"[k]}</span>${esc(o)}${rev?`<em>${k===Q.a?"✓ ":""}${cnt[k]}</em>`:""}</button>`}).join("");
+    if(rev)h+=`<div class="fmep"><small>Из какого эпизода?</small>${esc(Q.ep)}</div>`;
+    else h+=host?`<p class="fmw">Ответили: <b>${ans}</b> из ${n}</p>`:(mine!==undefined?`<p class="fmw">Ответ принят. Его можно изменить, пока ведущая не покажет верный.</p>`:"");
+    if(host)foot=rev?`<button class="fmb" data-f="next">${i<tq-1?"Следующий вопрос →":"К обсуждению →"}</button>`:`<button class="fmb" data-f="rev">Показать верный ответ</button>`;
+  }else if(st==="c"){
+    const i=g.ci|0,C=FILM_C[i],mine=f.my.v[i];
+    const cnt=C.o.map((_,k)=>f.ps.filter(p=>p.v&&p.v[i]===k).length),tot=cnt.reduce((a,b)=>a+b,0),sv=host||mine!==undefined;
+    h=`<div class="fmhead">${esc(C.t)} · карточка ${i+1} из ${tc}</div><h2 class="fmq">${esc(C.q)}</h2>`;
+    if(C.o.length)h+=C.o.map((o,k)=>sv?bar(k,o,cnt[k],tot,mine===k,`data-f="vote" data-k="${k}" `):`<button class="fmo" data-f="vote" data-k="${k}"><span>${"АБВГ"[k]}</span>${esc(o)}</button>`).join("")+(sv?`<p class="fmw">Проголосовали: <b>${tot}</b> из ${n}</p>`:`<p class="fmw">Выберите ответ, затем обсудите вслух.</p>`);
+    else h+=`<p class="fmw">Обсудите вслух, без голосования.</p>`;
+    if(host)foot=`<div class="fmrow">${i>0?`<button class="fmb alt" data-f="cprev">← Назад</button>`:""}<button class="fmb" data-f="cnext">${i<tc-1?"Следующая карточка →":"Завершить вечер"}</button></div>`;
+  }else{
+    h=`<div class="fmc"><div class="fmcode" style="font-size:2.4em">📚</div><h2 class="fmq">Спасибо за вечер!</h2><p class="fmw">Приятного обсуждения и до новых встреч книжного клуба.</p></div>`;
+  }
+  $("fmBody").innerHTML=h;$("fmFoot").innerHTML=foot;
+}
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-f]");if(!b)return;const k=b.dataset.f;
+  if(k==="aa"){filmFz(1);return}
+  if(!film)return;
+  if(k==="exit"){filmLeave();nav("home");return}
+  const g=film.g;
+  if(k==="ans"){if(g.st==="q"){film.my.a[g.qi|0]=+b.dataset.k;filmDraw();filmSave()}return}
+  if(k==="vote"){if(g.st==="c"){film.my.v[g.ci|0]=+b.dataset.k;filmDraw();filmSave()}return}
+  if(g.by!==uid)return;
+  const i=g.qi|0,c=g.ci|0;
+  if(k==="start")filmSet({st:"q",qi:0});
+  else if(k==="rev")filmSet({st:"rev"});
+  else if(k==="next")filmSet(i<FILM_Q.length-1?{st:"q",qi:i+1}:{st:"c",ci:0});
+  else if(k==="cnext")filmSet(c<FILM_C.length-1?{ci:c+1}:{st:"end"});
+  else if(k==="cprev"&&c>0)filmSet({ci:c-1});
+});
 
 /* ---------- сессия игры ---------- */
 async function enter(c){
@@ -2824,6 +2970,7 @@ async function enter(c){
   });
 }
 function leaveGame(silent){
+  if(typeof filmLeave==="function")filmLeave();
   if(unsubG){unsubG();unsubG=null}if(unsubP){unsubP();unsubP=null}
   if(typeof chatStop==="function")chatStop();if(typeof reactStop==="function")reactStop();
   code=null;game=null;players=[];gref=pcol=null;document.body.classList.remove("padmode");
@@ -3373,7 +3520,7 @@ $("tabScope").onclick=e=>{const b=e.target.closest("button");if(b){rankScope=b.d
 let ac;
 const LOWPWR=(()=>{try{return /Android|iPhone|iPad|iPod|Mobi/i.test(navigator.userAgent)||matchMedia("(pointer:coarse)").matches||(navigator.hardwareConcurrency||8)<=4}catch(e){return false}})();
 function mkAC(){const A=window.AudioContext||window.webkitAudioContext;try{return new A({latencyHint:"playback"})}catch(e){return new A()}}
-function note(f,d,type,vol,when){try{ac=ac||mkAC();const o=ac.createOscillator(),g=ac.createGain();o.type=type||"sine";o.connect(g);g.connect(ac.destination);const t=ac.currentTime+(when||0);o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(vol||.1,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.start(t);o.stop(t+d+.02)}catch(e){}}
+function note(f,d,type,vol,when){if(/^s-(film|polina)$/.test(document.body.dataset.scr||""))return;try{ac=ac||mkAC();const o=ac.createOscillator(),g=ac.createGain();o.type=type||"sine";o.connect(g);g.connect(ac.destination);const t=ac.currentTime+(when||0);o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(vol||.1,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.start(t);o.stop(t+d+.02)}catch(e){}}
 function beep(ok){ok?(note(660,.12),note(990,.2,"sine",.1,.1)):note(300,.2,"triangle",.12)}
 function tick(){note(1000,.06,"square",.04)}
 /* звук нажатия на любые кнопки и пункты меню (выключается вместе с музыкой, кнопкой ♪) */
@@ -3530,6 +3677,7 @@ function musSet(name){
   MUS.tg=g;MUS.cur=name;MUS.tr=true;MUS.nt=c.currentTime+.1;MUS.st=0;
 }
 function musWant(){
+  if(/^s-(film|polina)$/.test(document.body.dataset.scr||""))return "";
   if(!MUS.on)return "";
   if(code&&game){
     if(game.status==="end")return "end";
@@ -3976,7 +4124,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="d2a53586b220";
+  const BUILD="62e6bcd65674";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4033,6 +4181,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u50",d:"4 ноября",t:"Вечер кино",items:["Режим для книжного клуба: комната по коду и QR, 10 вопросов о фильме «Миллионер из трущоб» без таймера и очков, карточки для обсуждения с голосованием, крупный шрифт и кнопка «А+»"]},
   {id:"u49",d:"4 ноября",t:"Кнопка для Полины",items:["На главной появилась плавающая кнопка «для Полины (книжный клуб)»"]},
   {id:"u48",d:"4 ноября",t:"Статистика в меню, отмена дуэли, звуки кнопок",items:["Статистика теперь в нижней панели, справа от Рейтинга","Предложенную дуэль можно отменить, пока соперник не сыграл: кнопка «Отменить» рядом с вызовом на главном экране","Убрана тема «Аниме и манга»","«Новое от друзей» показывает вид игры и тему (для новых игр)","Вопросы, которые вы уже видели, теперь выпадают заметно реже: новые подбираются в первую очередь","При нажатии на кнопки теперь звучит короткий щелчок (выключается кнопкой ♪)"]},
   {id:"u47",d:"4 ноября",t:"Автообновление игры",items:["Когда выходит новая версия, внизу появляется плашка «Вышла новая версия игры» с кнопкой «Обновить». Чистить кэш вручную больше не нужно"]},
