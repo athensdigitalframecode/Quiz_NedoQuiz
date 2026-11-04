@@ -1021,14 +1021,17 @@ body[data-scr=s-tv] .madewrap{display:none!important}
 #bestFloat{display:none;position:fixed;left:0;top:96px;width:100%;height:0;z-index:5;pointer-events:none;transition:opacity .35s}
 body[data-scr="s-home"] #bestFloat{display:block}
 #bestFloat.bfoff{opacity:0}
-#bestFloat .bfin{position:absolute;left:50%;top:0;width:96px;margin-left:-48px;animation:bfx 3.4s ease-in-out infinite alternate-reverse}
+#bestFloat .bfin{position:absolute;left:50%;top:0;width:96px;margin-left:-48px;animation:bumpL 4.6s infinite}
 #bestFloat .bfy{display:flex;flex-direction:column;align-items:center;gap:2px;animation:booty 1.7s ease-in-out infinite;transform-origin:50% 60%}
 #bestFloat .bfc{font-size:26px;line-height:1;filter:drop-shadow(0 2px 6px rgba(255,210,63,.5))}
-#bestFloat .bfp{width:68px;height:68px;border-radius:50%;object-fit:cover;border:3px solid #ffd23f;box-shadow:0 0 22px rgba(255,210,63,.55);background:#16213f;animation:bfhit 3.4s linear infinite}
+#bestFloat .bfp{width:68px;height:68px;border-radius:50%;object-fit:cover;border:3px solid #ffd23f;box-shadow:0 0 22px rgba(255,210,63,.55);background:#16213f}
 #bestFloat .bfn{font:700 12px/1.1 Inter,system-ui,sans-serif;color:#ffe9a0;max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,.7)}
 #bestFloat .bfl{font:600 10px/1.1 Inter,system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#ffd23f;text-shadow:0 1px 4px rgba(0,0,0,.7)}
-@keyframes bfx{from{transform:translateX(calc(-50vw + 56px))}to{transform:translateX(calc(50vw - 56px))}}
-@keyframes bfhit{0%,42%,58%,100%{transform:scale(1)}50%{transform:scale(1.22)}}
+/* два знака отталкиваются от центра, доходят чуть дальше краёв заголовка и с ускорением сталкиваются */
+:root{--bfa:150px;--bfd:46px}
+@keyframes bumpR{0%{transform:translateX(var(--bfd)) scale(1.12);animation-timing-function:cubic-bezier(.1,.75,.3,1)}45%{transform:translateX(var(--bfa)) scale(1);animation-timing-function:cubic-bezier(.8,0,.9,.5)}100%{transform:translateX(var(--bfd)) scale(1.12)}}
+@keyframes bumpL{0%{transform:translateX(calc(var(--bfd)*-1)) scale(1.12);animation-timing-function:cubic-bezier(.1,.75,.3,1)}45%{transform:translateX(calc(var(--bfa)*-1)) scale(1);animation-timing-function:cubic-bezier(.8,0,.9,.5)}100%{transform:translateX(calc(var(--bfd)*-1)) scale(1.12)}}
+@media (prefers-reduced-motion:no-preference){#s-home .hero-ico{animation:bumpR 4.6s infinite}}
 @media (prefers-reduced-motion:reduce){#bestFloat .bfin,#bestFloat .bfy,#bestFloat .bfp{animation:none}}
 
 </style>
@@ -2146,9 +2149,15 @@ function bestFit(){
   const h=document.querySelector("#s-home .hero-ico");let top=96;
   if(h&&h.offsetParent){const r=h.getBoundingClientRect();if(r.height)top=Math.max(56,r.top+scrollY-12)}
   el.style.top=top+"px";el.classList.toggle("bfoff",scrollY>140);
+  const t=document.querySelector("#s-home h1");
+  if(t&&t.offsetParent){const rg=document.createRange();rg.selectNodeContents(t);const w=rg.getBoundingClientRect().width;if(w>50)document.documentElement.style.setProperty("--bfa",Math.max(110,Math.min(w/2+12,innerWidth/2-52)).toFixed(0)+"px")}
+}
+function bestSync(){
+  const a=[document.querySelector("#s-home .hero-ico"),document.querySelector("#bestFloat .bfin")].filter(Boolean);
+  a.forEach(e=>{e.style.animation="none"});void document.body.offsetWidth;a.forEach(e=>{e.style.animation=""});
 }
 addEventListener("resize",bestFit);addEventListener("scroll",bestFit,{passive:true});
-try{new MutationObserver(()=>{setTimeout(bestFit,60);setTimeout(bestFit,400)}).observe(document.body,{attributes:true,attributeFilter:["data-scr"]})}catch(e){}
+try{new MutationObserver(()=>{setTimeout(bestFit,60);setTimeout(bestFit,400);if(document.body.dataset.scr==="s-home")setTimeout(bestSync,90)}).observe(document.body,{attributes:true,attributeFilter:["data-scr"]})}catch(e){}
 function bestSet(u){
   if(!u||!profiles[u])return;
   const d={u,n:nickOf(u),p:photoOf(u)};
@@ -4271,7 +4280,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="f32ea58f1adf";
+  const BUILD="e119f6533bd3";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4328,7 +4337,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
-  {id:"u53",d:"4 ноября",t:"Лучший игрок на фоне",items:["На фоне сайта медленно плавает значок лидера недели: корона, фото и ник и подпись «лучший игрок»"]},
+  {id:"u53",d:"4 ноября",t:"Лучший игрок на фоне",items:["На главной значок лидера недели (корона, фото, ник и подпись «лучший игрок») и знак вопроса отталкиваются друг от друга, доходят до краёв заголовка и сталкиваются"]},
   {id:"u51",d:"4 ноября",t:"Вечер кино: новое обсуждение",items:["Вопросы о фильме стали сложнее. Вместо карточек: «Кого бы вы сыграли?», цитаты, оценки ползунками, спорные вопросы, слова-облако, свой вопрос группе и итоги вечера с картинкой на память"]},
   {id:"u50",d:"4 ноября",t:"Вечер кино",items:["Режим для книжного клуба: комната по коду и QR, 10 вопросов о фильме «Миллионер из трущоб» без таймера и очков, карточки для обсуждения с голосованием, крупный шрифт и кнопка «А+»"]},
   {id:"u49",d:"4 ноября",t:"Кнопка для Полины",items:["На главной появилась плавающая кнопка «для Полины (книжный клуб)»"]},
