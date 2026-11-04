@@ -168,6 +168,10 @@ body[data-scr="s-film"] .wrap,body[data-scr="s-polina"] .wrap{max-width:900px}
 .fmpl{display:flex;flex-wrap:wrap;gap:.6em}
 .fmp{display:flex;align-items:center;gap:.5em;padding:.4em .8em .4em .4em;border-radius:99px;background:var(--card);border:1px solid var(--line)}
 .fmp .pic{width:2em;height:2em;border-radius:50%}
+.fmr{margin:.7em 0}.fmr label{display:block;font-weight:700}.fmr small{color:var(--mut);font-weight:400}
+.fmrg{width:100%;height:2.4em;accent-color:#ffb347}
+.fmin{width:100%;margin:.5em 0;padding:.7em;border-radius:16px;border:2px solid var(--line);background:var(--card);color:var(--txt);font:600 1em system-ui,sans-serif}
+.fmcl{display:flex;flex-wrap:wrap;gap:.3em .8em;justify-content:center;align-items:center;margin:.8em 0;color:var(--gold);font-family:Georgia,serif;font-weight:700}
 </style>
 <style>
 .pic{border-radius:50%;object-fit:cover;background:#111;display:block}
@@ -2855,30 +2859,29 @@ async function openGame(c){
 
 /* ---------- «Вечер кино» (книжный клуб): комната по коду, викторина без таймера и очков, карточки обсуждения ---------- */
 const FILM_Q=[
- {q:"Кем работает взрослый Джамал в колл-центре?",o:["Оператором","Разносчиком чая","Охранником","Курьером"],a:1,ep:"Фильм начинается в комнате допроса: ведущий Прем Кумар подозревает, что разносчик чая из колл-центра не мог честно знать столько ответов."},
- {q:"Как в школе в насмешку называет учитель Джамала и Салима?",o:["Тарзан и Маугли","Атос и Портос","Рама и Лакшман","Том и Джерри"],a:1,ep:"Учитель дразнит братьев Атосом и Портосом, а имени третьего мушкетёра они не знают. К этому вопросу фильм вернётся в самом конце."},
- {q:"Как братья зарабатывают у Тадж-Махала?",o:["Продают сувениры","Играют на улице","Работают фальшивыми гидами и воруют обувь","Чистят туристам обувь"],a:2,ep:"Повзрослевшие братья ездят на крышах поездов, торгуют, подворовывают, а у Тадж-Махала притворяются гидами и крадут у туристов обувь."},
- {q:"Вопрос шоу: «Кембридж-Серкус находится в каком британском городе?»",o:["Лондон","Кембридж","Оксфорд","Лидс"],a:0,ep:"Этот вопрос звучит сразу после эпизода в колл-центре, где Салим по телефону узнаёт голос брата."},
- {q:"Что Джамал обещает Латике в доме Джаведа?",o:["Вернуться с деньгами","Ждать её каждый день в пять часов на вокзале","Прислать письмо","Увезти её к Тадж-Махалу"],a:1,ep:"Джамал пробирается в дом Джаведа, находит там Латику и обещает ждать её каждый день в пять часов на вокзале."},
- {q:"Как Салим называет себя, когда требует от брата отдать Латику?",o:["«Королём Бомбея»","«Хозяином Джаведа»","«Человеком с кольтом»","«Братом Мамана»"],a:2,ep:"Салим уже работает на Джаведа. Он называет себя человеком с кольтом и требует, чтобы Джамал оставил Латику ему."},
- {q:"Кому Джамал хочет позвонить по подсказке «звонок другу»?",o:["Латике","Салиму","Маману","Прему Кумару"],a:1,ep:"Перед последним вопросом Джамал просит позвонить брату Салиму."},
- {q:"Какой подсказкой Джамал пользуется на вопросе о надписи под гербом Индии?",o:["50 на 50","Звонок другу","Помощь зала","Двойной шанс"],a:2,ep:"Это первая подсказка Джамала. Инспектор в комнате допроса замечает, что даже его пятилетняя дочь знала бы ответ."},
- {q:"Вопрос на 10 миллионов рупий: кто забил больше всех сотен в первоклассном крикете?",o:["Сачин Тендулкар","Джек Хоббс","Рикки Понтинг","Майкл Слейтер"],a:1,ep:"На этом вопросе Джамал берёт подсказку «50 на 50». Тендулкар самый известный из вариантов, но не верный."},
- {q:"На какой вопрос Джамал отвечает наугад, выбрав первый вариант, и выигрывает?",o:["Про револьвер","Про герб Индии","Про Кембридж-Серкус","Про третьего мушкетёра (Арамис)"],a:3,ep:"Джамал не знает ответа и угадывает. Пока идёт игра, Салим убивает Джаведа и погибает от рук его людей."}
+ {q:"Ради чьего автографа Джамал в детстве прыгнул в выгребную яму?",o:["Шах Рукх Хана","Салмана Хана","Амитабха Баччана","Раджеша Кханны"],a:2,ep:"Салим запирает брата в уборной, когда к трущобам прилетает вертолёт кумира. Джамал выбирается через яму и получает автограф, а Салим потом его продаёт."},
+ {q:"Вопрос шоу: «Какого бога изображают с луком и стрелами?»",o:["Кришну","Раму","Шиву","Ганешу"],a:1,ep:"Джамал помнит мальчика в костюме Рамы из детства, из дня, когда в трущобах начался погром и погибла его мать."},
+ {q:"Кто сыграл ведущего шоу Према Кумара?",o:["Ирфан Хан","Дев Патель","Анил Капур","Амитабх Баччан"],a:2,ep:"Ведущий подозревает, что простой разносчик чая не мог честно знать ответы, и передаёт его полиции."},
+ {q:"Кто сыграл инспектора полиции, который допрашивает Джамала?",o:["Ирфан Хан","Анил Капур","Мадхур Миттал","Тото Рай"],a:0,ep:"Весь фильм построен на допросе: Джамал объясняет инспектору, откуда знает ответы, и каждый вопрос шоу возвращает его в эпизод прошлого."},
+ {q:"Какая песня звучит во время финального танца на вокзале?",o:["O… Saya","Ringa Ringa","Mausam & Escape","Jai Ho"],a:3,ep:"Финальный танец идёт во время титров: Джамал и Латика наконец вместе на вокзале, как он и обещал."},
+ {q:"Как погибает Салим?",o:["Под колёсами поезда","В ванне, полной денег","В перестрелке в трущобах","В тюрьме"],a:1,ep:"Салим отдаёт Латику брату, расправляется с Джаведом и запирается в ванной с деньгами. Это его последний поступок ради Джамала и Латики."},
+ {q:"Какой главный приз в шоу, в которое попадает Джамал?",o:["10 миллионов рупий","50 миллионов рупий","1 миллион рупий","20 миллионов рупий"],a:3,ep:"Джамал доходит до финального вопроса, но после предпоследнего его уводят на допрос. Вспомните, чем заканчивается эта ночь."},
+ {q:"Кто стал соруководителем съёмок в Индии, наряду с Дэнни Бойлом?",o:["Мира Наир","Дипа Мехта","Лавлин Тандан","Гуриндер Чадха"],a:2,ep:"Индийская часть съёмок шла в настоящих трущобах Мумбаи. Вспомните, как выглядит город в первых эпизодах детства."},
+ {q:"Вопрос шоу: «Чьё лицо изображено на стодолларовой купюре?»",o:["Джордж Вашингтон","Бенджамин Франклин","Авраам Линкольн","Томас Джефферсон"],a:1,ep:"Вспомните, как братья подрабатывали гидами у Тадж-Махала."},
+ {q:"Вопрос шоу: «Двух мушкетёров звали Атос и Портос. Как звали третьего?»",o:["Д’Артаньян","Ришелье","Арамис","Рошфор"],a:2,ep:"Джамал не знает ответа и звонит Салиму. В детстве братья называли себя мушкетёрами, а Латика была их третьей."}
 ];
 const FILM_C=[
- {t:"Знание",q:"Откуда Джамал знает ответы: из школы или из жизни? Что важнее?",o:["Жизненный опыт","Образование","Нужно и то и другое"]},
- {t:"Судьба",q:"«Так было написано». Судьба это или цепочка случайностей?",o:["Судьба","Случайность","Немного и то и другое"]},
- {t:"Герои",q:"Салим: герой или злодей?",o:["Герой","Злодей","И то и другое"]},
- {t:"Герои",q:"Почему, по-вашему, ведущий Прем Кумар заподозрил Джамала и передал его полиции?",o:["Зависть","Недоверие к бедному парню","Привычка к власти"]},
- {t:"Память",q:"Какой эпизод детства Джамала поразил вас сильнее всего?",o:["Побег на поезде","Тадж-Махал","Встреча с Латикой","Автограф Баччана"]},
- {t:"Контраст",q:"В фильме жестокость и сказка идут рядом. Помогает ли сказка смотреть тяжёлое?",o:["Да, помогает","Нет, мешает","Зависит от сцены"]},
- {t:"Любовь",q:"Джамал рискует всем ради Латики. Ради чего вы пошли бы на такой риск?",o:["Ради любимого человека","Ради семьи","Ради мечты","Ни ради чего"]},
- {t:"Музыка",q:"Какая сцена запомнилась вам благодаря музыке, а не картинке?",o:["Финальный танец","Побег на поезде","Другая сцена"]},
- {t:"Финал",q:"Финальный танец на вокзале: достойная награда или лишний эпизод?",o:["Достойная награда","Лишний эпизод","Не определилась"]},
- {t:"Лично про вас",q:"Придумайте «вопрос на миллион» из вашей жизни. Откуда вы знаете ответ?",o:[]},
- {t:"Лично про вас",q:"Какая сцена была для вас самой тяжёлой и что помогло досмотреть?",o:[]},
- {t:"Финал",q:"Вы поверили в счастливый конец?",o:["Да","Нет","Хотелось бы верить"]}
+ {k:"word",t:"Одним словом",q:"Опишите фильм одним словом"},
+ {k:"pick",t:"Роли",q:"Кого бы вы сыграли?",o:["Джамала","Салима","Латику","Прем Кумара","Маману"]},
+ {k:"quote",t:"Цитата вслух",q:"В начале фильма на экране появляется вопрос «Как он это сделал?» и четыре ответа. Какой из них верный?",o:["Он жульничал","Ему повезло","Он гений","Так было написано"],a:3,ep:"Финальный титр отвечает именно так: «Так было написано». Вспомните, как фильм подводит к этому: каждый вопрос шоу связан с эпизодом жизни Джамала."},
+ {k:"quote",t:"Цитата вслух",q:"Реплика по смыслу: «Простой разносчик чая не может знать столько ответов. Тут что-то нечисто». Кто так думает?",o:["Прем Кумар","Салим","Латика","Маман"],a:0,ep:"Прем Кумар, ведущий шоу. Вспомните, как он ведёт себя с Джамалом в студии и что происходит после эфира."},
+ {k:"quote",t:"Цитата вслух",q:"Реплика по смыслу: «Я участвую не ради денег. Я хочу, чтобы она меня увидела». Кто это говорит?",o:["Джамал","Салим","Латика","Прем Кумар"],a:0,ep:"Джамал: он пришёл в шоу ради Латики, надеясь, что она увидит его по телевизору. Вспомните, как они в итоге встретились."},
+ {k:"rate",t:"Оценки",q:"Поставьте оценку от 1 до 10",r:["Сюжет","Музыка","Жестокость","Финал"]},
+ {k:"vs",t:"Спорный вопрос",q:"Салим: предатель или жертва?",o:["Предатель","Жертва"]},
+ {k:"vs",t:"Спорный вопрос",q:"Финальный танец: достойная награда или лишний эпизод?",o:["Достойная награда","Лишний эпизод"]},
+ {k:"pick",t:"Что бы вы изменили",q:"Что бы вы изменили в фильме?",o:["Убрала бы финальный танец","Убрала бы жестокие сцены","Добавила бы историю Салима","Ничего, оставила бы как есть"]},
+ {k:"word",t:"Одним словом",q:"Опишите Салима одним словом"},
+ {k:"ask",t:"Вопрос от участницы",q:"Напишите свой вопрос группе. Ведущая зачитает его вслух"}
 ];
 /* состояние комнаты лежит в games/КОД (mode:"film", без status, чтобы комната не попадала в «Открытые игры»), ответы каждой участницы в games/КОД/fp/uid */
 let film=null;
@@ -2898,7 +2901,7 @@ async function filmEnter(c){
   leaveGame(true);filmLeave();
   const gref=db.doc("games/"+c),pcol=gref.collection("fp"),s=await gref.get();
   if(!s.exists||!s.data()||s.data().mode!=="film")throw new Error("комната не найдена");
-  const f=film={c,gref,pcol,g:s.data(),ps:[],my:{a:{},v:{},at:Date.now()},un:[]};
+  const f=film={c,gref,pcol,g:s.data(),ps:[],my:{a:{},v:{},at:Date.now()},rd:{},wd:{},un:[]};
   const mine=await pcol.doc(uid).get();
   if(mine.exists&&mine.data())f.my=Object.assign({a:{},v:{}},mine.data());else await pcol.doc(uid).set(f.my);
   f.un.push(gref.onSnapshot(x=>{if(film!==f)return;if(!x.exists){filmLeave();nav("home");return}f.g=x.data();filmDraw()},()=>{}));
@@ -2908,10 +2911,39 @@ async function filmEnter(c){
 }
 async function filmSave(){try{await film.pcol.doc(uid).set(film.my)}catch(e){}}
 async function filmSet(patch){Object.assign(film.g,patch);filmDraw();try{await film.gref.update(patch)}catch(e){}}
+function filmCloud(ws){
+  if(!ws.length)return '<p class="fmw">Слов пока нет.</p>';
+  const m={};ws.forEach(w=>{w=w.trim().toLowerCase();if(w)m[w]=(m[w]||0)+1});
+  const mx=Math.max(...Object.values(m));
+  return `<div class="fmcl">${Object.entries(m).map(([w,c])=>`<span style="font-size:${(0.9+c/mx*1.1).toFixed(2)}em">${esc(w)}</span>`).join(" ")}</div>`;
+}
+function filmSum(){
+  const f=film,v=i=>f.ps.map(p=>p.v&&p.v[i]).filter(x=>x!==undefined&&x!==null);
+  const S={hero:"",rates:[],vs:"",words:[]};
+  const ri=FILM_C.findIndex(c=>c.k==="pick"),hv=v(ri);
+  if(hv.length){const cn=FILM_C[ri].o.map((_,j)=>hv.filter(x=>x===j).length),mx=Math.max(...cn);S.hero=FILM_C[ri].o.filter((_,j)=>cn[j]===mx).join(", ")+" ("+mx+")"}
+  const ti=FILM_C.findIndex(c=>c.k==="rate"),rv=v(ti).filter(Array.isArray);
+  if(rv.length)S.rates=FILM_C[ti].r.map((r,j)=>[r,(rv.reduce((p,a)=>p+a[j],0)/rv.length).toFixed(1)]);
+  let best=-1;FILM_C.forEach((C,i)=>{if(C.k!=="vs")return;const x=v(i);if(x.length<2)return;const a=x.filter(y=>y===0).length,sp=1-Math.abs(a-(x.length-a))/x.length;if(sp>best){best=sp;S.vs=C.q+" ("+C.o[0]+": "+a+", "+C.o[1]+": "+(x.length-a)+")"}});
+  const wi=FILM_C.findIndex(c=>c.k==="word");S.words=v(wi).filter(x=>typeof x==="string");
+  return S;
+}
+function filmPng(){
+  const S=filmSum(),L=["Итоги вечера кино","«Миллионер из трущоб»",""];
+  if(S.hero)L.push("Любимая роль: "+S.hero);
+  S.rates.forEach(r=>L.push(r[0]+": "+r[1]));
+  if(S.vs)L.push("","Самый спорный вопрос:",S.vs);
+  if(S.words.length)L.push("","Фильм одним словом:",[...new Set(S.words.map(w=>w.trim().toLowerCase()))].join(", "));
+  const W=1080,wrap=(ctx,t,mw)=>{const o=[];let c="";t.split(" ").forEach(w=>{const x=c?c+" "+w:w;if(ctx.measureText(x).width>mw&&c){o.push(c);c=w}else c=x});o.push(c);return o};
+  const cv=document.createElement("canvas");cv.width=W;cv.height=1350;const x=cv.getContext("2d");
+  const gr=x.createLinearGradient(0,0,W,1350);gr.addColorStop(0,"#6b3414");gr.addColorStop(1,"#40204a");x.fillStyle=gr;x.fillRect(0,0,W,1350);
+  let y=130;L.forEach((t,i)=>{x.fillStyle=i<2?"#ffb347":"#fff3df";x.font=(i===0?"bold 70px":i===1?"bold 48px":"40px")+" Georgia,serif";wrap(x,t,W-140).forEach(l=>{if(y<1290)x.fillText(l,70,y);y+=i<2?80:56})});
+  cv.toBlob(b=>{if(!b)return;const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="vecher-kino.png";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000)});
+}
 function filmDraw(){
-  const f=film;if(!f||cur!=="film")return;
+  const f=film;if(!f||cur!=="film")return;if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#fmBody")&&/INPUT/.test(document.activeElement.tagName))return;
   const g=f.g,host=g.by===uid,st=g.st,n=f.ps.length,tq=FILM_Q.length,tc=FILM_C.length;
-  const bar=(k,label,cnt,tot,on,att)=>{const p=tot?Math.round(cnt*100/tot):0;return `<button class="fmo${on?" me":""}" ${att}style="background:linear-gradient(90deg,rgba(255,179,71,.32) ${p}%,var(--card) ${p}%)"><span>${"АБВГ"[k]}</span>${esc(label)}<em>${cnt}</em></button>`};
+  const bar=(k,label,cnt,tot,on,att)=>{const p=tot?Math.round(cnt*100/tot):0;return `<button class="fmo${on?" me":""}" ${att}style="background:linear-gradient(90deg,rgba(255,179,71,.32) ${p}%,var(--card) ${p}%)"><span>${"АБВГД"[k]}</span>${esc(label)}<em>${cnt}</em></button>`};
   let h="",foot="";
   if(st==="wait"){
     const link=GAME_URL+"#g="+f.c;
@@ -2923,22 +2955,58 @@ function filmDraw(){
     const cnt=Q.o.map((_,k)=>f.ps.filter(p=>p.a&&p.a[i]===k).length),ans=f.ps.filter(p=>p.a&&p.a[i]!==undefined).length;
     h=`<div class="fmhead">Вопрос ${i+1} из ${tq}</div><h2 class="fmq">${esc(Q.q)}</h2>`+Q.o.map((o,k)=>{
       let c="fmo";if(!rev&&mine===k)c+=" me";if(rev)c+=k===Q.a?" ok":(mine===k?" bad":" dim");
-      return `<button class="${c}" data-f="ans" data-k="${k}"${rev?" disabled":""}><span>${"АБВГ"[k]}</span>${esc(o)}${rev?`<em>${k===Q.a?"✓ ":""}${cnt[k]}</em>`:""}</button>`}).join("");
+      return `<button class="${c}" data-f="ans" data-k="${k}"${rev?" disabled":""}><span>${"АБВГД"[k]}</span>${esc(o)}${rev?`<em>${k===Q.a?"✓ ":""}${cnt[k]}</em>`:""}</button>`}).join("");
     if(rev)h+=`<div class="fmep"><small>Из какого эпизода?</small>${esc(Q.ep)}</div>`;
     else h+=host?`<p class="fmw">Ответили: <b>${ans}</b> из ${n}</p>`:(mine!==undefined?`<p class="fmw">Ответ принят. Его можно изменить, пока ведущая не покажет верный.</p>`:"");
     if(host)foot=rev?`<button class="fmb" data-f="next">${i<tq-1?"Следующий вопрос →":"К обсуждению →"}</button>`:`<button class="fmb" data-f="rev">Показать верный ответ</button>`;
   }else if(st==="c"){
-    const i=g.ci|0,C=FILM_C[i],mine=f.my.v[i];
-    const cnt=C.o.map((_,k)=>f.ps.filter(p=>p.v&&p.v[i]===k).length),tot=cnt.reduce((a,b)=>a+b,0),sv=host||mine!==undefined;
+    const i=g.ci|0,C=FILM_C[i],mine=f.my.v[i],k=C.k,last=i>=tc-1;
     h=`<div class="fmhead">${esc(C.t)} · карточка ${i+1} из ${tc}</div><h2 class="fmq">${esc(C.q)}</h2>`;
-    if(C.o.length)h+=C.o.map((o,k)=>sv?bar(k,o,cnt[k],tot,mine===k,`data-f="vote" data-k="${k}" `):`<button class="fmo" data-f="vote" data-k="${k}"><span>${"АБВГ"[k]}</span>${esc(o)}</button>`).join("")+(sv?`<p class="fmw">Проголосовали: <b>${tot}</b> из ${n}</p>`:`<p class="fmw">Выберите ответ, затем обсудите вслух.</p>`);
-    else h+=`<p class="fmw">Обсудите вслух, без голосования.</p>`;
-    if(host)foot=`<div class="fmrow">${i>0?`<button class="fmb alt" data-f="cprev">← Назад</button>`:""}<button class="fmb" data-f="cnext">${i<tc-1?"Следующая карточка →":"Завершить вечер"}</button></div>`;
+    const vals=f.ps.map(p=>p.v&&p.v[i]).filter(x=>x!==undefined&&x!==null);
+    if(k==="pick"||k==="vs"||k==="quote"){
+      const cnt=C.o.map((_,j)=>vals.filter(x=>x===j).length),tot=vals.length,sv=host||mine!==undefined,rv=k==="quote"&&g.rv===i;
+      h+=C.o.map((o,j)=>{
+        if(rv){const c="fmo"+(j===C.a?" ok":(mine===j?" bad":" dim"));return `<button class="${c}" disabled><span>${"АБВГД"[j]}</span>${esc(o)}<em>${j===C.a?"✓ ":""}${cnt[j]}</em></button>`}
+        return sv?bar(j,o,cnt[j],tot,mine===j,`data-f="vote" data-k="${j}" `):`<button class="fmo" data-f="vote" data-k="${j}"><span>${"АБВГД"[j]}</span>${esc(o)}</button>`}).join("");
+      if(rv)h+=`<div class="fmep"><small>Вспомним сцену</small>${esc(C.ep)}</div>`;
+      else h+=sv?`<p class="fmw">Проголосовали: <b>${tot}</b> из ${n}</p>`:`<p class="fmw">Выберите ответ.</p>`;
+      if(k==="vs"&&g.sp&&g.spi===i)h+=`<div class="fmep"><small>🎤 Слово получает</small><b>${esc(nickOf(g.sp))}</b>. Объясните свой выбор вслух.</div>`;
+    }else if(k==="rate"){
+      const d=f.rd[i]||(f.rd[i]=C.r.map(()=>5)),sent=Array.isArray(mine),all=vals.filter(Array.isArray);
+      h+=C.r.map((r,j)=>{
+        const xs=all.map(a=>a[j]),av=xs.length?(xs.reduce((p,q)=>p+q,0)/xs.length).toFixed(1):"";
+        return `<div class="fmr"><label>${esc(r)}: <b id="fmrv${j}">${sent?mine[j]:d[j]}</b>${(sent||host)&&xs.length?` <small>· среднее ${av}, от ${Math.min(...xs)} до ${Math.max(...xs)}</small>`:""}</label>${sent?"":`<input class="fmrg" type="range" min="1" max="10" step="1" value="${d[j]}" data-j="${j}">`}</div>`}).join("");
+      h+=sent?`<p class="fmw">Оценки отправлены: <b>${all.length}</b> из ${n}</p>`:`<button class="fmb" data-f="rate">Отправить оценки</button>`;
+    }else{
+      const sent=typeof mine==="string",ph=k==="word"?"Одно слово":"Ваш вопрос";
+      if(k==="word"){
+        if(!sent)h+=`<input id="fmIn" class="fmin" maxlength="24" placeholder="${ph}" value="${esc(f.wd[i]||"")}"><button class="fmb" data-f="text">Отправить</button>`;
+        else h+=`<p class="fmw">Ваше слово: <b>${esc(mine)}</b></p>`;
+        if(sent||host)h+=filmCloud(vals.filter(x=>typeof x==="string"));
+      }else{
+        if(!sent)h+=`<input id="fmIn" class="fmin" maxlength="120" placeholder="${ph}" value="${esc(f.wd[i]||"")}"><button class="fmb" data-f="text">Отправить</button>`;
+        else h+=`<p class="fmw">Вопрос отправлен.</p>`;
+        const qs=f.ps.filter(p=>p.v&&typeof p.v[i]==="string");
+        if(sent||host)h+=qs.map(p=>`<div class="fmep"><small>${esc(nickOf(p.id))}</small>${esc(p.v[i])}</div>`).join("");
+      }
+    }
+    if(host){
+      const mid=k==="quote"&&g.rv!==i?`<button class="fmb alt" data-f="rv">Показать ответ</button>`:(k==="vs"?`<button class="fmb alt" data-f="sp">🎤 Дать слово</button>`:"");
+      foot=mid+`<div class="fmrow">${i>0?`<button class="fmb alt" data-f="cprev">← Назад</button>`:""}<button class="fmb" data-f="cnext">${last?"Итоги вечера →":"Дальше →"}</button></div>`;
+    }
   }else{
-    h=`<div class="fmc"><div class="fmcode" style="font-size:2.4em">📚</div><h2 class="fmq">Спасибо за вечер!</h2><p class="fmw">Приятного обсуждения и до новых встреч книжного клуба.</p></div>`;
+    const S=filmSum();
+    h=`<div class="fmc"><div class="fmcode" style="font-size:2.4em">📚</div><h2 class="fmq">Итоги вечера</h2></div>`+
+      (S.hero?`<div class="fmep"><small>Любимая роль</small>${esc(S.hero)}</div>`:"")+
+      (S.rates.length?`<div class="fmep"><small>Средние оценки</small>${S.rates.map(r=>`${esc(r[0])}: <b>${r[1]}</b>`).join("<br>")}</div>`:"")+
+      (S.vs?`<div class="fmep"><small>Самый спорный вопрос</small>${esc(S.vs)}</div>`:"")+
+      (S.words.length?`<div class="fmep"><small>Фильм одним словом</small>${filmCloud(S.words)}</div>`:"")+
+      `<button class="fmb" data-f="png">💾 Сохранить картинку</button><p class="fmw">Спасибо за вечер! До новых встреч книжного клуба.</p>`;
   }
   $("fmBody").innerHTML=h;$("fmFoot").innerHTML=foot;
 }
+document.addEventListener("input",e=>{const t=e.target;if(!film||!t)return;const i=film.g.ci|0;if(t.id==="fmIn")film.wd[i]=t.value;else if(t.classList&&t.classList.contains("fmrg")){const d=film.rd[i]||(film.rd[i]=[]);d[+t.dataset.j]=+t.value;const l=$("fmrv"+t.dataset.j);if(l)l.textContent=t.value}});
+document.addEventListener("focusout",e=>{if(film&&e.target&&e.target.id==="fmIn")setTimeout(filmDraw,50)});
 document.addEventListener("click",e=>{
   const b=e.target.closest("[data-f]");if(!b)return;const k=b.dataset.f;
   if(k==="aa"){filmFz(1);return}
@@ -2947,12 +3015,17 @@ document.addEventListener("click",e=>{
   const g=film.g;
   if(k==="ans"){if(g.st==="q"){film.my.a[g.qi|0]=+b.dataset.k;filmDraw();filmSave()}return}
   if(k==="vote"){if(g.st==="c"){film.my.v[g.ci|0]=+b.dataset.k;filmDraw();filmSave()}return}
+  if(k==="rate"){if(g.st==="c"){const i=g.ci|0;film.my.v[i]=(film.rd[i]||[]).slice();filmDraw();filmSave()}return}
+  if(k==="text"){const el=$("fmIn"),t=el&&el.value.trim();if(g.st==="c"&&t){film.my.v[g.ci|0]=t.slice(0,120);if(el)el.blur();filmDraw();filmSave()}return}
+  if(k==="png"){filmPng();return}
   if(g.by!==uid)return;
   const i=g.qi|0,c=g.ci|0;
   if(k==="start")filmSet({st:"q",qi:0});
   else if(k==="rev")filmSet({st:"rev"});
   else if(k==="next")filmSet(i<FILM_Q.length-1?{st:"q",qi:i+1}:{st:"c",ci:0});
   else if(k==="cnext")filmSet(c<FILM_C.length-1?{ci:c+1}:{st:"end"});
+  else if(k==="rv")filmSet({rv:c});
+  else if(k==="sp"){const ids=film.ps.map(p=>p.id);if(ids.length)filmSet({sp:ids[Math.floor(Math.random()*ids.length)],spi:c})}
   else if(k==="cprev"&&c>0)filmSet({ci:c-1});
 });
 
@@ -4124,7 +4197,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="62e6bcd65674";
+  const BUILD="d0d04d004dbb";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4181,6 +4254,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u51",d:"4 ноября",t:"Вечер кино: новое обсуждение",items:["Вопросы о фильме стали сложнее. Вместо карточек: «Кого бы вы сыграли?», цитаты, оценки ползунками, спорные вопросы, слова-облако, свой вопрос группе и итоги вечера с картинкой на память"]},
   {id:"u50",d:"4 ноября",t:"Вечер кино",items:["Режим для книжного клуба: комната по коду и QR, 10 вопросов о фильме «Миллионер из трущоб» без таймера и очков, карточки для обсуждения с голосованием, крупный шрифт и кнопка «А+»"]},
   {id:"u49",d:"4 ноября",t:"Кнопка для Полины",items:["На главной появилась плавающая кнопка «для Полины (книжный клуб)»"]},
   {id:"u48",d:"4 ноября",t:"Статистика в меню, отмена дуэли, звуки кнопок",items:["Статистика теперь в нижней панели, справа от Рейтинга","Предложенную дуэль можно отменить, пока соперник не сыграл: кнопка «Отменить» рядом с вызовом на главном экране","Убрана тема «Аниме и манга»","«Новое от друзей» показывает вид игры и тему (для новых игр)","Вопросы, которые вы уже видели, теперь выпадают заметно реже: новые подбираются в первую очередь","При нажатии на кнопки теперь звучит короткий щелчок (выключается кнопкой ♪)"]},
