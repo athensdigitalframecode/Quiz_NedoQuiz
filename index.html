@@ -2154,7 +2154,7 @@ function bestFit(){
   if(h&&h.offsetParent){const r=h.getBoundingClientRect();if(r.height)top=Math.max(56,r.top+scrollY-12)}
   el.style.top=top+"px";el.classList.toggle("bfoff",scrollY>140);
   const t=document.querySelector("#s-home h1");
-  if(t&&t.offsetParent){const rg=document.createRange();rg.selectNodeContents(t);const w=rg.getBoundingClientRect().width;if(w>50)document.documentElement.style.setProperty("--bfa",Math.max(110,Math.min(w/2+12,innerWidth/2-52)).toFixed(0)+"px")}
+  if(t&&t.offsetParent){const rg=document.createRange();rg.selectNodeContents(t);const w=rg.getBoundingClientRect().width;if(w>50)document.documentElement.style.setProperty("--bfa",Math.max(90,Math.min(w/2+12,document.documentElement.clientWidth/2-72)).toFixed(0)+"px")}
 }
 function bestSync(){
   const a=[document.querySelector("#s-home .hero-ico"),document.querySelector("#bestFloat .bfin")].filter(Boolean);
@@ -4284,7 +4284,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="d5e6ddf7f658";
+  const BUILD="c0d0f6215e20";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
