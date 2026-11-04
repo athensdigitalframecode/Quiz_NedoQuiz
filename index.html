@@ -1026,7 +1026,7 @@ body[data-scr=s-tv] .madewrap{display:none!important}
 #bestFloat .bfn{font:700 12px/1.1 Inter,system-ui,sans-serif;color:#ffe9a0;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,.6)}
 #bestFloat .bfl{font:600 10px/1.1 Inter,system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#ffd23f;opacity:.9;text-shadow:0 1px 4px rgba(0,0,0,.6)}
 @keyframes bfx{0%{left:4%}100%{left:calc(100% - 96px)}}
-@keyframes bfy{0%{top:12%}100%{top:calc(100% - 150px)}}
+@keyframes bfy{0%{top:12%}100%{top:calc(100% - 235px - env(safe-area-inset-bottom,0px))}}
 @keyframes bfb{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-5px) rotate(6deg)}}
 body[data-scr="s-game"] #bestFloat,body[data-scr="s-tv"] #bestFloat{display:none}
 @media (prefers-reduced-motion:reduce){#bestFloat .bfin,#bestFloat .bfc{animation:none}}
@@ -4262,7 +4262,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="9bfdbbdb5b90";
+  const BUILD="90584fc60d09";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
