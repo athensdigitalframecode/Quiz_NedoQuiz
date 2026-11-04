@@ -956,6 +956,9 @@ body[data-scr=s-tv] .madewrap{display:none!important}
 /* пожертвование — внутри «Ещё» */
 #sheet a.donate:not([hidden]){position:static!important;display:block!important;width:auto!important;max-width:none!important;margin:14px 0 0!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;opacity:1!important;transform:none!important;pointer-events:auto!important;text-align:center!important;animation:none!important;box-shadow:none!important}
 #sheet a.donate small{display:block!important;font-size:12px!important}
+#updBar{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:99999;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:14px;background:#16213f;color:#fff;border:1px solid rgba(255,255,255,.18);box-shadow:0 8px 28px rgba(0,0,0,.45);font:600 15px/1.25 system-ui,sans-serif}
+#updBar button{flex:none;padding:9px 16px;border:0;border-radius:10px;background:#ffd23f;color:#111;font:700 15px system-ui,sans-serif;cursor:pointer}
+#updBar button:disabled{opacity:.6}
 
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@1,600;1,700&display=swap" media="print" onload="this.media='all'">
@@ -3941,7 +3944,34 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- PWA: установка на экран ---- */
 (function(){
-  try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js").catch(()=>{})}catch(e){}
+  let swReg=null;
+  try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
+  /* автообновление: сравниваем версию сборки с version.json на сервере */
+  const BUILD="c134c342af14";
+  if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
+    let shown=false,busy=false;
+    const bar=()=>{
+      if(shown)return;shown=true;
+      const d=document.createElement("div");d.id="updBar";
+      d.innerHTML='<span>Вышла новая версия игры</span><button type="button">Обновить</button>';
+      d.querySelector("button").onclick=async()=>{
+        d.querySelector("button").disabled=true;
+        try{if(swReg)await swReg.update()}catch(e){}
+        try{const ks=await caches.keys();await Promise.all(ks.map(k=>caches.open(k).then(c=>c.delete("./"))))}catch(e){}
+        location.reload();
+      };
+      document.body.appendChild(d);
+    };
+    const check=async()=>{
+      if(shown||busy||document.hidden)return;busy=true;
+      try{const r=await fetch("version.json?_="+Date.now(),{cache:"no-store"});if(r.ok){const j=await r.json();if(j&&j.v&&j.v!==BUILD)bar()}}catch(e){}
+      busy=false;
+    };
+    setTimeout(check,4000);
+    setInterval(check,5*60*1000);
+    document.addEventListener("visibilitychange",()=>{if(!document.hidden)check()});
+    window.addEventListener("online",check);
+  }
   const btn=document.getElementById("pwaBtn"),hint=document.getElementById("pwaHint");if(!btn)return;
   const standalone=()=>matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
   if(standalone())return;
@@ -3974,6 +4004,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u47",d:"4 ноября",t:"Автообновление игры",items:["Когда выходит новая версия, внизу появляется плашка «Вышла новая версия игры» с кнопкой «Обновить». Чистить кэш вручную больше не нужно"]},
   {id:"u46",d:"1 ноября",t:"Экран не гаснет во время игры",items:["Во время вопроса экран телефона больше не гаснет сам, поэтому не будет дисквалификации за автозатухание"]},
   {id:"u45",d:"31 октября",t:"English Vocabulary Builder: слова с разными значениями",items:["Добавлено 85 вопросов про известные слова с неочевидными значениями (charge, spare, draw, nail и другие). Теперь в теме больше 730 вопросов"]},
   {id:"u44",d:"31 октября",t:"English Vocabulary Builder: ещё 199 слов",items:["В теме English Vocabulary Builder добавлено 199 новых слов, которых раньше не было: теперь в ней больше 650 вопросов"]},
