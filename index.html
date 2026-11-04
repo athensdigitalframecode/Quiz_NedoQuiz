@@ -1018,6 +1018,18 @@ body[data-scr=s-tv] .madewrap{display:none!important}
 #updBar button{flex:none;padding:9px 16px;border:0;border-radius:10px;background:#ffd23f;color:#111;font:700 15px system-ui,sans-serif;cursor:pointer}
 #updBar button:disabled{opacity:.6}
 
+#bestFloat{position:fixed;left:0;top:0;width:100%;height:100%;z-index:-1;pointer-events:none;overflow:hidden}
+#bestFloat .bfin{position:absolute;left:6%;top:18%;display:flex;flex-direction:column;align-items:center;gap:2px;opacity:.5;animation:bfx 47s ease-in-out infinite alternate,bfy 31s ease-in-out infinite alternate}
+#bestFloat .bfin::after{content:"";position:absolute;inset:-14px;border-radius:50%;background:radial-gradient(circle,rgba(255,210,63,.22),transparent 70%);z-index:-1}
+#bestFloat .bfc{font-size:26px;line-height:1;animation:bfb 4s ease-in-out infinite;filter:drop-shadow(0 2px 6px rgba(255,210,63,.5))}
+#bestFloat .bfp{width:68px;height:68px;border-radius:50%;object-fit:cover;border:3px solid #ffd23f;box-shadow:0 0 22px rgba(255,210,63,.45);background:#16213f}
+#bestFloat .bfn{font:700 12px/1.1 Inter,system-ui,sans-serif;color:#ffe9a0;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+@keyframes bfx{0%{left:4%}100%{left:calc(100% - 96px)}}
+@keyframes bfy{0%{top:12%}100%{top:calc(100% - 150px)}}
+@keyframes bfb{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-5px) rotate(6deg)}}
+body[data-scr="s-game"] #bestFloat,body[data-scr="s-tv"] #bestFloat{display:none}
+@media (prefers-reduced-motion:reduce){#bestFloat .bfin,#bestFloat .bfc{animation:none}}
+
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@1,600;1,700&display=swap" media="print" onload="this.media='all'">
 <canvas id="stars"></canvas>
@@ -2120,6 +2132,20 @@ function drawRankBar(){
   const w=left%10===1&&left%100!==11?"очко":(left%10>=2&&left%10<=4&&(left%100<10||left%100>=20))?"очка":"очков";
   el.innerHTML=`<div class="rb"><div class="rbt">До «${nx.i} ${nx.n}» осталось <b>${left}</b> ${w}</div><div class="rbar"><i style="width:${pc}%"></i></div></div>`;
 }
+/* плавающий значок лучшего игрока (лидер недели) на фоне сайта */
+function bestDraw(d){
+  if(!d||!d.u)return;
+  let el=document.getElementById("bestFloat");
+  if(!el){el=document.createElement("div");el.id="bestFloat";el.setAttribute("aria-hidden","true");document.body.appendChild(el)}
+  el.innerHTML=`<div class="bfin"><span class="bfc">👑</span><img class="bfp" src="${esc(d.p||"")}" alt=""><b class="bfn">${esc(d.n||"")}</b></div>`;
+}
+function bestSet(u){
+  if(!u||!profiles[u])return;
+  const d={u,n:nickOf(u),p:photoOf(u)};
+  try{localStorage.setItem("quiz_best",JSON.stringify(d))}catch(e){}
+  bestDraw(d);
+}
+try{const d=JSON.parse(localStorage.getItem("quiz_best")||"null");if(d)bestDraw(d)}catch(e){}
 let boardH=null,boardAt=0,boardBusy=false;
 async function drawBoards(){
   const el=$("boards");if(!el)return;
@@ -2132,6 +2158,7 @@ async function drawBoards(){
   const wk=Date.now()-7*864e5,sum={};
   hs.forEach(h=>{if(+h.at<wk)return;h.ps.forEach(p=>{if(!p.u||p.d)return;sum[p.u]=(sum[p.u]||0)+(p.s|0)})});
   const top=Object.keys(sum).filter(u=>sum[u]>0&&profiles[u]&&sameG(u)).sort((a,b)=>sum[b]-sum[a]).slice(0,3);
+  if(top[0])bestSet(top[0]);
   let html="";
   if(top.length){const med=["🥇","🥈","🥉"];
     html+=`<div class="lab">🏆 Лидеры недели</div><div class="wk">`+top.map((u,i)=>`<div class="wkc${u===uid?" me":""}"><span class="wkm">${med[i]}</span>${pic(u)}<b>${esc(nickOf(u))}</b><small>${sum[u]} очк.</small></div>`).join("")+`</div>`}
@@ -4234,7 +4261,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="08a0175ae980";
+  const BUILD="0ba384b44f8b";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4291,6 +4318,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u53",d:"4 ноября",t:"Лучший игрок на фоне",items:["На фоне сайта медленно плавает значок лидера недели: корона, фото и ник"]},
   {id:"u51",d:"4 ноября",t:"Вечер кино: новое обсуждение",items:["Вопросы о фильме стали сложнее. Вместо карточек: «Кого бы вы сыграли?», цитаты, оценки ползунками, спорные вопросы, слова-облако, свой вопрос группе и итоги вечера с картинкой на память"]},
   {id:"u50",d:"4 ноября",t:"Вечер кино",items:["Режим для книжного клуба: комната по коду и QR, 10 вопросов о фильме «Миллионер из трущоб» без таймера и очков, карточки для обсуждения с голосованием, крупный шрифт и кнопка «А+»"]},
   {id:"u49",d:"4 ноября",t:"Кнопка для Полины",items:["На главной появилась плавающая кнопка «для Полины (книжный клуб)»"]},
