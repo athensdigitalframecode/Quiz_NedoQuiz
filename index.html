@@ -1018,19 +1018,18 @@ body[data-scr=s-tv] .madewrap{display:none!important}
 #updBar button{flex:none;padding:9px 16px;border:0;border-radius:10px;background:#ffd23f;color:#111;font:700 15px system-ui,sans-serif;cursor:pointer}
 #updBar button:disabled{opacity:.6}
 
-#bestFloat{position:fixed;left:0;top:0;width:100%;height:100%;z-index:-1;pointer-events:none;overflow:hidden}
-#bestFloat .bfin{position:absolute;left:4px;top:18%;transform-origin:top left;transform:scale(var(--bfs,1));display:flex;flex-direction:column;align-items:center;gap:2px;opacity:.5;animation:bfy 31s ease-in-out infinite alternate}
-#bestFloat .bfin::after{content:"";position:absolute;inset:-14px;border-radius:50%;background:radial-gradient(circle,rgba(255,210,63,.22),transparent 70%);z-index:-1}
-#bestFloat .bfc{font-size:26px;line-height:1;animation:bfb 4s ease-in-out infinite;filter:drop-shadow(0 2px 6px rgba(255,210,63,.5))}
-#bestFloat .bfp{width:68px;height:68px;border-radius:50%;object-fit:cover;border:3px solid #ffd23f;box-shadow:0 0 22px rgba(255,210,63,.45);background:#16213f}
-#bestFloat .bfn{font:700 12px/1.1 Inter,system-ui,sans-serif;color:#ffe9a0;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,.6)}
-#bestFloat .bfl{font:600 10px/1.1 Inter,system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#ffd23f;opacity:.9;text-shadow:0 1px 4px rgba(0,0,0,.6)}
-#bestFloat[data-side=right] .bfin{left:auto;right:4px;transform-origin:top right}
-@keyframes bfx{0%{left:4%}100%{left:calc(100% - 96px)}}
-@keyframes bfy{0%{top:12%}100%{top:calc(100% - 235px - env(safe-area-inset-bottom,0px))}}
-@keyframes bfb{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-5px) rotate(6deg)}}
-body[data-scr="s-game"] #bestFloat,body[data-scr="s-tv"] #bestFloat{display:none}
-@media (prefers-reduced-motion:reduce){#bestFloat .bfin,#bestFloat .bfc{animation:none}}
+#bestFloat{display:none;position:fixed;left:0;top:96px;width:100%;height:0;z-index:5;pointer-events:none;transition:opacity .35s}
+body[data-scr="s-home"] #bestFloat{display:block}
+#bestFloat.bfoff{opacity:0}
+#bestFloat .bfin{position:absolute;left:50%;top:0;width:96px;margin-left:-48px;animation:bfx 3.4s ease-in-out infinite alternate-reverse}
+#bestFloat .bfy{display:flex;flex-direction:column;align-items:center;gap:2px;animation:booty 1.7s ease-in-out infinite;transform-origin:50% 60%}
+#bestFloat .bfc{font-size:26px;line-height:1;filter:drop-shadow(0 2px 6px rgba(255,210,63,.5))}
+#bestFloat .bfp{width:68px;height:68px;border-radius:50%;object-fit:cover;border:3px solid #ffd23f;box-shadow:0 0 22px rgba(255,210,63,.55);background:#16213f;animation:bfhit 3.4s linear infinite}
+#bestFloat .bfn{font:700 12px/1.1 Inter,system-ui,sans-serif;color:#ffe9a0;max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,.7)}
+#bestFloat .bfl{font:600 10px/1.1 Inter,system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#ffd23f;text-shadow:0 1px 4px rgba(0,0,0,.7)}
+@keyframes bfx{from{transform:translateX(calc(-50vw + 56px))}to{transform:translateX(calc(50vw - 56px))}}
+@keyframes bfhit{0%,42%,58%,100%{transform:scale(1)}50%{transform:scale(1.22)}}
+@media (prefers-reduced-motion:reduce){#bestFloat .bfin,#bestFloat .bfy,#bestFloat .bfp{animation:none}}
 
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@1,600;1,700&display=swap" media="print" onload="this.media='all'">
@@ -2134,22 +2133,22 @@ function drawRankBar(){
   const w=left%10===1&&left%100!==11?"очко":(left%10>=2&&left%10<=4&&(left%100<10||left%100>=20))?"очка":"очков";
   el.innerHTML=`<div class="rb"><div class="rbt">До «${nx.i} ${nx.n}» осталось <b>${left}</b> ${w}</div><div class="rbar"><i style="width:${pc}%"></i></div></div>`;
 }
-/* плавающий значок лучшего игрока (лидер недели) на фоне сайта */
+/* значок лучшего игрока: качается как знак вопроса, но в противофазе; встречаются в центре и расходятся к углам (только на главной) */
 function bestDraw(d){
   if(!d||!d.u)return;
   let el=document.getElementById("bestFloat");
   if(!el){el=document.createElement("div");el.id="bestFloat";el.setAttribute("aria-hidden","true");document.body.appendChild(el)}
-  el.innerHTML=`<div class="bfin"><span class="bfc">👑</span><img class="bfp" src="${esc(d.p||"")}" alt=""><b class="bfn">${esc(d.n||"")}</b><small class="bfl">лучший игрок</small></div>`;
+  el.innerHTML=`<div class="bfin"><div class="bfy"><span class="bfc">👑</span><img class="bfp" src="${esc(d.p||"")}" alt=""><b class="bfn">${esc(d.n||"")}</b><small class="bfl">лучший игрок</small></div></div>`;
   bestFit();
 }
-/* значок живёт только у края экрана, не заходя на колонку с карточками; на узких экранах уменьшается */
 function bestFit(){
-  const el=document.getElementById("bestFloat"),w=document.querySelector(".wrap");if(!el||!w)return;
-  const r=w.getBoundingClientRect(),L=Math.max(0,r.left),R=Math.max(0,innerWidth-r.right),g=Math.max(L,R)+10;
-  el.dataset.side=L>=R?"left":"right";el.style.setProperty("--bfs",Math.max(.4,Math.min(1,g/100)).toFixed(2));
+  const el=document.getElementById("bestFloat");if(!el)return;
+  const h=document.querySelector("#s-home .hero-ico");let top=96;
+  if(h&&h.offsetParent){const r=h.getBoundingClientRect();if(r.height)top=Math.max(56,r.top+scrollY-12)}
+  el.style.top=top+"px";el.classList.toggle("bfoff",scrollY>140);
 }
-addEventListener("resize",bestFit);
-try{new MutationObserver(bestFit).observe(document.body,{attributes:true,attributeFilter:["data-scr"]})}catch(e){}
+addEventListener("resize",bestFit);addEventListener("scroll",bestFit,{passive:true});
+try{new MutationObserver(()=>{setTimeout(bestFit,60);setTimeout(bestFit,400)}).observe(document.body,{attributes:true,attributeFilter:["data-scr"]})}catch(e){}
 function bestSet(u){
   if(!u||!profiles[u])return;
   const d={u,n:nickOf(u),p:photoOf(u)};
@@ -4272,7 +4271,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="717e7a92c59c";
+  const BUILD="f32ea58f1adf";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
