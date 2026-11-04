@@ -1051,6 +1051,26 @@ body[data-scr="s-home"] #bestFloat{display:block}
 .bnav{transform:translate3d(-50%,0,0);will-change:transform;contain:layout style}
 @media (prefers-reduced-motion:reduce){#bestFloat .bfin,#bestFloat .bfy,#bestFloat .bfp{animation:none}}
 
+.streakpill{display:block;width:max-content;max-width:100%;margin:6px auto 2px;padding:6px 14px;border-radius:999px;font:800 14px var(--disp);background:rgba(255,201,60,.14);border:1px solid var(--gold);color:var(--gold);transition:background .2s,box-shadow .2s;animation:pop .3s}
+.streakpill[hidden]{display:none}
+.streakpill.hot{background:rgba(255,140,40,.18);border-color:#ff8c28;color:#ffb066;box-shadow:0 0 14px rgba(255,140,40,.45)}
+.streakpill.big{background:rgba(255,77,99,.18);border-color:#ff4d63;color:#ff8f9f;box-shadow:0 0 20px rgba(255,77,99,.55);animation:streakbeat 1s ease-in-out infinite}
+.streakpill.lost{background:rgba(255,77,99,.12);border-color:var(--bad);color:var(--bad);box-shadow:none}
+@keyframes streakbeat{50%{transform:scale(1.07)}}
+@keyframes rightpop{0%{transform:scale(1)}45%{transform:scale(1.06)}100%{transform:scale(1)}}
+#s-game .opt.right{animation:rightflash .8s ease-out,rightpop .5s cubic-bezier(.2,1.6,.4,1)}
+.whyq{margin-top:6px;font-size:13px;line-height:1.35;color:var(--mut);font-weight:500;overflow-wrap:anywhere}
+.hintrow{display:grid;grid-template-columns:1fr 1fr;gap:6px}.hintrow .btn{font-size:12px;padding:10px 8px;line-height:1.25}
+.gainpop{position:fixed;left:50%;top:32%;transform:translateX(-50%);z-index:70;pointer-events:none;font:900 34px var(--disp);color:var(--ok);text-shadow:0 2px 14px rgba(0,0,0,.6);animation:gainup 1.4s ease-out forwards}
+.gainpop.neg{color:var(--bad)}
+@keyframes gainup{0%{opacity:0;transform:translate(-50%,10px) scale(.6)}20%{opacity:1;transform:translate(-50%,0) scale(1.15)}100%{opacity:0;transform:translate(-50%,-50px) scale(1)}}
+.rxfloat{position:fixed;bottom:90px;z-index:70;font-size:34px;pointer-events:none;animation:rxup 1.5s ease-out forwards}
+@keyframes rxup{0%{opacity:0;transform:translateY(0) scale(.6)}15%{opacity:1}100%{opacity:0;transform:translateY(-220px) scale(1.3)}}
+.myrecap h2{margin:0 0 10px}
+.rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.rgrid div{background:var(--card2);border-radius:12px;padding:10px 6px;text-align:center}
+.rgrid b{display:block;font:800 15px var(--disp);overflow-wrap:anywhere}
+.rgrid small{color:var(--mut);font-size:11px}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@1,600;1,700&display=swap" media="print" onload="this.media='all'">
 <canvas id="stars"></canvas>
@@ -1288,6 +1308,7 @@ body[data-scr="s-home"] #bestFloat{display:block}
 <section id="s-game" class="screen">
   <div class="top"><button class="btn alt small" data-leave>← Выйти</button><div class="badge" id="gbadge"></div></div>
   <div class="steps" id="steps"></div>
+  <div class="streakpill" id="strk" hidden></div>
   <div class="warnline" id="warn">⚠️ Не уходите с вкладки дольше 4 секунд: иначе дисквалификация.</div>
   <div class="rintro" id="rIntro" hidden></div>
   <div class="qcard">
@@ -1295,7 +1316,7 @@ body[data-scr="s-home"] #bestFloat{display:block}
     <div style="min-width:0"><div class="qno" id="qno"></div><div class="qtxt" id="qtxt"></div></div>
   </div>
   <img class="qimg" id="qimg" alt="" hidden>
-  <div class="ans" id="ans" hidden><small>Правильный ответ</small><span id="anst"></span><button type="button" class="flagq" id="flagq" data-act="flag" hidden>⚠️ Ошибка в вопросе</button></div>
+  <div class="ans" id="ans" hidden><small>Правильный ответ</small><span id="anst"></span><div class="whyq" id="whyq" hidden></div><button type="button" class="flagq" id="flagq" data-act="flag" hidden>⚠️ Ошибка в вопросе</button></div>
   <div class="banner" id="banner"></div>
   <div class="rxrow" id="rxRow" hidden></div>
   <div class="dqline" id="dqline"></div>
@@ -3276,7 +3297,7 @@ function drawGame(){
     else if(mine&&!mine.alive)gs.textContent="Вы выбыли. Можно наблюдать за игрой";
     else gs.textContent="Вы наблюдаете за игрой";
   }
-  $("ans").hidden=!(game.status==="reveal"&&game.ans);$("anst").textContent=game.ans||"";flagDraw();
+  $("ans").hidden=!(game.status==="reveal"&&game.ans);$("anst").textContent=game.ans||"";{const bx=game.status==="reveal"?bq(game,game.qi|0):null,w=$("whyq");w.textContent=(bx&&bx.e)||"";w.hidden=!w.textContent}flagDraw();
   const bn=$("banner");let names=[];
   if(game.status==="reveal"){
     if(solo||pvp||ev){const ok=mine&&mine.ok===1;bn.textContent=ok?`Верно! +${mine.gain|0} очков ${okEmo(q)}`:"Не угадали";bn.className="banner "+(ok?"green":"red");if(pvp){const o=players.find(p=>p.id!==uid);if(o)bn.textContent+=" · соперник: "+(o.ok===1?"верно":"мимо")}}
@@ -3294,10 +3315,53 @@ function drawGame(){
       d.innerHTML=pic(p.id);b.textContent=nickOf(p.id);s.textContent=(blitz?"":"👑 ")+(p.a||"")+(!blitz&&p.ok===1&&p.gain?"  +"+p.gain:"")+(ev&&p.gain?"  "+(p.gain>0?"+":"")+p.gain:"")+(ev&&p.bet&&p.aq===q&&RND[rndOf(q)].bet?" (×"+p.bet+")":"");d.append(b,s);ab.appendChild(d);
     });
   }
-  if(game.status==="reveal"&&drawGame.last!==code+q){drawGame.last=code+q;if((solo||pvp||ev)?!(mine&&mine.ok===1):blitz?names.length:players.some(p=>p.ok!==1))buzz();else beep(1)}
+  if(game.status==="reveal"&&drawGame.last!==code+q){drawGame.last=code+q;myReveal(q,mine);if((solo||pvp||ev)?!(mine&&mine.ok===1):blitz?names.length:players.some(p=>p.ok!==1))buzz();else beep(1)}
   drawIntro();
   tickUI();
 }
+/* ---------- серия верных ответов, вибрация, итоги игры ---------- */
+const MY={code:"",rows:[],streak:0,best:0,lost:0};
+const vib=v=>{try{if(navigator.vibrate)navigator.vibrate(v)}catch(e){}};
+const tick3=()=>note(1500,.07,"square",.07);
+function streakNote(n){const f=520+Math.min(n,12)*55;note(f,.1,"sine",.1);note(f*1.5,.16,"sine",.09,.09)}
+function rxFloat(e){const s=document.createElement("span");s.className="rxfloat";s.textContent=e;s.style.left=(25+Math.random()*50)+"%";document.body.appendChild(s);setTimeout(()=>s.remove(),1600)}
+function gainPop(n,fast){const s=document.createElement("div");s.className="gainpop"+(n<0?" neg":"");s.textContent=(n>0?"+":"")+n+(fast&&n>0?" ⚡":"");document.body.appendChild(s);setTimeout(()=>s.remove(),1500)}
+function drawStreak(){
+  const el=$("strk");if(!el)return;
+  const on=!!game&&ind(game.mode)&&MY.code===code&&(MY.streak>=2||MY.lost>0);
+  el.hidden=!on;if(!on)return;
+  el.className="streakpill"+(MY.streak>=5?" big":MY.streak>=3?" hot":"")+(MY.streak<2?" lost":"");
+  const t=MY.streak>=2?"🔥 "+MY.streak+" подряд":"💔 Серия прервана · было "+MY.lost;
+  if(el.textContent!==t)el.textContent=t;
+}
+function myReveal(q,m){
+  if(!game||!ind(game.mode))return;
+  if(MY.code!==code){MY.code=code;MY.rows=[];MY.streak=0;MY.best=0;MY.lost=0}
+  if(!m||m.dq||MY.rows.some(r=>r.q===q))return;
+  const ans=m.aq===q,ok=ans&&m.a===game.ans,x=bq(game,q)||{},T=Tof(q);
+  MY.rows.push({q,ok,rt:ans?+m.rt||0:0,T,c:x.c,n:!ans});
+  if(ok){MY.streak++;MY.best=Math.max(MY.best,MY.streak);MY.lost=0;if(MY.streak>=2)streakNote(MY.streak);vib(MY.streak>=3?[20,40,20]:20)}
+  else{MY.lost=MY.streak>=2?MY.streak:0;MY.streak=0;vib([40,60,40])}
+  drawStreak();
+  if(race(game.mode))setTimeout(()=>{const mm=me();if(!game||game.status!=="reveal"||(game.qi|0)!==q||!mm)return;const gn=mm.gain|0;if(gn)gainPop(gn,T&&(+mm.rt||0)/T>=.75)},450);
+}
+function myRecap(){
+  let el=$("myRecap");
+  if(!game||MY.code!==code||!ind(game.mode)||MY.rows.length<2){if(el)el.remove();return}
+  const R=MY.rows,ok=R.filter(r=>r.ok);
+  let fast=null;ok.forEach(r=>{const t=Math.max(.2,r.T-r.rt);if(fast===null||t<fast)fast=t});
+  const tp={};R.forEach(r=>{if(typeof r.c!=="number")return;const t=tp[r.c]||(tp[r.c]={n:0,k:0});t.n++;if(r.ok)t.k++});
+  let bt=null;Object.keys(tp).forEach(c=>{const t=tp[c];if(t.n>=2&&t.k>=1&&(!bt||t.k/t.n>bt.r||(t.k/t.n===bt.r&&t.k>bt.k)))bt={c:+c,r:t.k/t.n,k:t.k}});
+  if(!el){el=document.createElement("div");el.id="myRecap";el.className="card myrecap";const ex=$("endExtra");ex.parentNode.insertBefore(el,ex)}
+  const h=`<h2>Твоя игра</h2><div class="rgrid"><div><b>🔥 ${MY.best}</b><small>лучшая серия</small></div><div><b>⚡ ${fast===null?"—":fast.toFixed(1)+" с"}</b><small>самый быстрый верный</small></div><div><b>${bt&&TOPICS[bt.c]?esc(TOPICS[bt.c]):"—"}</b><small>сильная тема</small></div></div><button class="btn alt" data-rc="chal">⚔️ Бросить вызов другу</button>`;
+  if(el.dataset.h!==h){el.dataset.h=h;el.innerHTML=h}
+}
+document.addEventListener("click",e=>{
+  const b=e.target.closest&&e.target.closest("[data-rc]");if(!b)return;
+  const m=game&&game.mode;leaveGame();nav("home");
+  if(b.dataset.rc==="again"&&m&&ind(m))newGame(m);
+  else if(b.dataset.rc==="chal")setTimeout(()=>{const c=document.querySelector('#s-home [data-act="challenge"]');if(c)c.click()},60);
+});
 function drawIntro(){
   const on=game.status==="intro",box=$("rIntro"),qc=document.querySelector("#s-game .qcard");
   box.hidden=!on;if(qc)qc.style.display=on?"none":"";
@@ -3351,12 +3415,35 @@ function drawBetHint(q,mine){
   if(!br.hidden){if(betQ!==code+q){betQ=code+q;curBet=1}
     br.innerHTML=[1,2,3].map(n=>`<button class="bet ${curBet===n?"on":""}" data-bet="${n}">×${n}</button>`).join("")+`<small>верно +${60*curBet}, неверно −${40*curBet}</small>`}
   if(mine&&mine.hq===q&&!hid[code+":"+q])hid[code+":"+q]=hintPick(q);
-  const can=ind(game.mode)&&!game.ch&&game.mode!=="pvp"&&live&&!answered&&(mine.hn|0)<3&&mine.hq!==q;
-  hr.hidden=!can;
-  if(can)hr.innerHTML=`<button class="btn small ghost" data-hint="1">50/50 · верный ответ даст на 30 очков меньше · осталось ${3-(mine.hn|0)}</button>`;
+  const can=ind(game.mode)&&!game.ch&&game.mode!=="pvp"&&live&&!answered&&(mine.hn|0)<3&&mine.hq!==q,solo=game.mode==="solo"&&!game.ch;
+  const vbOK=race(game.mode)&&game.mode!=="evening"&&!game.ch&&live&&!answered&&((mine.vn|0)<1||mine.vq===q),b=[];
+  if(can)b.push(`<button class="btn small ghost" data-hint="1">50/50 · −30 очков · осталось ${3-(mine.hn|0)}</button>`);
+  if(solo&&live&&!answered&&(mine.xn|0)<1)b.push(`<button class="btn small ghost" data-x="1">⏱ +10 сек · −20 очков · 1 раз</button>`);
+  if(solo&&live&&!answered&&(mine.sn|0)<1)b.push(`<button class="btn small ghost" data-skip="1">⏭ Заменить вопрос · 1 раз</button>`);
+  if(vbOK)b.push(`<button class="btn small${mine.vq===q?"":" ghost"}" data-vb="1">🎰 Ва-банк${mine.vq===q?" включён":""} · ×2 / −50 · 1 раз</button>`);
+  hr.hidden=!b.length;if(b.length)hr.innerHTML=b.join("");
 }
 $("betRow").onclick=e=>{const b=e.target.closest("[data-bet]");if(!b)return;curBet=+b.dataset.bet;drawGame()};
+async function hintExtra(bt){
+  const m=me(),q=game.qi|0;if(!m||m.dq||!m.alive||m.aq===q)return;
+  try{
+    if(bt.dataset.x){if((m.xn|0)>=1)return;endAt[q]=(endAt[q]||Date.now())+10000;await pcol.doc(uid).update({xn:1,xq:q});note(700,.1,"sine",.08)}
+    else if(bt.dataset.vb){if(m.vq===q)await pcol.doc(uid).update({vq:-1});else if((m.vn|0)<1){await pcol.doc(uid).update({vq:q});note(520,.08,"square",.06);note(780,.12,"square",.06,.08)}}
+    else if(bt.dataset.skip){
+      if((m.sn|0)>=1||game.mode!=="solo")return;
+      const qs=(game.qs||[]).slice(),cur=bq(game,q)||{},used=new Set(qs),pool=[];
+      BANK.forEach((x,i)=>{if(!used.has(i)&&!HID.has(x.c)&&x.c<27&&!!x.i===!!cur.i&&(cur.c===undefined||x.c===cur.c))pool.push(i)});
+      if(!pool.length)return;
+      qs[q]=pool[Math.floor(Math.random()*pool.length)];const g2={...game,qs};
+      await gref.update({qs,qText:qOf(g2,q),qOpts:optsOf(g2,q)});
+      delete hid[code+":"+q];endAt[q]=Date.now()+Tq(g2,q)*1000;
+      await pcol.doc(uid).update({sn:1,hq:-1});
+    }
+  }catch(err){}
+  drawGame();
+}
 $("hintRow").onclick=async e=>{
+  if(game&&game.status==="q"){const bt=e.target.closest("[data-x],[data-skip],[data-vb]");if(bt){hintExtra(bt);return}}
   if(!e.target.closest("[data-hint]")||!game||game.status!=="q")return;
   const m=me(),q=game.qi|0;if(!m||m.hq===q||(m.hn|0)>=3||m.aq===q)return;
   hid[code+":"+q]=hintPick(q);
@@ -3366,7 +3453,7 @@ $("hintRow").onclick=async e=>{
 $("opts").onclick=e=>{
   const el=e.target.closest(".opt");if(!el||!game||game.status!=="q")return;
   const m=me();if(!m||m.dq||!m.alive)return;
-  const q=game.qi|0,o=el.dataset.o;
+  const q=game.qi|0,o=el.dataset.o;vib(12);
   if(ind(game.mode)){
     if(m.aq===q)return;
     const rt=Math.max(0,((endAt[q]||Date.now())-Date.now())/1000);
@@ -3388,14 +3475,16 @@ $("finalSend").onclick=()=>{if(game)sendFinal(capPick())};
 function overNow(g,ps){const q=g.qi|0;return q>=TOTAL-1||(race(g.mode)?false:g.mode==="blitz"?ps.filter(p=>p.alive).length<=1:activeTeams(ps).length<2)}
 function tickUI(){
   if(!game)return;
+  drawStreak();
   if(game.status==="lobby"){lobbyStatus();return}
   const q=game.qi|0,T=Tof(q);
   if(game.status==="q"){
     const left=Math.max(0,((endAt[q]||Date.now())-Date.now())/1000);
     $("tnum").textContent=Math.ceil(left);
-    $("fg").style.strokeDashoffset=282.7*(1-left/T);
+    $("fg").style.strokeDashoffset=282.7*(1-Math.min(1,left/T));
     $("ring").className="ring"+(left<=10?" hot":left<=T*.4?" warn":"");
-    const s=Math.ceil(left);if(left<=10&&left>0&&s!==tickUI.last&&me()&&me().alive){tickUI.last=s;tick()}
+    const hu=Math.round(125*Math.max(0,Math.min(1,left/T)));$("fg").style.stroke="hsl("+hu+",85%,55%)";$("tnum").style.color=left<=10?"":"hsl("+hu+",90%,72%)";
+    const s=Math.ceil(left);if(left<=10&&left>0&&s!==tickUI.last&&me()&&me().alive){tickUI.last=s;if(s<=3){tick3();vib(14)}else tick()}
   }else if(game.status==="intro"){
     const left=Math.max(0,Math.ceil((INTRO_MS-(Date.now()-(introAt[q]||Date.now())))/1000));
     $("gstatus").className="status";$("gstatus").textContent="Раунд начинается через "+left+" с";
@@ -3483,7 +3572,10 @@ async function act(key){
         let gain=ok?Math.round(50+50*Math.min(1,Math.max(0,(+p.rt||0)/T))):0;
         if(bet)gain=ok?60*st:-40*st;
         if(ok&&p.hq===q)gain=Math.max(10,gain-30);
-        return pcol.doc(p.id).update({pts:(p.pts|0)+gain,ok:ok?1:0,okc:(p.okc|0)+(ok?1:0),gain});
+        if(ok&&p.xq===q)gain=Math.max(10,gain-20);
+        const vb=!bet&&p.vq===q&&(p.vn|0)<1;
+        if(vb)gain=ok?gain*2:-50;
+        return pcol.doc(p.id).update({pts:(p.pts|0)+gain,ok:ok?1:0,okc:(p.okc|0)+(ok?1:0),gain,...(vb?{vn:(p.vn|0)+1}:{})});
       }));
       await gref.update({status:"reveal",outs:[],ans});
     }else if(g.mode==="blitz"){
@@ -3645,6 +3737,7 @@ function drawEnd0(){
       `<div class="scoreboard">${order.map(t=>`<div class="t"><small>${teamLabel(t)}</small><b>${sc[t]}</b></div>`).join("")}</div>
       <h2 style="margin-top:14px">Лучшие игроки</h2><div class="members">${top.map(p=>`<div class="m">${pic(p.id)}<b style="flex:1;overflow-wrap:anywhere">${esc(nickOf(p.id))}</b><span class="chip2">${p.pts|0}</span></div>`).join("")}</div>`;
   }
+  myRecap();
   if(drawEnd.done!==code){drawEnd.done=code;setTimeout(()=>confetti(220),400);setTimeout(()=>confetti(160),1300)}
 }
 
@@ -3955,14 +4048,17 @@ function rxCount(q){const c={};players.forEach(p=>{const e=p["rx_"+q];if(e)c[e]=
 function rxSum(q){const c=rxCount(q),k=Object.keys(c);return k.length?`<small>Реакции: ${k.map(e=>e+" "+c[e]).join("  ")}</small>`:""}
 function drawRx(){
   const row=$("rxRow");if(!row)return;
-  const q=game.qi|0,mine=me(),on=game.status==="reveal"&&mine&&players.length>1&&!game.ch;
+  const q=game.qi|0,mine=me(),live=(game.mode==="pvp"||game.mode==="duel")&&game.status==="q",on=(game.status==="reveal"||live)&&mine&&players.length>1&&!game.ch;
   row.hidden=!on;if(!on)return;
+  {const sig={};players.forEach(p=>{if(p.id!==uid&&p["rx_"+q])sig[p.id]=p["rx_"+q]});
+   if(drawRx.q===q)for(const id in sig)if(drawRx.p[id]!==sig[id]){rxFloat(sig[id]);note(880,.08,"sine",.06);vib(10)}
+   drawRx.q=q;drawRx.p=sig}
   const my=mine["rx_"+q]||"",c=rxCount(q);
   const h=RX.map(e=>`<button type="button" class="rx${my===e?" on":""}" data-rx="${e}">${e}${c[e]?`<i>${c[e]}</i>`:""}</button>`).join("");
   if(row.dataset.h!==h){row.dataset.h=h;row.innerHTML=h}
 }
 $("rxRow").onclick=e=>{
-  const b=e.target.closest("[data-rx]");if(!b||!game||game.status!=="reveal"||!me())return;
+  const b=e.target.closest("[data-rx]");if(!b||!game||!(game.status==="reveal"||((game.mode==="pvp"||game.mode==="duel")&&game.status==="q"))||!me())return;
   const q=game.qi|0,my=me()["rx_"+q]||"";
   pcol.doc(uid).update({["rx_"+q]:my===b.dataset.rx?"":b.dataset.rx}).catch(()=>{});
 };
@@ -4305,7 +4401,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="44b27142c961";
+  const BUILD="01add92b0786";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4362,6 +4458,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u55",d:"5 ноября",t:"Игра стала живее",items:["Серия верных ответов: счётчик «🔥 N подряд» с растущим звуком, а при ошибке видно, какая серия прервалась","Таймер плавно меняется от зелёного к красному, в последние 3 секунды тикает громче, при ответе лёгкая вибрация на телефоне","Верный ответ «подпрыгивает», после ответа видно, сколько очков получено, а под правильным ответом короткое пояснение","В одиночной игре можно прибавить 10 секунд или заменить вопрос (по разу за игру)","Ва-банк: верно ×2, неверно −50 очков (раз за игру, в одиночной игре и в дуэли на скорость)","После игры экран «Твоя игра»: лучшая серия, самый быстрый ответ, сильная тема, кнопки «Сыграть ещё раз» и «Вызвать друга»","В дуэли эмодзи-реакции соперника всплывают на экране прямо во время вопроса"]},
   {id:"u54",d:"5 ноября",t:"Новая тема: Что? Где? Когда?",items:["Добавили тему «🧐 Что? Где? Когда?» — 336 вопросов из Базы вопросов Интернет-клуба «Что? Где? Когда?» (db.chgk.info), у каждого указан автор и источник"]},
   {id:"u53",d:"4 ноября",t:"Лучший игрок на фоне",items:["На главной значок лидера недели (корона, фото, ник и подпись «лучший игрок») и знак вопроса отталкиваются друг от друга, доходят до краёв заголовка и сталкиваются"]},
   {id:"u51",d:"4 ноября",t:"Вечер кино: новое обсуждение",items:["Вопросы о фильме стали сложнее. Вместо карточек: «Кого бы вы сыграли?», цитаты, оценки ползунками, спорные вопросы, слова-облако, свой вопрос группе и итоги вечера с картинкой на память"]},
