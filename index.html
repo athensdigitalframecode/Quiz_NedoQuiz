@@ -185,6 +185,7 @@ body[data-scr="s-film"],html:has(body[data-scr="s-film"]){overflow:hidden;height
 #s-film .fmqr svg{width:min(52vw,30vh)!important;height:auto!important}
 #s-film .fmcode{font-size:2.4em}
 #s-film .fmr{margin:.4em 0}
+.fmb:disabled{opacity:.45;cursor:default}
 </style>
 <style>
 .pic{border-radius:50%;object-fit:cover;background:#111;display:block}
@@ -2923,7 +2924,7 @@ async function filmEnter(c){
   leaveGame(true);filmLeave();
   const gref=db.doc("games/"+c),pcol=gref.collection("fp"),s=await gref.get();
   if(!s.exists||!s.data()||s.data().mode!=="film")throw new Error("комната не найдена");
-  const f=film={c,gref,pcol,g:s.data(),ps:[],my:{a:{},v:{},at:Date.now()},rd:{},wd:{},un:[]};
+  const f=film={c,gref,pcol,g:s.data(),ps:[],my:{a:{},v:{},at:Date.now()},rd:{},wd:{},sel:{},epo:{},un:[]};
   const mine=await pcol.doc(uid).get();
   if(mine.exists&&mine.data())f.my=Object.assign({a:{},v:{}},mine.data());else await pcol.doc(uid).set(f.my);
   f.un.push(gref.onSnapshot(x=>{if(film!==f)return;if(!x.exists){filmLeave();nav("home");return}f.g=x.data();filmDraw()},()=>{}));
@@ -2983,11 +2984,15 @@ function filmDraw(){
   }else if(st==="q"||st==="rev"){
     const i=g.qi|0,Q=FILM_Q[i],rev=st==="rev",mine=f.my.a[i];
     const cnt=Q.o.map((_,k)=>f.ps.filter(p=>p.a&&p.a[i]===k).length),ans=f.ps.filter(p=>p.a&&p.a[i]!==undefined).length;
+    const lk=mine!==undefined,mk=lk?mine:f.sel[i];
     h=`<div class="fmhead">Вопрос ${i+1} из ${tq}</div><h2 class="fmq">${esc(Q.q)}</h2>`+Q.o.map((o,k)=>{
-      let c="fmo";if(!rev&&mine===k)c+=" me";if(rev)c+=k===Q.a?" ok":(mine===k?" bad":" dim");
-      return `<button class="${c}" data-f="ans" data-k="${k}"${rev?" disabled":""}><span>${"АБВГД"[k]}</span>${esc(o)}${rev?`<em>${k===Q.a?"✓ ":""}${cnt[k]}</em>`:""}</button>`}).join("");
-    if(rev)h+=`<div class="fmep"><small>Из какого эпизода?</small>${esc(Q.ep)}</div>`;
-    else h+=host?`<p class="fmw">Ответили: <b>${ans}</b> из ${n}</p>`:(mine!==undefined?`<p class="fmw">Ответ принят. Его можно изменить, пока ведущая не покажет верный.</p>`:"");
+      let c="fmo";if(!rev&&mk===k)c+=" me";if(rev)c+=k===Q.a?" ok":(mine===k?" bad":" dim");
+      return `<button class="${c}" data-f="ans" data-k="${k}"${rev||lk?" disabled":""}><span>${"АБВГ"[k]}</span>${esc(o)}${rev?`<em>${k===Q.a?"✓ ":""}${cnt[k]}</em>`:""}</button>`}).join("");
+    if(rev)h+=f.epo[i]?`<div class="fmep"><small>Из какого эпизода?</small>${esc(Q.ep)}</div>`:`<button class="fmb alt" data-f="ep">Из какого эпизода?</button>`;
+    else{
+      if(!lk)h+=`<button class="fmb" data-f="send"${mk===undefined?" disabled":""}>Ответить</button>`;
+      else h+=`<p class="fmw">Ответ принят.${host?` Ответили: <b>${ans}</b> из ${n}`:" Ждём остальных."}</p>`;
+    }
     if(host)foot=rev?`<button class="fmb" data-f="next">${i<tq-1?"Следующий вопрос →":"К обсуждению →"}</button>`:`<button class="fmb" data-f="rev">Показать верный ответ</button>`;
   }else if(st==="c"){
     const i=g.ci|0,C=FILM_C[i],mine=f.my.v[i],k=C.k,last=i>=tc-1;
@@ -3043,7 +3048,9 @@ document.addEventListener("click",e=>{
   if(!film)return;
   if(k==="exit"){filmLeave();nav("home");return}
   const g=film.g;
-  if(k==="ans"){if(g.st==="q"){film.my.a[g.qi|0]=+b.dataset.k;filmDraw();filmSave()}return}
+  if(k==="ans"){const i=g.qi|0;if(g.st==="q"&&film.my.a[i]===undefined){film.sel[i]=+b.dataset.k;filmDraw()}return}
+  if(k==="send"){const i=g.qi|0;if(g.st==="q"&&film.sel[i]!==undefined&&film.my.a[i]===undefined){film.my.a[i]=film.sel[i];filmDraw();filmSave()}return}
+  if(k==="ep"){film.epo[g.qi|0]=1;filmDraw();return}
   if(k==="vote"){if(g.st==="c"){film.my.v[g.ci|0]=+b.dataset.k;filmDraw();filmSave()}return}
   if(k==="rate"){if(g.st==="c"){const i=g.ci|0;film.my.v[i]=(film.rd[i]||[]).slice();filmDraw();filmSave()}return}
   if(k==="text"){const el=$("fmIn"),t=el&&el.value.trim();if(g.st==="c"&&t){film.my.v[g.ci|0]=t.slice(0,120);if(el)el.blur();filmDraw();filmSave()}return}
@@ -4227,7 +4234,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="a499ed1c2e57";
+  const BUILD="08a0175ae980";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
