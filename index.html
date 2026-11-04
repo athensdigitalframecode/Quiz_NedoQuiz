@@ -172,6 +172,19 @@ body[data-scr="s-film"] .wrap,body[data-scr="s-polina"] .wrap{max-width:900px}
 .fmrg{width:100%;height:2.4em;accent-color:#ffb347}
 .fmin{width:100%;margin:.5em 0;padding:.7em;border-radius:16px;border:2px solid var(--line);background:var(--card);color:var(--txt);font:600 1em system-ui,sans-serif}
 .fmcl{display:flex;flex-wrap:wrap;gap:.3em .8em;justify-content:center;align-items:center;margin:.8em 0;color:var(--gold);font-family:Georgia,serif;font-weight:700}
+body[data-scr="s-film"],html:has(body[data-scr="s-film"]){overflow:hidden;height:100%}
+#s-film.on{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden;box-sizing:border-box;padding:6px max(12px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
+#s-film .top{flex:none;margin-bottom:2px}
+#s-film .wrap{flex:1;min-height:0;display:flex;flex-direction:column;width:100%;box-sizing:border-box;padding:0}
+#fmBody{flex:1;min-height:0;overflow:hidden}#fmFoot{flex:none}
+#s-film .fmb{margin:.4em 0;min-height:2.6em}
+#s-film .fmo{margin:.3em 0;min-height:2.8em}
+#s-film .fmq,#s-film .fmh{margin:.2em 0 .4em}
+#s-film .fmep{margin:.5em 0}
+#s-film .fmc{margin:.2em 0}
+#s-film .fmqr svg{width:min(52vw,30vh)!important;height:auto!important}
+#s-film .fmcode{font-size:2.4em}
+#s-film .fmr{margin:.4em 0}
 </style>
 <style>
 .pic{border-radius:50%;object-fit:cover;background:#111;display:block}
@@ -1388,7 +1401,8 @@ body[data-scr=s-tv] .madewrap{display:none!important}
   <h1>📚 Для Полины</h1>
   <p class="sub" style="text-align:center;margin:0 0 12px">Книжный клуб · встреча по фильму «Миллионер из трущоб»</p>
   <div class="card"><p>Вечер кино: 10 вопросов о фильме и карточки для обсуждения. Каждая участница отвечает со своего телефона. Нужен обычный аккаунт игры, зарегистрироваться можно заранее.</p>
-  <button class="fmb" id="polOpen" type="button">🎬 Открыть комнату (для Полины)</button></div>
+  <button class="fmb" id="polOpen" type="button">🎬 Открыть комнату (для Полины)</button>
+  <div id="polHostBox" hidden><label for="polHost">Код ведущей</label><input id="polHost" class="fmin" maxlength="12" autocomplete="off" autocapitalize="characters" placeholder="Код ведущей"><button class="fmb" id="polHostGo" type="button">Подтвердить и открыть</button></div></div>
   <div class="card"><label for="polCode">Уже есть код от Полины?</label><input id="polCode" maxlength="4" autocomplete="off" inputmode="text" placeholder="КОД"><button class="fmb alt" id="polJoin" type="button">Войти в комнату</button>
   <p id="polErr" class="fmw" style="color:var(--bad)"></p></div>
 </section>
@@ -1956,7 +1970,14 @@ document.addEventListener("click",e=>{
 let rankBack="home",rulesBack="home";
 $("rulesBack").onclick=()=>{ if(code)renderGame(true);else nav(rulesBack==="rules"?"home":rulesBack,curArg) };
 $("modesBack").onclick=$("rulesBack").onclick;$("faqBack").onclick=$("rulesBack").onclick;
-$("polBtn").onclick=()=>{rulesBack=cur;$("polErr").textContent=document.body.classList.contains("guest")?"Сначала войдите или зарегистрируйтесь в игре":"";show("s-polina");scrollTo(0,0)};$("polBack").onclick=$("rulesBack").onclick;$("polAa").onclick=()=>filmFz(1);$("polOpen").onclick=filmCreate;$("polJoin").onclick=()=>{const c=$("polCode").value.trim().toUpperCase();if(c.length<4){$("polErr").textContent="Введите код из 4 символов";return}if(!uid||!ME){$("polErr").textContent="Сначала войдите в игру";return}openGame(c)};
+$("polBtn").onclick=()=>{rulesBack=cur;$("polErr").textContent=document.body.classList.contains("guest")?"Сначала войдите или зарегистрируйтесь в игре":"";show("s-polina");scrollTo(0,0)};$("polBack").onclick=$("rulesBack").onclick;$("polAa").onclick=()=>filmFz(1);$("polOpen").onclick=()=>{$("polHostBox").hidden=false;$("polHost").focus()};
+$("polHostGo").onclick=async()=>{
+  const v=$("polHost").value.trim().toUpperCase();$("polErr").textContent="";
+  if(!v){$("polErr").textContent="Введите код ведущей";return}
+  if(!(window.crypto&&crypto.subtle)){$("polErr").textContent="Не удалось проверить код в этом браузере";return}
+  const hx=Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(v+"|kino")))).map(b=>b.toString(16).padStart(2,"0")).join("");
+  if(hx!==FILM_HOST){$("polErr").textContent="Неверный код ведущей";return}
+  $("polHost").value="";filmCreate()};$("polJoin").onclick=()=>{const c=$("polCode").value.trim().toUpperCase();if(c.length<4){$("polErr").textContent="Введите код из 4 символов";return}if(!uid||!ME){$("polErr").textContent="Сначала войдите в игру";return}openGame(c)};
 $("rankBack").onclick=()=>{ if(code&&game&&game.status==="end")show("s-end");else if(code)renderGame(true);else nav(rankBack==="rank"?"home":rankBack) };
 $("profBack").onclick=()=>{ if(!ME)return;nav("home") };
 
@@ -2884,8 +2905,9 @@ const FILM_C=[
  {k:"ask",t:"Вопрос от участницы",q:"Напишите свой вопрос группе. Ведущая зачитает его вслух"}
 ];
 /* состояние комнаты лежит в games/КОД (mode:"film", без status, чтобы комната не попадала в «Открытые игры»), ответы каждой участницы в games/КОД/fp/uid */
+const FILM_HOST="56e6fc9f889a6c9bca925bedac27f4185c233f506deca486cfc26173b37dea87";
 let film=null;
-const FMZ=[22,28,34];
+const FMZ=[20,26,32];
 function filmFz(step){let i=0;try{i=+localStorage.getItem("fmz")||0}catch(e){}if(step)i=(i+1)%FMZ.length;try{localStorage.setItem("fmz",String(i))}catch(e){}document.documentElement.style.setProperty("--fz",FMZ[i]+"px")}
 function filmLeave(){if(film){film.un.forEach(u=>{try{u()}catch(e){}});film=null}}
 async function filmCreate(){
@@ -2940,6 +2962,14 @@ function filmPng(){
   let y=130;L.forEach((t,i)=>{x.fillStyle=i<2?"#ffb347":"#fff3df";x.font=(i===0?"bold 70px":i===1?"bold 48px":"40px")+" Georgia,serif";wrap(x,t,W-140).forEach(l=>{if(y<1290)x.fillText(l,70,y);y+=i<2?80:56})});
   cv.toBlob(b=>{if(!b)return;const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="vecher-kino.png";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000)});
 }
+function filmFit(){
+  const b=$("fmBody");if(!b)return;let i=0;try{i=+localStorage.getItem("fmz")||0}catch(e){}
+  b.style.overflowY="hidden";
+  let z=FMZ[i]||FMZ[0];
+  for(;z>=12;z--){document.documentElement.style.setProperty("--fz",z+"px");if(b.scrollHeight<=b.clientHeight+1)break}
+  if(b.scrollHeight>b.clientHeight+1)b.style.overflowY="auto";
+}
+window.addEventListener("resize",()=>{if(film&&cur==="film")filmDraw()});
 function filmDraw(){
   const f=film;if(!f||cur!=="film")return;if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#fmBody")&&/INPUT/.test(document.activeElement.tagName))return;
   const g=f.g,host=g.by===uid,st=g.st,n=f.ps.length,tq=FILM_Q.length,tc=FILM_C.length;
@@ -3003,13 +3033,13 @@ function filmDraw(){
       (S.words.length?`<div class="fmep"><small>Фильм одним словом</small>${filmCloud(S.words)}</div>`:"")+
       `<button class="fmb" data-f="png">💾 Сохранить картинку</button><p class="fmw">Спасибо за вечер! До новых встреч книжного клуба.</p>`;
   }
-  $("fmBody").innerHTML=h;$("fmFoot").innerHTML=foot;
+  $("fmBody").innerHTML=h;$("fmFoot").innerHTML=foot;filmFit();
 }
 document.addEventListener("input",e=>{const t=e.target;if(!film||!t)return;const i=film.g.ci|0;if(t.id==="fmIn")film.wd[i]=t.value;else if(t.classList&&t.classList.contains("fmrg")){const d=film.rd[i]||(film.rd[i]=[]);d[+t.dataset.j]=+t.value;const l=$("fmrv"+t.dataset.j);if(l)l.textContent=t.value}});
 document.addEventListener("focusout",e=>{if(film&&e.target&&e.target.id==="fmIn")setTimeout(filmDraw,50)});
 document.addEventListener("click",e=>{
   const b=e.target.closest("[data-f]");if(!b)return;const k=b.dataset.f;
-  if(k==="aa"){filmFz(1);return}
+  if(k==="aa"){filmFz(1);if(film)filmDraw();return}
   if(!film)return;
   if(k==="exit"){filmLeave();nav("home");return}
   const g=film.g;
@@ -4197,7 +4227,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="d0d04d004dbb";
+  const BUILD="9f9a8f7a061c";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4254,6 +4284,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u52",d:"4 ноября",t:"Вечер кино: код ведущей и экран без прокрутки",items:["Комнату можно открыть только по коду ведущей","В комнате всё помещается на экране телефона без прокрутки"]},
   {id:"u51",d:"4 ноября",t:"Вечер кино: новое обсуждение",items:["Вопросы о фильме стали сложнее. Вместо карточек: «Кого бы вы сыграли?», цитаты, оценки ползунками, спорные вопросы, слова-облако, свой вопрос группе и итоги вечера с картинкой на память"]},
   {id:"u50",d:"4 ноября",t:"Вечер кино",items:["Режим для книжного клуба: комната по коду и QR, 10 вопросов о фильме «Миллионер из трущоб» без таймера и очков, карточки для обсуждения с голосованием, крупный шрифт и кнопка «А+»"]},
   {id:"u49",d:"4 ноября",t:"Кнопка для Полины",items:["На главной появилась плавающая кнопка «для Полины (книжный клуб)»"]},
