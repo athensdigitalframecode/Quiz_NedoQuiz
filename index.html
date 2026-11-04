@@ -1032,6 +1032,10 @@ body[data-scr="s-home"] #bestFloat{display:block}
 @keyframes bumpR{0%{transform:translateX(var(--bfd)) scale(1.12);animation-timing-function:cubic-bezier(.1,.75,.3,1)}45%{transform:translateX(var(--bfa)) scale(1);animation-timing-function:cubic-bezier(.8,0,.9,.5)}100%{transform:translateX(var(--bfd)) scale(1.12)}}
 @keyframes bumpL{0%{transform:translateX(calc(var(--bfd)*-1)) scale(1.12);animation-timing-function:cubic-bezier(.1,.75,.3,1)}45%{transform:translateX(calc(var(--bfa)*-1)) scale(1);animation-timing-function:cubic-bezier(.8,0,.9,.5)}100%{transform:translateX(calc(var(--bfd)*-1)) scale(1.12)}}
 @media (prefers-reduced-motion:no-preference){#s-home .hero-ico{animation:bumpR 4.6s infinite}}
+/* отдельные слои для движущихся знаков и нижней панели: столкновение не перерисовывает размытие панели (не дёргается) */
+#s-home .hero-ico,#bestFloat .bfin,#bestFloat .bfy{will-change:transform;backface-visibility:hidden}
+#bestFloat .bfp{box-shadow:0 0 14px rgba(255,210,63,.45)}
+.bnav{transform:translate3d(-50%,0,0);will-change:transform;contain:layout style}
 @media (prefers-reduced-motion:reduce){#bestFloat .bfin,#bestFloat .bfy,#bestFloat .bfp{animation:none}}
 
 </style>
@@ -4280,7 +4284,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="e119f6533bd3";
+  const BUILD="d5e6ddf7f658";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
