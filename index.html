@@ -620,7 +620,7 @@ body[data-scr="s-home"] .wrap,body[data-scr="s-rank"] .wrap,body[data-scr="s-tea
 .bn small{font:600 10.5px Inter,system-ui;letter-spacing:.03em}
 .bn:hover{color:var(--txt)}
 .bn:active{transform:scale(.93)}
-body[data-scr="s-home"] .bn[data-nav="home"],body[data-scr="s-rank"] .bn[data-nav="rank"],body[data-scr="s-teams"] .bn[data-nav="teams"],body[data-scr="s-me"] .bn[data-nav="me"],.bn.on{color:var(--gold);background:linear-gradient(180deg,rgba(var(--gr),.2),rgba(var(--gr),.06));box-shadow:inset 0 0 0 1px var(--hair)}
+body[data-scr="s-home"] .bn[data-nav="home"],body[data-scr="s-rank"] .bn[data-nav="rank"],body[data-scr="s-gstats"] .bn[data-nav="gstats"],body[data-scr="s-teams"] .bn[data-nav="teams"],body[data-scr="s-me"] .bn[data-nav="me"],.bn.on{color:var(--gold);background:linear-gradient(180deg,rgba(var(--gr),.2),rgba(var(--gr),.06));box-shadow:inset 0 0 0 1px var(--hair)}
 .sheetbg{position:fixed;inset:0;z-index:80;background:rgba(3,6,14,.55);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);animation:fadeb .25s}
 .sheetbg[hidden],.sheet[hidden]{display:none!important}
 @keyframes fadeb{from{opacity:0}}
@@ -1462,6 +1462,7 @@ body[data-scr=s-tv] .madewrap{display:none!important}
 <nav class="bnav" id="bnav" aria-label="Навигация">
   <button type="button" class="bn" data-act="home" data-nav="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><small>Главная</small></button>
   <button type="button" class="bn" data-act="rank" data-nav="rank"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v6a4 4 0 0 1-8 0z"/><path d="M8 6H4v1a4 4 0 0 0 4 4M16 6h4v1a4 4 0 0 1-4 4M12 14v4M8 21h8M10 18h4"/></svg><small>Рейтинг</small></button>
+  <button type="button" class="bn" data-act="gstats" data-nav="gstats"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg><small>Статистика</small></button>
   <button type="button" class="bn" data-act="teams" data-nav="teams"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20v-2a5 5 0 0 1 10 0v2M15 14.5a4 4 0 0 1 6 3.5v2"/></svg><small>Команды</small></button>
   <button type="button" class="bn" data-act="me" data-nav="me"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M5 21a7 7 0 0 1 14 0"/></svg><small>Профиль</small></button>
   <button type="button" class="bn" id="moreBtn" data-nav="more"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg><small>Ещё</small></button>
@@ -1474,7 +1475,6 @@ body[data-scr=s-tv] .madewrap{display:none!important}
     <button type="button" class="shi" data-act="modes">🎮 Виды игр</button>
     <button type="button" class="shi" data-act="rules">📖 Правила</button>
     <button type="button" class="shi" data-act="faq">❓ FAQ</button>
-    <button type="button" class="shi" data-act="gstats">📊 Статистика</button>
     <button type="button" class="shi" data-act="coll">🎖️ Коллекция</button>
   </div>
   <div class="lab" style="text-align:center;margin:4px 0">Тема оформления</div><div class="thpick" id="thPick"></div>
@@ -1529,7 +1529,9 @@ const BANK=[{"c":0,"d":"e","q":"Как попрощаться по-испанс�
 const LET=["A","B","C","D"];
 const IG_URL="https://www.instagram.com/athens.digitalframe/";
 const PIC_T=24;
-const inTopic=(x,t)=>t<0?!(x.c>=27):t===PIC_T?!!x.i:x.c===t;
+/* скрытые темы: вопросы остаются в банке (индексы не сдвигаются), но в игру и списки не попадают. 22 = Аниме и манга */
+const HID=new Set([22]);
+const inTopic=(x,t)=>t<0?!(x.c>=27||HID.has(x.c)):HID.has(t)?false:t===PIC_T?!!x.i:x.c===t;
 const topicCount=t=>BANK.filter(b=>inTopic(b,t)).length;
 const topicName=t=>(t==null||t<0||!TOPICS[t])?"🎲 Микс тем":TOPICS[t];
 function hstr(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
@@ -1543,15 +1545,18 @@ function pickQs(topic,plan){
   const itm=k=>typeof k==="string"?sugItem(k.slice(2)):BANK[k],sk=sugOk().map(id=>"s_"+id).filter(k=>itm(k)),all=[...BANK.map((_,i)=>i),...sk],HQ=hiddenQ(),okq=i=>typeof i==='string'||!HQ.size||!HQ.has(String(hstr(BANK[i].q))),pool=all.filter(i=>okq(i)&&inTopic(itm(i),topic));
   const lv=x=>x.d==="e"?0:x.d==="h"?2:1,isP=x=>!!x.i,PICS=[0,2,4,7,12];
   const used=new Set(),cats=new Set(),out=[];
-  const take=(src,f)=>{const c=shuffled(src.filter(i=>!used.has(i)&&f(itm(i))),Math.random);if(!c.length)return null;const nw=c.filter(i=>!seenHas(i));let g=nw.find(i=>!cats.has(itm(i).c));if(g==null)g=nw[0];if(g==null)g=c.find(i=>!cats.has(itm(i).c));return g!=null?g:c[0]};
+  const take=(src,f,onlyNew)=>{const c=shuffled(src.filter(i=>!used.has(i)&&f(itm(i))),Math.random);if(!c.length)return null;const nw=c.filter(i=>!seenHas(i));if(onlyNew&&!nw.length)return null;let g=nw.find(i=>!cats.has(itm(i).c));if(g==null)g=nw[0];if(g==null)g=c.find(i=>!cats.has(itm(i).c));return g!=null?g:c[0]};
   for(let k=0;k<TOTAL;k++){
     const pl=plan&&plan[k],L=pl?pl.L:k<5?0:k<10?1:2,P=pl?pl.P:PICS.includes(k),nl=x=>!(pl&&pl.nl&&x.c===25);
     let i=null;
-    if([3,8,13].includes(k)&&!(pl&&pl.nl)&&Math.random()<.7)i=take(pool.filter(z=>typeof z==="string"),()=>true);
-    if(i==null)i=take(pool,x=>lv(x)===L&&isP(x)===P&&nl(x));
-    if(i==null)i=take(pool,x=>lv(x)===L&&nl(x));
-    if(i==null)i=take(pool,x=>isP(x)===P&&Math.abs(lv(x)-L)<=1);
-    if(i==null)i=take(pool,()=>true);
+    if([3,8,13].includes(k)&&!(pl&&pl.nl)&&Math.random()<.7)i=take(pool.filter(z=>typeof z==="string"),()=>true,true);
+    /* сначала ищем ещё не виденные вопросы по всем условиям подряд, и только потом разрешаем повторы */
+    for(const nn of [true,false]){
+      if(i==null)i=take(pool,x=>lv(x)===L&&isP(x)===P&&nl(x),nn);
+      if(i==null)i=take(pool,x=>lv(x)===L&&nl(x),nn);
+      if(i==null)i=take(pool,x=>isP(x)===P&&Math.abs(lv(x)-L)<=1,nn);
+      if(i==null)i=take(pool,()=>true,nn);
+    }
     if(i==null)i=take(all.filter(okq),()=>true);
     if(i==null)break;
     used.add(i);out.push(i);cats.add(itm(i).c);if(cats.size>=8)cats.clear();
@@ -1867,6 +1872,7 @@ document.addEventListener("click",e=>{
   else if(k==="pvpch")startPvp(id);
   else if(k==="pvpa")startAsync(id);
   else if(k==="achplay")playAsync(id);
+  else if(k==="chcancel"){const c=challenges[id];if(c&&c.by===uid&&!c.statsDone&&confirm("Отменить предложенную дуэль?")){const gid=c["g_"+uid];delete challenges[id];if(gid)db.doc("games/"+gid).update({status:"end"}).catch(()=>{});db.doc("challenges/"+id).delete().catch(()=>{});drawHome()}}
   else if(k==="endg"){const g=lobbies.find(x=>x.id===id);if(g&&g.by===uid){lobbies=lobbies.filter(x=>x.id!==id);db.doc("games/"+id).update({status:"end"}).catch(()=>{});drawHome()}}
   else if(k==="newteam")nav("newteam");
   else if(k==="team")nav("team",id);
@@ -1985,8 +1991,9 @@ function drawHome(){
         items.push(`<div class="invite"><span>Командная дуэль с ${nm}: ${c.winner===ME.team?"победа":c.winner?"поражение":"ничья"} · ${c["ta_"+ME.team]|0} : ${c["ta_"+ot]|0}</span></div>`);
       }else{
         const left=(c.ms&&c.ms[ME.team]||[]).filter(u=>!c["d_"+u]).length;
-        if(!my)items.push(`<div class="invite"><span>Командная дуэль против ${nm}: ваша команда ещё играет (не сыграли: ${left}). До ${new Date(+c.deadline).toLocaleString("ru",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}</span><button class="btn small" data-act="achplay" data-id="${id}">Играть</button></div>`);
-        else items.push(`<div class="invite"><span>Командная дуэль против ${nm}: вы сыграли (${my.pts|0}), ждём остальных (не сыграли: ${left})</span></div>`);
+        const canC=c.by===uid&&!(c.ms&&c.ms[ot]||[]).some(u=>c["d_"+u]),cb=canC?`<button class="btn alt small" data-act="chcancel" data-id="${id}">Отменить</button>`:"";
+        if(!my)items.push(`<div class="invite"><span>Командная дуэль против ${nm}: ваша команда ещё играет (не сыграли: ${left}). До ${new Date(+c.deadline).toLocaleString("ru",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}</span><button class="btn small" data-act="achplay" data-id="${id}">Играть</button>${cb}</div>`);
+        else items.push(`<div class="invite"><span>Командная дуэль против ${nm}: вы сыграли (${my.pts|0}), ждём остальных (не сыграли: ${left})</span>${cb}</div>`);
         if(Date.now()>+c.deadline&&!settleTried[id]){settleTried[id]=1;settleTeam(id)}
       }
       return;
@@ -1996,14 +2003,14 @@ function drawHome(){
       if(Date.now()-(+c.doneAt||0)>86400000)return;
       const r=c.winner===uid?"победа":c.winner?"поражение":"ничья";
       items.push(`<div class="invite"><span>Отложенная дуэль с ${esc(nickOf(opp))}: ${r} · ${(my&&my.pts)|0} : ${(th&&th.pts)|0}</span></div>`);
-    }else if(!my)items.push(`<div class="invite"><span>Отложенная дуэль: ${c.by===uid?"вы вызвали":"вас вызывает"} ${esc(nickOf(opp))}${th?" · соперник уже сыграл":""}</span><button class="btn small" data-act="achplay" data-id="${id}">Играть</button></div>`);
-    else items.push(`<div class="invite"><span>Вы сыграли (${my.pts|0}). Ждём результат: ${esc(nickOf(opp))}</span></div>`);
+    }else if(!my)items.push(`<div class="invite"><span>Отложенная дуэль: ${c.by===uid?"вы вызвали":"вас вызывает"} ${esc(nickOf(opp))}${th?" · соперник уже сыграл":""}</span><button class="btn small" data-act="achplay" data-id="${id}">Играть</button>${c.by===uid&&!th?`<button class="btn alt small" data-act="chcancel" data-id="${id}">Отменить</button>`:""}</div>`);
+    else items.push(`<div class="invite"><span>Вы сыграли (${my.pts|0}). Ждём результат: ${esc(nickOf(opp))}</span>${c.by===uid&&!th?`<button class="btn alt small" data-act="chcancel" data-id="${id}">Отменить</button>`:""}</div>`);
   });
   const live=[];
   lobbies.forEach(g=>{
     if(g.mode==="pvp"){
       if(g.invited===uid)items.push(`<div class="invite"><span>Дуэль 1×1: вас вызывает ${esc(nickOf(g.by))}</span><button class="btn small" data-act="open" data-id="${g.id}">Принять</button></div>`);
-      else if(g.by===uid)items.push(`<div class="invite"><span>Ваш вызов ждёт: ${esc(nickOf(g.invited))}</span><button class="btn small" data-act="open" data-id="${g.id}">Открыть</button><button class="btn alt small" data-act="endg" data-id="${g.id}">Завершить</button></div>`);
+      else if(g.by===uid)items.push(`<div class="invite"><span>Ваш вызов ждёт: ${esc(nickOf(g.invited))}</span><button class="btn small" data-act="open" data-id="${g.id}">Открыть</button><button class="btn alt small" data-act="endg" data-id="${g.id}">Отменить</button></div>`);
       return;
     }
     if(g.mode==="solo")return;
@@ -2050,11 +2057,11 @@ async function drawBoards(){
   const feed=[];
   hs.slice().sort((a,b)=>(+b.at)-(+a.at)).slice(0,25).forEach(h=>{
     if(Date.now()-(+h.at)>3*864e5)return;
-    const mn=((MODES[h.mode]||{}).name||"").replace(/^[^А-Яа-я]+/,"").toLowerCase();
+    const mn=((MODES[h.mode]||{}).name||"").replace(/^[^А-Яа-я]+/,"").toLowerCase(),tn=h.topic==null?"":topicName(h.topic).replace(/^[^A-Za-zА-Яа-я]+/,""),sfx=[mn,tn].filter(Boolean).map(esc).join(" · ");
     h.ps.filter(p=>p.u&&profiles[p.u]&&sameG(p.u)&&p.u!==uid&&!p.d).forEach(p=>{
       const f=profiles[p.u].gender==="f"?"а":"";
-      if((p.k|0)>=TOTAL&&h.mode!=="pvp")feed.push([+h.at,`🎯 <b>${esc(nickOf(p.u))}</b> сыграл${f} ${TOTAL}/${TOTAL}`]);
-      else if(h.winner&&h.winner===p.u&&h.mode!=="solo")feed.push([+h.at,`🏆 <b>${esc(nickOf(p.u))}</b> победил${f}${mn?" · "+esc(mn):""}`]);
+      if((p.k|0)>=TOTAL&&h.mode!=="pvp")feed.push([+h.at,`🎯 <b>${esc(nickOf(p.u))}</b> сыграл${f} ${TOTAL}/${TOTAL}${sfx?" · "+sfx:""}`]);
+      else if(h.winner&&h.winner===p.u&&h.mode!=="solo")feed.push([+h.at,`🏆 <b>${esc(nickOf(p.u))}</b> победил${f}${sfx?" · "+sfx:""}`]);
     });
   });
   if(feed.length){const ago=t=>{const m=Math.round((Date.now()-t)/6e4);return m<60?Math.max(1,m)+" мин":m<1440?Math.round(m/60)+" ч":Math.round(m/1440)+" дн"};
@@ -2365,7 +2372,7 @@ function sgCard(id,s,mode){
   return `<div class="tcard" style="cursor:default"><div class="nm">${head}<small>${lab}</small></div>${st==="pending"?`<button class="btn small ghost" data-act="sgd" data-id="${id}">Убрать</button>`:""}</div>`;
 }
 function drawSuggest(){
-  if(!$("sgTopic").children.length)$("sgTopic").innerHTML=TOPICS.map((n,i)=>n&&i!==PIC_T&&i<27?`<option value="${i}"${i===SG_TOPIC?" selected":""}>${esc(n)}</option>`:"").join("");
+  if(!$("sgTopic").children.length)$("sgTopic").innerHTML=TOPICS.map((n,i)=>n&&i!==PIC_T&&i<27&&!HID.has(i)?`<option value="${i}"${i===SG_TOPIC?" selected":""}>${esc(n)}</option>`:"").join("");
   [...$("sgLvl").children].forEach(b=>b.classList.toggle("on",b.dataset.l===sgLvl));
   const ids=Object.keys(SUG).sort((a,b)=>((+SUG[b].at||0))-((+SUG[a].at||0)));
   const vote=ids.filter(id=>SUG[id].by!==uid&&sgState(SUG[id])==="pending");
@@ -2423,7 +2430,7 @@ function touch(a){const t=dayKey();if(a.lastDay===t)return a;a.streak=a.lastDay=
 const curStreak=a=>a&&(a.lastDay===dayKey()||a.lastDay===prevDay(dayKey()))?(a.streak|0):0;
 
 /* вопрос дня */
-function dailyQ(){const k=dayKey(),p=BANK.map((_,i)=>i).filter(i=>!BANK[i].i&&!(BANK[i].c>=27));if(!p.length)return null;const x=BANK[p[hstr("d"+k)%p.length]];return{k,x,opts:shuffled([x.a,...x.w],rng(hstr("o"+k)))}}
+function dailyQ(){const k=dayKey(),p=BANK.map((_,i)=>i).filter(i=>!BANK[i].i&&!(BANK[i].c>=27)&&!HID.has(BANK[i].c));if(!p.length)return null;const x=BANK[p[hstr("d"+k)%p.length]];return{k,x,opts:shuffled([x.a,...x.w],rng(hstr("o"+k)))}}
 function drawDaily(){
   const el=$("daily");if(!el)return;const d=dailyQ();if(!d){el.innerHTML="";return}
   const my=DAILY[uid],n=Object.keys(DAILY).length,ok=Object.values(DAILY).filter(v=>v.ok).length,st=curStreak(ACH);
@@ -2658,7 +2665,7 @@ async function finishCh(g,ps){
     if(!X.dq)d=eloD(RT[u],RT[o],OX.dq?1:w?1:winner?0:.5);
     await bump(`stats/pvp/players/${u}`,d,{win:w,score:X.dq?0:(X.pts|0)});upd["r_"+u]=d;
   }
-  try{await db.doc("history/ch_"+id).set({mode:"pvp",at:Date.now(),rounds:TOTAL,winner,teams:[],ps:[{u:a,s:sc(A)<0?0:A.pts|0,k:A.okc|0,d:A.dq?1:0,dr:upd["r_"+a]},{u:b,s:sc(B)<0?0:B.pts|0,k:B.okc|0,d:B.dq?1:0,dr:upd["r_"+b]}],ch:1})}catch(e){}
+  try{await db.doc("history/ch_"+id).set({mode:"pvp",at:Date.now(),rounds:TOTAL,winner,topic:c.topic==null?-1:c.topic,teams:[],ps:[{u:a,s:sc(A)<0?0:A.pts|0,k:A.okc|0,d:A.dq?1:0,dr:upd["r_"+a]},{u:b,s:sc(B)<0?0:B.pts|0,k:B.okc|0,d:B.dq?1:0,dr:upd["r_"+b]}],ch:1})}catch(e){}
   await ref.update({statsDone:true,winner,doneAt:Date.now(),...upd});
   statsCache={};
 }
@@ -3182,7 +3189,7 @@ async function pvpRatings(ids){const o={};for(const u of ids){try{const s=await 
 function eloD(ra,rb,S){const d=Math.round(32*(S-eloExp(ra,rb)));return S===1?Math.max(2,d):S===0?Math.min(-2,d):d}
 async function saveStats(g,ps){
   if(g.ch){await finishCh(g,ps);return}
-  const q=g.qi|0,m=g.mode,hist={mode:m,at:Date.now(),rounds:q+1,winner:"",teams:[],ps:[]};
+  const q=g.qi|0,m=g.mode,hist={mode:m,at:Date.now(),rounds:q+1,winner:"",teams:[],ps:[],topic:g.topic==null?-1:g.topic};
   if(m==="pvp"){
     const sc=p=>p.dq?-1:(p.pts|0),top=Math.max(...ps.map(sc)),wn=ps.filter(p=>sc(p)===top);
     hist.winner=wn.length===1&&top>=0?wn[0].id:"";
@@ -3357,6 +3364,16 @@ function mkAC(){const A=window.AudioContext||window.webkitAudioContext;try{retur
 function note(f,d,type,vol,when){try{ac=ac||mkAC();const o=ac.createOscillator(),g=ac.createGain();o.type=type||"sine";o.connect(g);g.connect(ac.destination);const t=ac.currentTime+(when||0);o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(vol||.1,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.start(t);o.stop(t+d+.02)}catch(e){}}
 function beep(ok){ok?(note(660,.12),note(990,.2,"sine",.1,.1)):note(300,.2,"triangle",.12)}
 function tick(){note(1000,.06,"square",.04)}
+/* звук нажатия на любые кнопки и пункты меню (выключается вместе с музыкой, кнопкой ♪) */
+function clickSnd(){note(740,.04,"triangle",.07);note(520,.06,"sine",.05,.025)}
+document.addEventListener("click",e=>{
+  try{
+    if(typeof MUS!=="undefined"&&!MUS.on)return;
+    const t=e.target.closest&&e.target.closest("button,a[href],[data-act],[role=button],summary,.bn,.shi,.invite,label.opt,.chips *");
+    if(!t||t.disabled||t.id==="musBtn"||t.getAttribute("aria-disabled")==="true")return;
+    clickSnd();
+  }catch(x){}
+},{capture:true,passive:true});
 function buzz(){note(150,.45,"sawtooth",.1);note(110,.5,"sawtooth",.1,.2)}
 
 /* ---------- музыка: живой синтез, без файлов ---------- */
@@ -3736,7 +3753,7 @@ async function tableCard(){
 
 /* ---------- история вопросов: что игрок уже видел ---------- */
 const SEEN=new Set();let seenDirty=false,seenTm=0,seenLoaded=false,seenSig="",seenArm=0;
-const SEEN_MAX=3000;
+const SEEN_MAX=5000;
 const seenHas=k=>SEEN.has(String(k));
 function seenSave(){
   seenDirty=false;const l=[...SEEN].join(",");
@@ -3947,7 +3964,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="c134c342af14";
+  const BUILD="d354233494b4";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4004,6 +4021,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u48",d:"4 ноября",t:"Статистика в меню, отмена дуэли, звуки кнопок",items:["Статистика теперь в нижней панели, справа от Рейтинга","Предложенную дуэль можно отменить, пока соперник не сыграл: кнопка «Отменить» рядом с вызовом на главном экране","Убрана тема «Аниме и манга»","«Новое от друзей» показывает вид игры и тему (для новых игр)","Вопросы, которые вы уже видели, теперь выпадают заметно реже: новые подбираются в первую очередь","При нажатии на кнопки теперь звучит короткий щелчок (выключается кнопкой ♪)"]},
   {id:"u47",d:"4 ноября",t:"Автообновление игры",items:["Когда выходит новая версия, внизу появляется плашка «Вышла новая версия игры» с кнопкой «Обновить». Чистить кэш вручную больше не нужно"]},
   {id:"u46",d:"1 ноября",t:"Экран не гаснет во время игры",items:["Во время вопроса экран телефона больше не гаснет сам, поэтому не будет дисквалификации за автозатухание"]},
   {id:"u45",d:"31 октября",t:"English Vocabulary Builder: слова с разными значениями",items:["Добавлено 85 вопросов про известные слова с неочевидными значениями (charge, spare, draw, nail и другие). Теперь в теме больше 730 вопросов"]},
