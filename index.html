@@ -1024,6 +1024,7 @@ body[data-scr=s-tv] .madewrap{display:none!important}
 #bestFloat .bfc{font-size:26px;line-height:1;animation:bfb 4s ease-in-out infinite;filter:drop-shadow(0 2px 6px rgba(255,210,63,.5))}
 #bestFloat .bfp{width:68px;height:68px;border-radius:50%;object-fit:cover;border:3px solid #ffd23f;box-shadow:0 0 22px rgba(255,210,63,.45);background:#16213f}
 #bestFloat .bfn{font:700 12px/1.1 Inter,system-ui,sans-serif;color:#ffe9a0;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+#bestFloat .bfl{font:600 10px/1.1 Inter,system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#ffd23f;opacity:.9;text-shadow:0 1px 4px rgba(0,0,0,.6)}
 @keyframes bfx{0%{left:4%}100%{left:calc(100% - 96px)}}
 @keyframes bfy{0%{top:12%}100%{top:calc(100% - 150px)}}
 @keyframes bfb{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-5px) rotate(6deg)}}
@@ -2137,7 +2138,7 @@ function bestDraw(d){
   if(!d||!d.u)return;
   let el=document.getElementById("bestFloat");
   if(!el){el=document.createElement("div");el.id="bestFloat";el.setAttribute("aria-hidden","true");document.body.appendChild(el)}
-  el.innerHTML=`<div class="bfin"><span class="bfc">👑</span><img class="bfp" src="${esc(d.p||"")}" alt=""><b class="bfn">${esc(d.n||"")}</b></div>`;
+  el.innerHTML=`<div class="bfin"><span class="bfc">👑</span><img class="bfp" src="${esc(d.p||"")}" alt=""><b class="bfn">${esc(d.n||"")}</b><small class="bfl">лучший игрок</small></div>`;
 }
 function bestSet(u){
   if(!u||!profiles[u])return;
@@ -4261,7 +4262,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="0ba384b44f8b";
+  const BUILD="9bfdbbdb5b90";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4318,7 +4319,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
-  {id:"u53",d:"4 ноября",t:"Лучший игрок на фоне",items:["На фоне сайта медленно плавает значок лидера недели: корона, фото и ник"]},
+  {id:"u53",d:"4 ноября",t:"Лучший игрок на фоне",items:["На фоне сайта медленно плавает значок лидера недели: корона, фото и ник и подпись «лучший игрок»"]},
   {id:"u51",d:"4 ноября",t:"Вечер кино: новое обсуждение",items:["Вопросы о фильме стали сложнее. Вместо карточек: «Кого бы вы сыграли?», цитаты, оценки ползунками, спорные вопросы, слова-облако, свой вопрос группе и итоги вечера с картинкой на память"]},
   {id:"u50",d:"4 ноября",t:"Вечер кино",items:["Режим для книжного клуба: комната по коду и QR, 10 вопросов о фильме «Миллионер из трущоб» без таймера и очков, карточки для обсуждения с голосованием, крупный шрифт и кнопка «А+»"]},
   {id:"u49",d:"4 ноября",t:"Кнопка для Полины",items:["На главной появилась плавающая кнопка «для Полины (книжный клуб)»"]},
