@@ -739,6 +739,10 @@ body.on-home .updbtn{display:inline-flex}
 .updbtn i{display:none;position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:#ff4d63;border:2px solid var(--bg)}
 .updbtn.new i{display:block}
 html[data-theme="light"] .updbtn{background:rgba(255,255,255,.88);color:#8a5f12}
+.polbtn{display:none;position:fixed;left:12px;bottom:calc(140px + env(safe-area-inset-bottom,0px));z-index:60;max-width:178px;padding:9px 14px;border:0;border-radius:18px;text-align:left;font:700 14px/1.25 Inter,system-ui,sans-serif;color:#2a1405;cursor:pointer;background:linear-gradient(135deg,#ffd36e,#ff9ec4);box-shadow:0 10px 24px -10px rgba(0,0,0,.8),inset 0 0 0 1px rgba(255,255,255,.3);animation:polfloat 3.6s ease-in-out infinite}
+.polbtn small{display:block;font-weight:600;font-size:11px;opacity:.75}
+body.on-home .polbtn{display:block}
+@keyframes polfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 .updbg{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
 .updbox{position:fixed;z-index:310;left:50%;top:50%;transform:translate(-50%,-50%);width:min(92vw,460px);max-height:78vh;display:flex;flex-direction:column;border-radius:20px;background:var(--card);border:1px solid rgba(228,194,122,.35);box-shadow:0 30px 70px -20px rgba(0,0,0,.9)}
 .updbox[hidden],.updbg[hidden]{display:none}
@@ -1339,6 +1343,12 @@ body[data-scr=s-tv] .madewrap{display:none!important}
   <div id="gsBox"><div class="empty">Загружаем…</div></div>
 </section>
 
+<section id="s-polina" class="screen rules">
+  <div class="top"><button class="btn alt small" id="polBack">← Назад</button></div>
+  <h1>📚 Для Полины</h1>
+  <p class="sub" style="text-align:center;margin:0 0 12px">Книжный клуб · встреча по фильму «Миллионер из трущоб»</p>
+  <div class="card"><p>Здравствуйте, Полина! Здесь скоро появится всё для вашей встречи: викторина и карточки для обсуждения фильма. Страница ещё готовится.</p></div>
+</section>
 <section id="s-faq" class="screen rules">
   <div class="top"><button class="btn alt small" id="faqBack">← Назад</button></div>
   <h1>❓ FAQ</h1>
@@ -1486,6 +1496,7 @@ body[data-scr=s-tv] .madewrap{display:none!important}
 
 
 <button id="updBtn" class="updbtn" type="button" aria-label="Обновления игры">🆕<span>Обновления</span><i id="updDot"></i></button>
+<button id="polBtn" class="polbtn" type="button" aria-label="Для Полины (книжный клуб)">📚 для Полины<small>(книжный клуб)</small></button>
 <div id="updBg" class="updbg" hidden></div>
 <div id="updBox" class="updbox" role="dialog" aria-label="Обновления игры" hidden>
   <div class="updhead"><b>Что нового</b><button id="updX" type="button" aria-label="Закрыть">✕</button></div>
@@ -1898,6 +1909,7 @@ document.addEventListener("click",e=>{
 let rankBack="home",rulesBack="home";
 $("rulesBack").onclick=()=>{ if(code)renderGame(true);else nav(rulesBack==="rules"?"home":rulesBack,curArg) };
 $("modesBack").onclick=$("rulesBack").onclick;$("faqBack").onclick=$("rulesBack").onclick;
+$("polBtn").onclick=()=>{rulesBack=cur;show("s-polina");scrollTo(0,0)};$("polBack").onclick=$("rulesBack").onclick;
 $("rankBack").onclick=()=>{ if(code&&game&&game.status==="end")show("s-end");else if(code)renderGame(true);else nav(rankBack==="rank"?"home":rankBack) };
 $("profBack").onclick=()=>{ if(!ME)return;nav("home") };
 
@@ -3964,7 +3976,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="d354233494b4";
+  const BUILD="d2a53586b220";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4021,6 +4033,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u49",d:"4 ноября",t:"Кнопка для Полины",items:["На главной появилась плавающая кнопка «для Полины (книжный клуб)»"]},
   {id:"u48",d:"4 ноября",t:"Статистика в меню, отмена дуэли, звуки кнопок",items:["Статистика теперь в нижней панели, справа от Рейтинга","Предложенную дуэль можно отменить, пока соперник не сыграл: кнопка «Отменить» рядом с вызовом на главном экране","Убрана тема «Аниме и манга»","«Новое от друзей» показывает вид игры и тему (для новых игр)","Вопросы, которые вы уже видели, теперь выпадают заметно реже: новые подбираются в первую очередь","При нажатии на кнопки теперь звучит короткий щелчок (выключается кнопкой ♪)"]},
   {id:"u47",d:"4 ноября",t:"Автообновление игры",items:["Когда выходит новая версия, внизу появляется плашка «Вышла новая версия игры» с кнопкой «Обновить». Чистить кэш вручную больше не нужно"]},
   {id:"u46",d:"1 ноября",t:"Экран не гаснет во время игры",items:["Во время вопроса экран телефона больше не гаснет сам, поэтому не будет дисквалификации за автозатухание"]},
