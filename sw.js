@@ -1,4 +1,4 @@
-const V="2fab3f47a8a3",C="quiz-"+V;
+const V="9d80d6d84070",C="quiz-"+V;
 /* V подменяется при сборке на хеш версии: новый сайт = новый sw.js = старый кэш удаляется */
 self.addEventListener("install",e=>{self.skipWaiting()});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
