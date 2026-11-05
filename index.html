@@ -877,6 +877,7 @@ body.on-home.at-end a.donate:not([hidden]){opacity:1!important;transform:none!im
 .wkc small{opacity:.7;font-size:11px}.wkm{position:absolute;top:2px;left:5px;font-size:15px}
 .feedi{display:flex;justify-content:space-between;gap:8px;padding:7px 12px;margin-bottom:5px;border-radius:10px;background:rgba(255,255,255,.04);font-size:13px}
 .feedi small{opacity:.55;white-space:nowrap}
+.wq{margin-bottom:12px}.wq .dq{margin:8px 0 10px;font-size:14px}
 body.guest #rankbar,body.guest #nowplay,body.guest #boards{display:none!important}
 
 .stk{display:flex;align-items:center;gap:10px;margin:0 2px 10px;padding:9px 12px;border-radius:12px;background:linear-gradient(90deg,rgba(255,138,30,.18),rgba(255,138,30,.05));border:1px solid rgba(255,150,50,.35);font-size:13px}
@@ -2007,6 +2008,7 @@ document.addEventListener("click",e=>{
   else if(k==="pback")nav(backTo,backArg);
   else if(k==="suggest")nav("suggest");
   else if(k==="dly")answerDaily(+a.dataset.v);
+  else if(k==="wq")answerWq(+a.dataset.v);
   else if(k==="share")shareCard();
   else if(k==="table")tableCard();
   else if(k==="review")toggleReview();
@@ -2232,6 +2234,36 @@ function bestSet(u){
   bestDraw(d);
 }
 try{const d=JSON.parse(localStorage.getItem("quiz_best")||"null");if(d)bestDraw(d)}catch(e){}
+const weekId=()=>Math.floor((Date.now()/864e5+3)/7);
+let WQC=null,WQAt=0;const WQMY={};
+async function wqLoad(){
+  if(WQC&&Date.now()-WQAt<60000)return WQC;
+  const w=weekId(),map=new Map();
+  BANK.forEach(x=>{if(!x.i&&!(x.c>=27)&&!HID.has(x.c))map.set(String(hstr(x.q)),x)});
+  const hid=hiddenQ();let out=null;
+  for(const k of [w,w-1]){
+    let rows=[];try{rows=(await db.collection("qstats").where("wk","==",k).get()).docs.map(d=>({h:d.id,...d.data()}))}catch(e){}
+    const c=rows.filter(r=>(r.wn|0)>=3&&map.has(r.h)&&!hid.has(r.h)).map(r=>({h:r.h,x:map.get(r.h),n:r.wn|0,bad:(r.wn|0)-(r.wok|0)})).filter(r=>r.bad>0);
+    c.sort((a,b)=>b.bad/b.n-a.bad/a.n||b.n-a.n);
+    if(c[0]){out={k,...c[0]};break}
+  }
+  WQC=out||{none:1};WQAt=Date.now();return WQC;
+}
+const wqKey=W=>"wq_"+W.k+"_"+W.h;
+function wqGet(W){if(WQMY[wqKey(W)]!=null)return WQMY[wqKey(W)];try{return localStorage.getItem(wqKey(W))}catch(e){return null}}
+const wqOpts=W=>shuffled([W.x.a,...W.x.w],rng(hstr("wq"+W.h)));
+function wqHtml(W){
+  const x=W.x,my=wqGet(W);
+  let h=`<div class="card wq"><div class="cardtitle"><h2 style="margin:0">🔥 Вопрос недели</h2><span class="chip2">${W.bad} из ${W.n} ошиблись</span></div><p class="dq"><b>${esc(x.q)}</b></p>`;
+  if(my==null)h+=`<div class="tl">`+wqOpts(W).map((o,i)=>`<button class="btn alt" data-act="wq" data-v="${i}" style="text-align:left">${esc(o)}</button>`).join("")+`</div><p class="hint">Ответишь лучше друзей?</p>`;
+  else h+=`<div class="tl">`+wqOpts(W).map(o=>`<div class="tcard" style="cursor:default;${o===x.a?"border-color:var(--ok)":o===my?"border-color:var(--bad)":""}"><div class="nm">${esc(o)}</div></div>`).join("")+`</div><p class="hint">${my===x.a?"Верно! Ты в числе тех, кто справился.":"Не угадали. Верный ответ: "+esc(x.a)+"."}${x.e?"<br>"+esc(x.e):""}</p>`;
+  return h+`</div>`;
+}
+function answerWq(i){
+  const W=WQC;if(!W||!W.x||wqGet(W)!=null)return;const o=wqOpts(W)[i];if(o==null)return;
+  WQMY[wqKey(W)]=o;try{localStorage.setItem(wqKey(W),o)}catch(e){}
+  drawBoards();
+}
 let boardH=null,boardAt=0,boardBusy=false;
 async function drawBoards(){
   const el=$("boards");if(!el)return;
@@ -2248,18 +2280,8 @@ async function drawBoards(){
   let html="";
   if(top.length){const med=["🥇","🥈","🥉"];
     html+=`<div class="lab">🏆 Лидеры недели</div><div class="wk">`+top.map((u,i)=>`<div class="wkc${u===uid?" me":""}"><span class="wkm">${med[i]}</span>${pic(u)}<b>${esc(nickOf(u))}</b><small>${sum[u]} очк.</small></div>`).join("")+`</div>`}
-  const feed=[];
-  hs.slice().sort((a,b)=>(+b.at)-(+a.at)).slice(0,25).forEach(h=>{
-    if(Date.now()-(+h.at)>3*864e5)return;
-    const mn=((MODES[h.mode]||{}).name||"").replace(/^[^А-Яа-я]+/,"").toLowerCase(),tn=h.topic==null?"":topicName(h.topic).replace(/^[^A-Za-zА-Яа-я]+/,""),sfx=[mn,tn].filter(Boolean).map(esc).join(" · ");
-    h.ps.filter(p=>p.u&&profiles[p.u]&&sameG(p.u)&&p.u!==uid&&!p.d).forEach(p=>{
-      const f=profiles[p.u].gender==="f"?"а":"";
-      if((p.k|0)>=TOTAL&&h.mode!=="pvp")feed.push([+h.at,`🎯 <b>${esc(nickOf(p.u))}</b> сыграл${f} ${TOTAL}/${TOTAL}${sfx?" · "+sfx:""}`]);
-      else if(h.winner&&h.winner===p.u&&h.mode!=="solo")feed.push([+h.at,`🏆 <b>${esc(nickOf(p.u))}</b> победил${f}${sfx?" · "+sfx:""}`]);
-    });
-  });
-  if(feed.length){const ago=t=>{const m=Math.round((Date.now()-t)/6e4);return m<60?Math.max(1,m)+" мин":m<1440?Math.round(m/60)+" ч":Math.round(m/1440)+" дн"};
-    html+=`<div class="lab">Новое от друзей</div>`+feed.slice(0,5).map(f=>`<div class="feedi"><span>${f[1]}</span><small>${ago(f[0])}</small></div>`).join("")}
+  const W=await wqLoad();if(cur!=="home")return;
+  if(W&&W.x)html+=wqHtml(W);
   el.innerHTML=html;
 }
 
@@ -2666,7 +2688,7 @@ async function onEnd(){
     touch(a);ENDNEW[c]=[...achSet(a)].filter(x=>!before.has(x));ENDCOL[c]=[...colSet(a)].filter(x=>!cbef.has(x)).map(colName).filter(Boolean);await saveAch(a);
     if(cur==="end")endExtra();
     for(const q of Object.keys(rec)){const r=rec[q];if(!r.a)continue;
-      try{const ref=db.doc("qstats/"+r.h),s=await ref.get(),d=s.exists?s.data():{};await ref.set({n:(+d.n||0)+1,ok:(+d.ok||0)+(r.a===r.c?1:0)})}catch(e){}}
+      try{const ref=db.doc("qstats/"+r.h),s=await ref.get(),d=s.exists?s.data():{};const wk=weekId(),sw=d.wk===wk;await ref.set({n:(+d.n||0)+1,ok:(+d.ok||0)+(r.a===r.c?1:0),wk,wn:(sw?(+d.wn||0):0)+1,wok:(sw?(+d.wok||0):0)+(r.a===r.c?1:0)})}catch(e){}}
   }catch(e){}
 }
 async function loadQstats(rec){await Promise.all(Object.values(rec).map(async r=>{if(QSTAT[r.h]!==undefined)return;try{const s=await db.doc("qstats/"+r.h).get();QSTAT[r.h]=s.exists?s.data():null}catch(e){QSTAT[r.h]=null}}));}
@@ -4449,7 +4471,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="94e5392b1627";
+  const BUILD="70dbebb6e1cd";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4506,6 +4528,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u56",d:"5 ноября",t:"Вопрос недели",items:["На главной вместо ленты «Новое от друзей» появился «Вопрос недели»: вопрос, на котором за неделю чаще всего ошибались, и подпись «8 из 10 ошиблись». Попробуйте ответить лучше друзей"]},
   {id:"u56",d:"5 ноября",t:"Вечер кино: новый вид комнаты",items:["Видно, кто уже ответил; после вопросов появляется экран «Теперь обсуждаем»","Цветные карточки обсуждения, таймер на спорных вопросах, голоса растут столбиками","Итоги вечера оформлены как афиша, её можно сохранить картинкой"]},
   {id:"u55",d:"5 ноября",t:"Игра стала живее",items:["Серия верных ответов: счётчик «🔥 N подряд» с растущим звуком, а при ошибке видно, какая серия прервалась","Таймер плавно меняется от зелёного к красному, в последние 3 секунды тикает громче, при ответе лёгкая вибрация на телефоне","Верный ответ «подпрыгивает», после ответа видно, сколько очков получено, а под правильным ответом короткое пояснение","В одиночной игре можно прибавить 10 секунд или заменить вопрос (по разу за игру)","Ва-банк: верно ×2, неверно −50 очков (раз за игру, в одиночной игре и в дуэли на скорость)","После игры экран «Твоя игра»: лучшая серия, самый быстрый ответ, сильная тема, кнопки «Сыграть ещё раз» и «Вызвать друга»","В дуэли эмодзи-реакции соперника всплывают на экране прямо во время вопроса"]},
   {id:"u54",d:"5 ноября",t:"Новая тема: Что? Где? Когда?",items:["Добавили тему «🧐 Что? Где? Когда?» — 1036 вопросов из Базы вопросов Интернет-клуба «Что? Где? Когда?» (db.chgk.info), у каждого указан автор и источник"]},
