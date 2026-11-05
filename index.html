@@ -1040,7 +1040,7 @@ body[data-scr=s-tv] .madewrap{display:none!important}
 #updBar button{flex:none;padding:9px 16px;border:0;border-radius:10px;background:#ffd23f;color:#111;font:700 15px system-ui,sans-serif;cursor:pointer}
 #updBar button:disabled{opacity:.6}
 
-#bestFloat{display:none;position:fixed;left:0;top:96px;width:100%;height:0;z-index:5;pointer-events:none;transition:opacity .35s}
+#bestFloat{display:none;position:absolute;left:0;top:96px;width:100%;height:0;z-index:5;pointer-events:none;transition:opacity .35s}
 body[data-scr="s-home"] #bestFloat{display:block}
 #bestFloat.bfoff{opacity:0}
 #bestFloat .bfin{position:absolute;left:50%;top:0;width:96px;margin-left:-48px;animation:bumpL 4.6s infinite}
@@ -2226,6 +2226,9 @@ function bestSync(){
   a.forEach(e=>{e.style.animation="none"});void document.body.offsetWidth;a.forEach(e=>{e.style.animation=""});
 }
 addEventListener("resize",bestFit);addEventListener("scroll",bestFit,{passive:true});
+setInterval(()=>{if(!document.hidden&&document.body.dataset.scr==="s-home")bestFit()},300);
+try{new ResizeObserver(()=>bestFit()).observe(document.body)}catch(e){}
+window.addEventListener("load",()=>{setTimeout(bestFit,100);setTimeout(bestFit,800)});
 try{new MutationObserver(()=>{setTimeout(bestFit,60);setTimeout(bestFit,400);if(document.body.dataset.scr==="s-home")setTimeout(bestSync,90)}).observe(document.body,{attributes:true,attributeFilter:["data-scr"]})}catch(e){}
 function bestSet(u){
   if(!u||!profiles[u])return;
@@ -4471,7 +4474,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="7de06cb6c9c8";
+  const BUILD="ec3b9796950d";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4528,6 +4531,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u58",d:"5 ноября",t:"Значок лучшего игрока на телефоне",items:["Значок лучшего игрока теперь едет вместе со страницей и сам выравнивается по знаку вопроса, поэтому на телефоне они сталкиваются так же, как на компьютере"]},
   {id:"u57",d:"5 ноября",t:"Больше вопросов в детских темах",items:["Добавили около 250 новых вопросов: «Мультфильмы» (+61), «Малыши» (+62), «Школьники» (+62) и «Подростки» (+66)"]},
   {id:"u56",d:"5 ноября",t:"Вопрос недели",items:["На главной вместо ленты «Новое от друзей» появился «Вопрос недели»: вопрос, на котором за неделю чаще всего ошибались, и подпись «8 из 10 ошиблись». Попробуйте ответить лучше друзей"]},
   {id:"u56",d:"5 ноября",t:"Вечер кино: новый вид комнаты",items:["Видно, кто уже ответил; после вопросов появляется экран «Теперь обсуждаем»","Цветные карточки обсуждения, таймер на спорных вопросах, голоса растут столбиками","Итоги вечера оформлены как афиша, её можно сохранить картинкой"]},
