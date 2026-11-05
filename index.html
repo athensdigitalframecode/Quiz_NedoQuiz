@@ -24,7 +24,7 @@ html,body{min-height:100%}
 body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow-x:hidden}
 body::before{content:"";position:fixed;inset:0;z-index:-2;background:radial-gradient(900px 600px at 15% -5%,#26346a 0%,transparent 60%),radial-gradient(800px 600px at 100% 100%,#3b1f5e 0%,transparent 55%),var(--bg)}
 #stars{position:fixed;inset:0;z-index:-1;width:100%;height:100%}
-.wrap{max-width:620px;margin:0 auto;padding-block:14px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));min-height:100vh}
+.wrap{max-width:620px;margin:0 auto;padding-block:max(14px,calc(env(safe-area-inset-top,0px) + 8px)) 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));min-height:100vh}
 .screen{display:none}.screen.on{display:block;animation:fade .4s ease}
 @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 h1{margin:6px 0 2px;text-align:center;font:800 28px/1.15 var(--disp);letter-spacing:.5px;text-wrap:balance}
@@ -173,7 +173,7 @@ body[data-scr="s-film"] .wrap,body[data-scr="s-polina"] .wrap{max-width:900px}
 .fmin{width:100%;margin:.5em 0;padding:.7em;border-radius:16px;border:2px solid var(--line);background:var(--card);color:var(--txt);font:600 1em system-ui,sans-serif}
 .fmcl{display:flex;flex-wrap:wrap;gap:.3em .8em;justify-content:center;align-items:center;margin:.8em 0;color:var(--gold);font-family:Georgia,serif;font-weight:700}
 body[data-scr="s-film"],html:has(body[data-scr="s-film"]){overflow:hidden;height:100%}
-#s-film.on{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden;box-sizing:border-box;padding:6px max(12px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
+#s-film.on{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden;box-sizing:border-box;padding:max(6px,calc(env(safe-area-inset-top,0px) + 4px)) max(12px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
 #s-film .top{flex:none;margin-bottom:2px}
 #s-film .wrap{flex:1;min-height:0;display:flex;flex-direction:column;width:100%;box-sizing:border-box;padding:0}
 #fmBody{flex:1;min-height:0;overflow:hidden}#fmFoot{flex:none}
@@ -302,8 +302,8 @@ input[type=file]{position:absolute;width:1px;height:1px;opacity:0;overflow:hidde
 .topicbox label{display:block;font-size:12px;color:var(--mut);margin:0 0 4px 2px}
 .topicbox select{width:100%;padding:12px;border-radius:12px;background:var(--card2);border:1px solid var(--line);color:var(--txt);font:inherit;font-size:15px}
 .qimg{display:block;max-width:100%;max-height:260px;margin:10px auto;border-radius:14px;background:#fff;object-fit:contain}
-a.donate{position:fixed;top:10px;right:10px;z-index:50;max-width:210px;text-align:right;line-height:1.25;padding:8px 14px;border-radius:16px;background:linear-gradient(135deg,#f9a03c,#e84a8f);color:#fff;font-size:13px;font-weight:700;text-decoration:none;box-shadow:0 4px 14px rgba(232,74,143,.4)}
-#s-home{padding-top:78px!important}
+a.donate{position:fixed;top:max(10px,env(safe-area-inset-top,0px));right:10px;z-index:50;max-width:210px;text-align:right;line-height:1.25;padding:8px 14px;border-radius:16px;background:linear-gradient(135deg,#f9a03c,#e84a8f);color:#fff;font-size:13px;font-weight:700;text-decoration:none;box-shadow:0 4px 14px rgba(232,74,143,.4)}
+#s-home{padding-top:calc(78px + env(safe-area-inset-top,0px))!important}
 a.donate small{display:block;font-weight:500;font-size:11px;opacity:.95;margin-top:1px}
 a.donate{transition:opacity .25s,transform .25s}
 body.scrolled a.donate{opacity:0;transform:translateY(-12px);pointer-events:none}
@@ -401,7 +401,7 @@ body.scrolled a.donate{animation:none}
 --gold2:#b8914a;--hair:rgba(var(--gr),.22);--sh:0 1px 0 rgba(255,255,255,.04) inset,0 18px 40px -18px rgba(0,0,0,.8),0 2px 6px rgba(0,0,0,.35);--disp:"Unbounded","Trebuchet MS",system-ui,sans-serif}
 body{font:15px/1.5 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;letter-spacing:.005em;-webkit-font-smoothing:antialiased}
 body::before{background:radial-gradient(900px 620px at 12% -8%,var(--bg1) 0%,transparent 62%),radial-gradient(820px 620px at 104% 104%,var(--bg2) 0%,transparent 58%),var(--bg)}
-.wrap{padding-block:20px 56px}
+.wrap{padding-block:max(20px,calc(env(safe-area-inset-top,0px) + 10px)) 56px}
 h1{font:500 25px/1.2 var(--disp);letter-spacing:.04em;margin:10px 0 4px}
 h1 em{color:var(--gold);font-weight:600}
 h2{font:500 17px/1.25 var(--disp);letter-spacing:.03em;margin:8px 0 10px}
@@ -4483,7 +4483,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="9d80d6d84070";
+  const BUILD="baa91f13e178";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4540,6 +4540,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u62",d:"6 ноября",t:"Верх экрана на iPhone с «островом»",items:["На iPhone с Dynamic Island кнопки и заголовки сверху больше не прячутся под вырезом"]},
   {id:"u60",d:"5 ноября",t:"Источники вопросов",items:["В правилах и внизу главной указаны источники всех вопросов, включая базу «Что? Где? Когда?» и её авторов"]},
   {id:"u59",d:"5 ноября",t:"Время на вопросы «Что? Где? Когда?»",items:["На вопросы темы «Что? Где? Когда?» теперь даётся 1,5 минуты"]},
   {id:"u58",d:"5 ноября",t:"Значок лучшего игрока на телефоне",items:["Значок лучшего игрока теперь едет вместе со страницей и сам выравнивается по знаку вопроса, поэтому на телефоне они сталкиваются так же, как на компьютере"]},
