@@ -1944,8 +1944,10 @@ async function boot(){
   if(!ME){draft={photo:"",charIdx:-1,create:true};nav("profile")}else{nav("home");if(PJ){const c=PJ;PJ="";try{localStorage.removeItem("quiz_pj")}catch(e){}try{history.replaceState(null,"",location.pathname)}catch(e){}openGame(c)}}
 }
 /* ---- гость: главная видна, игры закрыты до регистрации ---- */
+const GUEST_BEST="data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#16213f"/><circle cx="32" cy="25" r="11" fill="#ffd23f" opacity=".85"/><path d="M10 64c0-14 10-22 22-22s22 8 22 22z" fill="#ffd23f" opacity=".85"/></svg>');
 function guestHome(){
   document.body.classList.add("guest");show("s-home");cur="home";
+  try{bestDraw({u:"guest",n:"Это ты?",p:GUEST_BEST})}catch(e){}
   try{fillTopics()}catch(e){}
   if(typeof IG_URL!=="undefined"&&IG_URL){$("donate").href=IG_URL;$("donate").hidden=false}
 }
@@ -2236,7 +2238,7 @@ function bestSet(u){
   try{localStorage.setItem("quiz_best",JSON.stringify(d))}catch(e){}
   bestDraw(d);
 }
-try{const d=JSON.parse(localStorage.getItem("quiz_best")||"null");if(d)bestDraw(d)}catch(e){}
+try{const d=JSON.parse(localStorage.getItem("quiz_best")||"null");if(d&&!document.body.classList.contains("guest"))bestDraw(d)}catch(e){}
 const weekId=()=>Math.floor((Date.now()/864e5+3)/7);
 let WQC=null,WQAt=0;const WQMY={};
 async function wqLoad(){
@@ -4474,7 +4476,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="f0788470cad7";
+  const BUILD="c30284d4f814";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4531,6 +4533,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u60",d:"5 ноября",t:"Значок лучшего игрока для гостей",items:["Анимация со значком «лучший игрок» и знаком вопроса теперь видна и тем, кто ещё не зарегистрировался: вместо чужого профиля там силуэт с подписью «Это ты?»"]},
   {id:"u59",d:"5 ноября",t:"Время на вопросы «Что? Где? Когда?»",items:["На вопросы темы «Что? Где? Когда?» теперь даётся 1,5 минуты"]},
   {id:"u58",d:"5 ноября",t:"Значок лучшего игрока на телефоне",items:["Значок лучшего игрока теперь едет вместе со страницей и сам выравнивается по знаку вопроса, поэтому на телефоне они сталкиваются так же, как на компьютере"]},
   {id:"u57",d:"5 ноября",t:"Больше вопросов в детских темах",items:["Добавили около 250 новых вопросов: «Мультфильмы» (+61), «Малыши» (+62), «Школьники» (+62) и «Подростки» (+66)"]},
