@@ -207,6 +207,45 @@ body[data-scr="s-film"],html:has(body[data-scr="s-film"]){overflow:hidden;height
 .fmposter h2{margin:.1em 0;font:800 1.7em/1.1 Georgia,"Times New Roman",serif;color:var(--txt)}
 .fmrb{display:flex;align-items:center;gap:.5em;margin:.2em 0}.fmrb span{flex:none;width:6.5em}.fmrb div{flex:1;height:.7em;border-radius:9px;background:rgba(255,255,255,.15);overflow:hidden}.fmrb i{display:block;height:100%;background:var(--gold)}
 #fmFoot .fmrow .fmb{white-space:nowrap;padding-inline:.4em}
+
+/* ---- Вечер кино: образ фильма (Мумбаи, закат, Болливуд) ---- */
+body[data-scr="s-film"],body[data-scr="s-polina"]{--bg:#1b0e2d;--card:#2a1442;--card2:#3a1d57;--line:#7b4a9c;--txt:#fff4e0;--mut:#ecc9a4;--gold:#ffc542;--ok:#4fd6a0;--bad:#ff7a6b;--acc:#19b5a5;--mag:#e6397a;--sun:#ff7a1a}
+body[data-scr="s-film"]::before,body[data-scr="s-polina"]::before{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 80' preserveAspectRatio='none'%3E%3Cpath fill='%230d0518' fill-opacity='.75' d='M0 80V52h18V40h12v12h10V32h8v20h14V46h10V24c0-8 8-14 12-18 4 4 12 10 12 18v22h12V38h8V26h6v12h10v14h16V42h12V30h10v22h14V48h18V36h8v16h14V44h12V56h10V80Z'/%3E%3C/svg%3E") bottom/420px 70px repeat-x,radial-gradient(700px 380px at 50% 108%,rgba(255,122,26,.55),transparent 70%),radial-gradient(600px 400px at 90% -10%,rgba(230,57,122,.28),transparent 60%),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cg fill='none' stroke='%23ffc542' stroke-opacity='.08' stroke-width='1.2'%3E%3Ccircle cx='32' cy='32' r='15'/%3E%3Ccircle cx='32' cy='32' r='7'/%3E%3Cpath d='M32 0v10M32 54v10M0 32h10M54 32h10M9 9l7 7M55 9l-7 7M9 55l7-7M55 55l-7-7'/%3E%3C/g%3E%3C/svg%3E"),linear-gradient(180deg,#2a1442,#1b0e2d 70%)!important}
+.fmmq{flex:none;height:.55em;margin:2px 0 6px;background:radial-gradient(circle,#ffd36e 0 36%,transparent 42%) 0 0/1.15em 100% repeat-x;filter:drop-shadow(0 0 4px #ffb347);animation:fmbl 1.6s ease-in-out infinite}
+@keyframes fmbl{50%{opacity:.4}}
+#s-polina .fmmq{margin:0 0 10px}
+#s-film .fmq,#s-film .fmh{padding:.5em .7em;border:2px solid var(--gold);border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02));box-shadow:0 0 0 3px rgba(255,197,66,.14),inset 0 0 18px rgba(255,122,26,.18);text-shadow:0 1px 0 rgba(0,0,0,.4)}
+#s-film .fmh{font-size:1em;text-align:center}
+.fmo{background:linear-gradient(90deg,#2a1442,#35194f);border-color:#7b4a9c}
+.fmo span{background:radial-gradient(circle at 30% 30%,#ffe08a,#e8962b);color:#3a1450;box-shadow:0 0 0 2px #7a4a00}
+.fmo.me{border-color:#ff9a3c;background:linear-gradient(90deg,rgba(255,140,40,.4),#35194f);box-shadow:0 0 14px rgba(255,140,40,.45)}
+.fmo.ok{border-color:var(--ok);background:linear-gradient(90deg,rgba(79,214,160,.32),#1f3a45);box-shadow:0 0 14px rgba(79,214,160,.4)}
+.fmo.bad{border-color:var(--bad);background:linear-gradient(90deg,rgba(255,122,107,.28),#35194f)}
+.fbar{background:rgba(25,181,165,.38)}.fmbar.lead .fbar{background:rgba(255,154,60,.6)}
+.fmb{background:linear-gradient(135deg,#ffc542,#ff7a1a 58%,#e6397a);color:#2a0f00;box-shadow:0 3px 0 rgba(0,0,0,.35)}
+.fmb.alt{background:linear-gradient(180deg,#3a1d57,#2a1442);color:var(--txt);box-shadow:none}
+.fmep{background:rgba(13,5,24,.65);border:1px solid #7b4a9c;border-left:.4em solid var(--gold);border-radius:6px 14px 14px 6px}
+.fmep small{color:var(--gold);text-transform:uppercase;letter-spacing:.06em;font-size:.72em}
+.fmpr{height:.75em;border-radius:3px;background:#0d0518;border-block:.18em dotted rgba(255,197,66,.75)}
+.fmpr i{background:linear-gradient(90deg,#ffc542,#ff7a1a,#e6397a)!important}
+.fmhead{color:var(--gold);text-transform:uppercase;letter-spacing:.08em;font-size:.72em}
+.fmtk{position:relative;display:flex;flex-direction:column;align-items:center;margin:.2em auto;padding:.4em .9em .55em;border-radius:14px;background:linear-gradient(135deg,#ffc542,#ff9a3c 60%,#f06a4a);color:#2a0f00;box-shadow:0 6px 18px rgba(0,0,0,.4)}
+.fmtk small{color:#5a2a00;font-weight:800;letter-spacing:.06em;text-transform:uppercase;font-size:.62em}
+.fmtk .fmcode{color:#2a0f00;font-size:2.2em}
+.fmtk-l{position:relative;width:calc(100% + 1.8em);margin:0 -.9em;padding:0 .9em .25em;border-bottom:2px dashed rgba(90,42,0,.6);text-align:center}
+.fmtk-l::before,.fmtk-l::after{content:"";position:absolute;bottom:-.65em;width:1.3em;height:1.3em;border-radius:50%;background:#1d0f30}
+.fmtk-l::before{left:-.65em}.fmtk-l::after{right:-.65em}
+.fmtk .fmqr{margin:.55em 0 .1em;border-radius:10px}
+#s-film .fmcode{color:var(--gold)}
+.fmposter small{color:var(--gold)}
+.fmposter h2{background:linear-gradient(90deg,#ffc542,#ff7a1a,#e6397a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.fmcl{color:var(--gold)}
+#s-polina h1{background:linear-gradient(90deg,#ffc542,#ff7a1a,#e6397a);-webkit-background-clip:text;background-clip:text;color:transparent;text-align:center}
+#s-polina .card{background:rgba(42,20,66,.85);border:1px solid #7b4a9c}
+#s-film .fmtk .fmcode{color:#2a0f00}
+#s-polina{font-size:min(var(--fz,22px),17px)}
+#s-polina h1{background:none!important;color:var(--gold)!important;-webkit-text-fill-color:var(--gold)}
+#s-film .fmh{background:none;border:0;box-shadow:none;padding:0;margin:.4em 0 .2em}
 </style>
 <style>
 .pic{border-radius:50%;object-fit:cover;background:#111;display:block}
@@ -1474,7 +1513,7 @@ body[data-scr="s-home"] #bestFloat{display:block}
 </section>
 
 <section id="s-polina" class="screen rules">
-  <div class="top"><button class="btn alt small" id="polBack">← Назад</button><button class="btn alt small" id="polAa" type="button" aria-label="Крупнее шрифт">А+</button></div>
+  <div class="fmmq"></div><div class="top"><button class="btn alt small" id="polBack">← Назад</button><button class="btn alt small" id="polAa" type="button" aria-label="Крупнее шрифт">А+</button></div>
   <h1>📚 Для Полины</h1>
   <p class="sub" style="text-align:center;margin:0 0 12px">Книжный клуб · встреча по фильму «Миллионер из трущоб»</p>
   <div class="card"><p>Вечер кино: 10 вопросов о фильме и карточки для обсуждения. Каждая участница отвечает со своего телефона. Нужен обычный аккаунт игры, зарегистрироваться можно заранее.</p>
@@ -1484,7 +1523,7 @@ body[data-scr="s-home"] #bestFloat{display:block}
   <p id="polErr" class="fmw" style="color:var(--bad)"></p></div>
 </section>
 <section id="s-film" class="screen">
-  <div class="top"><button class="btn alt small" data-f="exit" type="button">← Выйти</button><button class="btn alt small" data-f="aa" type="button" aria-label="Крупнее шрифт">А+</button></div>
+  <div class="fmmq"></div><div class="top"><button class="btn alt small" data-f="exit" type="button">← Выйти</button><button class="btn alt small" data-f="aa" type="button" aria-label="Крупнее шрифт">А+</button></div>
   <div class="wrap"><div id="fmBody"></div><div id="fmFoot"></div></div>
 </section>
 <section id="s-faq" class="screen rules">
@@ -3104,13 +3143,16 @@ function filmSum(){
 }
 function filmPng(){
   const S=filmSum(),W=1080,H=1350,cv=document.createElement("canvas");cv.width=W;cv.height=H;const x=cv.getContext("2d");
-  const gr=x.createLinearGradient(0,0,W,H);gr.addColorStop(0,"#6b3414");gr.addColorStop(1,"#40204a");x.fillStyle=gr;x.fillRect(0,0,W,H);
-  x.strokeStyle="rgba(255,179,71,.6)";x.lineWidth=4;x.strokeRect(36,36,W-72,H-72);
+  const gr=x.createLinearGradient(0,0,0,H);gr.addColorStop(0,"#2a1442");gr.addColorStop(1,"#1b0e2d");x.fillStyle=gr;x.fillRect(0,0,W,H);
+  const sg=x.createRadialGradient(W/2,H+60,20,W/2,H+60,820);sg.addColorStop(0,"rgba(255,122,26,.75)");sg.addColorStop(1,"rgba(255,122,26,0)");x.fillStyle=sg;x.fillRect(0,0,W,H);
+  x.fillStyle="rgba(13,5,24,.8)";x.beginPath();x.moveTo(0,H);x.lineTo(0,H-90);for(let k=0;k<=W;k+=60){const hh=40+((k*37)%70);x.lineTo(k,H-hh);x.lineTo(k+60,H-hh)}x.lineTo(W,H);x.fill();
+  x.strokeStyle="rgba(255,197,66,.7)";x.lineWidth=4;x.strokeRect(36,36,W-72,H-72);
+  x.fillStyle="#ffd36e";for(let k=60;k<W-40;k+=40){x.beginPath();x.arc(k,64,6,0,7);x.fill()}
   const F=(z,w)=>{x.font=(w||"")+" "+z+"px Georgia,serif"};
   const wrap=(t,mw)=>{const o=[];let c="";String(t).split(" ").forEach(w=>{const q=c?c+" "+w:w;if(x.measureText(q).width>mw&&c){o.push(c);c=w}else c=q});o.push(c);return o};
   const ctr=(t,y,z,col,w)=>{F(z,w);x.fillStyle=col;x.textAlign="center";x.fillText(t,W/2,y)};
-  ctr("КНИЖНЫЙ КЛУБ · ВЕЧЕР КИНО",120,32,"#ffb347","bold");
-  ctr("Миллионер",215,100,"#fff3df","bold");ctr("из трущоб",315,100,"#fff3df","bold");
+  ctr("КНИЖНЫЙ КЛУБ · ВЕЧЕР КИНО",125,32,"#ffe08a","bold");
+  ctr("Миллионер",215,100,"#ffc542","bold");ctr("из трущоб",315,100,"#ff9a3c","bold");
   ctr(new Date().toLocaleDateString("ru-RU",{day:"numeric",month:"long",year:"numeric"}),370,30,"#e2c9a0");
   let y=450;x.textAlign="left";
   const sec=t=>{x.textAlign="left";F(28,"bold");x.fillStyle="#ffb347";x.fillText(t.toUpperCase(),90,y);y+=52};
@@ -3121,7 +3163,7 @@ function filmPng(){
     const it=Object.entries(m).map(([w,c])=>{const z=38+Math.round(c/mx*30);F(z,"bold");return{w,z,wd:x.measureText(w).width}});
     const rows=[];let r=[],rw=0;it.forEach(i=>{if(rw+i.wd>880&&r.length){rows.push(r);r=[];rw=0}r.push(i);rw+=i.wd+30});rows.push(r);
     rows.forEach(r=>{if(y>1260)return;let t=r.reduce((p,i)=>p+i.wd+30,-30),px=(W-t)/2;r.forEach(i=>{F(i.z,"bold");x.fillStyle="#ffb347";x.textAlign="left";x.fillText(i.w,px,y);px+=i.wd+30});y+=84})}
-  ctr("Квиз или Недоквиз",H-76,28,"#e2c9a0");
+  ctr("Квиз или Недоквиз",H-135,28,"#ffe08a");
   cv.toBlob(b=>{if(!b)return;const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="afisha-vecher-kino.png";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000)});
 }
 function filmTick(){const e=$("fmTm");if(!e)return;const t=Math.round((+e.dataset.t-Date.now())/1000);e.textContent=t>0?Math.floor(t/60)+":"+String(t%60).padStart(2,"0"):"Время вышло"}
@@ -3142,7 +3184,7 @@ function filmDraw(){
   let h="",foot="",pc="";
   if(st==="wait"){
     const link=GAME_URL+"#g="+f.c;
-    h=`<div class="fmc"><small>Код комнаты</small><div class="fmcode">${esc(f.c)}</div><div class="fmqr">${qrSvg(link,260)}</div><p class="fmw">Откройте игру, нажмите «для Полины» и введите код. Или наведите камеру на QR.</p></div>
+    h=`<div class="fmc"><div class="fmtk"><div class="fmtk-l"><small>Сеанс · «Миллионер из трущоб»</small><div class="fmcode">${esc(f.c)}</div></div><div class="fmqr">${qrSvg(link,260)}</div></div><p class="fmw">Откройте игру, нажмите «для Полины» и введите код. Или наведите камеру на QR.</p></div>
     <h2 class="fmh">Пришли: ${n}</h2><div class="fmpl">${f.ps.map(p=>`<div class="fmav">${pic(p.id)}<small>${esc(nickOf(p.id))}</small></div>`).join("")||'<p class="fmw">Ждём участниц…</p>'}</div>`;
     foot=host?`<button class="fmb" data-f="start">▶ Начать викторину</button>`:`<p class="fmw">Ждём, когда ведущая начнёт…</p>`;
   }else if(st==="q"||st==="rev"){
@@ -4487,7 +4529,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="8e657ab029e2";
+  const BUILD="d48655f9fb1b";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4544,6 +4586,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u57",d:"7 ноября",t:"Вечер кино в стиле фильма",items:["Комната оформлена под «Миллионера из трущоб»: закат над Мумбаи, огни, билет на сеанс с кодом и QR, киноплёнка вместо прогресса","Афиша итогов вечера, которую можно сохранить картинкой"]},
   {id:"u68",d:"6 ноября",t:"Ещё 145 вопросов",items:["🎬 Больше сложных вопросов в «Кино», «Музыке», «Видеоиграх», «Науке» и «Книгах»","🍳 Дополнили «Еду и кулинарию» и «Моду и дизайн»"]},
   {id:"u67",d:"6 ноября",t:"Новая тема: «Счёт в уме»",items:["3450 примеров на сложение, вычитание, умножение, деление, проценты, дроби, квадраты, ряды и задачи на скорость и площадь","Три уровня сложности: от таблицы умножения до двузначных множителей и процентов от больших чисел"]},{id:"u66",d:"6 ноября",t:"Ещё 915 вопросов и три новые темы",items:["🍳 Новые темы: «Еда и кулинария», «Космос», «Мода и дизайн»","📚 Больше вопросов в «Кино», «Музыке», «Истории», «Видеоиграх», «Животных», «Науке», «Книгах»","🚆 Подтянули «Транспорт», «Гаджеты», «Комиксы», «Политику» и «Что? Где? Зачем?»"]},{id:"u65",d:"6 ноября",t:"Картины мастеров и флаги",items:["246 новых вопросов с картинами в теме «Искусство»: узнайте автора и век","139 новых флагов в «Географии»","Картины из открытой коллекции Метрополитен-музея"]},
   {id:"u64",d:"6 ноября",t:"Больше вопросов",items:["Добавили около 250 новых вопросов: кино, музыка, видеоигры, ТВ, компьютеры, спорт, география, история, наука, настольные игры, книги"]},
