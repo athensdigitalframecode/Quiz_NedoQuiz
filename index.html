@@ -132,8 +132,6 @@ table.st{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
 .empty{color:var(--mut);text-align:center;padding:18px 0}
 canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:50}
 @media (prefers-reduced-motion:reduce){.screen.on,.pl.out .av,.champ .crown{animation:none}}
-body[data-scr="s-film"],body[data-scr="s-polina"]{--bg:#2b1a0e;--card:#3b2414;--card2:#4d3019;--line:#7a5430;--txt:#fff3df;--mut:#e2c9a0;--gold:#ffb347;--ok:#5fcf8a;--bad:#ff8f6b;--acc:#2ec4b6}
-body[data-scr="s-film"]::before,body[data-scr="s-polina"]::before{background:radial-gradient(900px 600px at 15% -5%,#6b3414 0%,transparent 60%),radial-gradient(800px 600px at 100% 100%,#40204a 0%,transparent 55%),var(--bg)}
 body[data-scr="s-film"] #stars,body[data-scr="s-film"] #stage,body[data-scr="s-film"] #mesh,body[data-scr="s-film"] .mus,body[data-scr="s-film"] .madewrap,body[data-scr="s-film"] .madeby,body[data-scr="s-film"] a.donate,body[data-scr="s-film"] .updbtn,body[data-scr="s-film"] .polbtn,body[data-scr="s-film"] .bnav,
 body[data-scr="s-polina"] #stars,body[data-scr="s-polina"] #stage,body[data-scr="s-polina"] #mesh,body[data-scr="s-polina"] .mus,body[data-scr="s-polina"] .madewrap,body[data-scr="s-polina"] .madeby,body[data-scr="s-polina"] a.donate,body[data-scr="s-polina"] .updbtn,body[data-scr="s-polina"] .polbtn,body[data-scr="s-polina"] .bnav{display:none!important}
 body[data-scr="s-film"] .wrap,body[data-scr="s-polina"] .wrap{max-width:900px}
@@ -240,12 +238,29 @@ body[data-scr="s-film"]::before,body[data-scr="s-polina"]::before{background:url
 .fmposter small{color:var(--gold)}
 .fmposter h2{background:linear-gradient(90deg,#ffc542,#ff7a1a,#e6397a);-webkit-background-clip:text;background-clip:text;color:transparent}
 .fmcl{color:var(--gold)}
-#s-polina h1{background:linear-gradient(90deg,#ffc542,#ff7a1a,#e6397a);-webkit-background-clip:text;background-clip:text;color:transparent;text-align:center}
 #s-polina .card{background:rgba(42,20,66,.85);border:1px solid #7b4a9c}
 #s-film .fmtk .fmcode{color:#2a0f00}
 #s-polina{font-size:min(var(--fz,22px),17px)}
 #s-polina h1{background:none!important;color:var(--gold)!important;-webkit-text-fill-color:var(--gold)}
 #s-film .fmh{background:none;border:0;box-shadow:none;padding:0;margin:.4em 0 .2em}
+#s-film .top{gap:6px}#s-film .top .btn{padding:.45em .7em;white-space:nowrap}
+#fmBadge{flex:none;display:flex;justify-content:center}#fmBadge:empty{display:none}
+.fmcrown{padding:.25em .6em;border-radius:99px;background:linear-gradient(135deg,#ffc542,#ff9a3c);color:#2a0f00;font-weight:800;font-size:.72em;white-space:nowrap;box-shadow:0 0 10px rgba(255,197,66,.5)}
+.fmav.host,.fmwo.host{position:relative}
+.fmav.host::after,.fmwo.host::after{content:"👑";position:absolute;top:-.55em;left:50%;transform:translateX(-50%);font-size:.85em;filter:drop-shadow(0 1px 1px rgba(0,0,0,.6))}
+.fmav.host .pic{box-shadow:0 0 0 3px var(--gold)}
+.fmwo.host{opacity:1;filter:none}
+.fmbig{font-size:1.15em;border-left-color:var(--mag)}
+.fmqt{display:block;width:auto!important;height:auto!important;background:none!important;box-shadow:none!important;color:var(--txt)!important;font-weight:600!important;text-align:left;place-items:initial!important}
+.fmqt small{display:block;color:var(--mut);font-size:.75em}
+#fmExit[data-sure]{background:var(--bad);color:#2a0f00}
+@media (prefers-reduced-motion:reduce){#s-film *,#s-polina *{animation:none!important;transition:none!important}}
+#s-film .fmo{min-height:2.4em;margin:.22em 0;padding:.4em .8em}
+#s-film .fmb{min-height:2.4em;margin:.3em 0;padding:.5em .9em}
+#s-film .fmq{padding:.35em .6em;margin:.15em 0 .35em;font-size:1.3em}
+#s-film .fmep{padding:.55em .8em;margin:.35em 0}
+#s-film .fmwho{margin:.25em 0}
+#s-film .fmw{margin:.25em 0}
 </style>
 <style>
 .pic{border-radius:50%;object-fit:cover;background:#111;display:block}
@@ -1516,14 +1531,16 @@ body[data-scr="s-home"] #bestFloat{display:block}
   <div class="fmmq"></div><div class="top"><button class="btn alt small" id="polBack">← Назад</button><button class="btn alt small" id="polAa" type="button" aria-label="Крупнее шрифт">А+</button></div>
   <h1>📚 Для Полины</h1>
   <p class="sub" style="text-align:center;margin:0 0 12px">Книжный клуб · встреча по фильму «Миллионер из трущоб»</p>
-  <div class="card"><p>Вечер кино: 10 вопросов о фильме и карточки для обсуждения. Каждая участница отвечает со своего телефона. Нужен обычный аккаунт игры, зарегистрироваться можно заранее.</p>
-  <button class="fmb" id="polOpen" type="button">🎬 Открыть комнату (для Полины)</button>
-  <div id="polHostBox" hidden><label for="polHost">Код ведущей</label><input id="polHost" class="fmin" maxlength="12" autocomplete="off" autocapitalize="characters" placeholder="Код ведущей"><button class="fmb" id="polHostGo" type="button">Подтвердить и открыть</button></div></div>
-  <div class="card"><label for="polCode">Уже есть код от Полины?</label><input id="polCode" maxlength="4" autocomplete="off" inputmode="text" placeholder="КОД"><button class="fmb alt" id="polJoin" type="button">Войти в комнату</button>
-  <p id="polErr" class="fmw" style="color:var(--bad)"></p></div>
+  <div class="card"><p>Вечер кино: 10 вопросов о фильме и карточки для обсуждения. Каждая участница отвечает со своего телефона.</p>
+  <label for="polCode">Код комнаты: 4 буквы, его покажет Полина</label><input id="polCode" maxlength="4" autocomplete="off" inputmode="text" placeholder="КОД"><button class="fmb" id="polJoin" type="button">Войти в комнату</button>
+  <p class="fmw">Или наведите камеру телефона на QR-код у Полины.</p></div>
+  <p id="polErr" class="fmw" style="color:var(--bad)"></p>
+  <div class="card"><p class="fmw" style="text-align:left;margin:0"><b>Как подготовиться.</b> Нужен обычный аккаунт игры. Зарегистрируйтесь заранее: на главной нажмите «Войти» и придумайте имя и пароль.</p></div>
+  <div class="card"><button class="fmb alt" id="polOpen" type="button">👑 Я ведущая: открыть комнату</button>
+  <div id="polHostBox" hidden><label for="polHost">Секретный код ведущей (только для Полины)</label><input id="polHost" class="fmin" maxlength="12" autocomplete="off" autocapitalize="characters" placeholder="Секретный код"><button class="fmb" id="polHostGo" type="button">Подтвердить и открыть</button></div></div>
 </section>
 <section id="s-film" class="screen">
-  <div class="fmmq"></div><div class="top"><button class="btn alt small" data-f="exit" type="button">← Выйти</button><button class="btn alt small" data-f="aa" type="button" aria-label="Крупнее шрифт">А+</button></div>
+  <div class="fmmq"></div><div class="top"><button class="btn alt small" data-f="exit" id="fmExit" type="button">← Выйти</button><button class="btn alt small" data-f="code" id="fmCodeBtn" type="button"></button><button class="btn alt small" data-f="aa" type="button" aria-label="Крупнее шрифт">А+</button></div><div id="fmBadge"></div>
   <div class="wrap"><div id="fmBody"></div><div id="fmFoot"></div></div>
 </section>
 <section id="s-faq" class="screen rules">
@@ -3122,8 +3139,8 @@ async function filmEnter(c){
   try{if(location.hash)history.replaceState(null,"",location.pathname+location.search)}catch(e){}
   cur="film";filmFz();show("s-film");filmDraw();scrollTo(0,0);
 }
-async function filmSave(){try{await film.pcol.doc(uid).set(film.my)}catch(e){}}
-async function filmSet(patch){Object.assign(film.g,patch);filmDraw();try{await film.gref.update(patch)}catch(e){}}
+async function filmSave(){const f=film;try{await f.pcol.doc(uid).set(f.my);if(f.err){f.err="";filmDraw()}}catch(e){f.err="Нет связи: ответ не сохранился. Нажмите ещё раз.";filmDraw()}}
+async function filmSet(patch){const f=film;Object.assign(f.g,patch);filmDraw();try{await f.gref.update(patch);if(f.err){f.err="";filmDraw()}}catch(e){f.err="Нет связи: участницы этого не увидели. Нажмите ещё раз.";filmDraw()}}
 function filmCloud(ws){
   if(!ws.length)return '<p class="fmw">Слов пока нет.</p>';
   const m={};ws.forEach(w=>{w=w.trim().toLowerCase();if(w)m[w]=(m[w]||0)+1});
@@ -3134,7 +3151,7 @@ function filmSum(){
   const f=film,v=i=>f.ps.map(p=>p.v&&p.v[i]).filter(x=>x!==undefined&&x!==null);
   const S={hero:"",rates:[],vs:"",words:[]};
   const ri=FILM_C.findIndex(c=>c.k==="pick"),hv=v(ri);
-  if(hv.length){const cn=FILM_C[ri].o.map((_,j)=>hv.filter(x=>x===j).length),mx=Math.max(...cn);S.hero=FILM_C[ri].o.filter((_,j)=>cn[j]===mx).join(", ")+" ("+mx+")"}
+  if(hv.length){const cn=FILM_C[ri].o.map((_,j)=>hv.filter(x=>x===j).length),mx=Math.max(...cn);const nm=FILM_C[ri].o.filter((_,j)=>cn[j]===mx),gl=x=>x%10===1&&x%100!==11?"голос":x%10>=2&&x%10<=4&&(x%100<10||x%100>=20)?"голоса":"голосов";S.hero=nm.length>1?nm.join(" и ")+" (поровну, по "+mx+" "+gl(mx)+")":nm[0]+" ("+mx+" "+gl(mx)+" из "+hv.length+")"}
   const ti=FILM_C.findIndex(c=>c.k==="rate"),rv=v(ti).filter(Array.isArray);
   if(rv.length)S.rates=FILM_C[ti].r.map((r,j)=>[r,(rv.reduce((p,a)=>p+a[j],0)/rv.length).toFixed(1)]);
   let best=-1;FILM_C.forEach((C,i)=>{if(C.k!=="vs")return;const x=v(i);if(x.length<2)return;const a=x.filter(y=>y===0).length,sp=1-Math.abs(a-(x.length-a))/x.length;if(sp>best){best=sp;S.vs=C.q+" ("+C.o[0]+": "+a+", "+C.o[1]+": "+(x.length-a)+")"}});
@@ -3164,14 +3181,14 @@ function filmPng(){
     const rows=[];let r=[],rw=0;it.forEach(i=>{if(rw+i.wd>880&&r.length){rows.push(r);r=[];rw=0}r.push(i);rw+=i.wd+30});rows.push(r);
     rows.forEach(r=>{if(y>1260)return;let t=r.reduce((p,i)=>p+i.wd+30,-30),px=(W-t)/2;r.forEach(i=>{F(i.z,"bold");x.fillStyle="#ffb347";x.textAlign="left";x.fillText(i.w,px,y);px+=i.wd+30});y+=84})}
   ctr("Квиз или Недоквиз",H-135,28,"#ffe08a");
-  cv.toBlob(b=>{if(!b)return;const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="afisha-vecher-kino.png";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000)});
+  cv.toBlob(b=>{if(b)deliverImg(b,"afisha-vecher-kino.png")},"image/png");
 }
 function filmTick(){const e=$("fmTm");if(!e)return;const t=Math.round((+e.dataset.t-Date.now())/1000);e.textContent=t>0?Math.floor(t/60)+":"+String(t%60).padStart(2,"0"):"Время вышло"}
 function filmFit(){
   const b=$("fmBody");if(!b)return;let i=0;try{i=+localStorage.getItem("fmz")||0}catch(e){}
   b.style.overflowY="hidden";
   let z=FMZ[i]||FMZ[0];
-  for(;z>=12;z--){document.documentElement.style.setProperty("--fz",z+"px");if(b.scrollHeight<=b.clientHeight+1)break}
+  for(;z>=16;z--){document.documentElement.style.setProperty("--fz",z+"px");if(b.scrollHeight<=b.clientHeight+1)break}
   if(b.scrollHeight>b.clientHeight+1)b.style.overflowY="auto";
 }
 window.addEventListener("resize",()=>{if(film&&cur==="film")filmDraw()});
@@ -3179,13 +3196,19 @@ function filmDraw(){
   const f=film;if(!f||cur!=="film")return;if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#fmBody")&&/INPUT/.test(document.activeElement.tagName))return;
   const g=f.g,host=g.by===uid,st=g.st,n=f.ps.length,tq=FILM_Q.length,tc=FILM_C.length;
   const bar=(k,label,cnt,tot,on,att,lead)=>{const p=tot?Math.round(cnt*100/tot):0;return `<button class="fmo fmbar${on?" me":""}${lead?" lead":""}" ${att}><i class="fbar" style="width:${p}%"></i><span>${"АБВГД"[k]}</span><b class="fmt">${esc(label)}</b><em>${cnt}</em></button>`};
-  const who=fn=>`<div class="fmwho">${f.ps.map(p=>`<span class="fmwo${fn(p)?" on":""}" title="${esc(nickOf(p.id))}">${pic(p.id)}</span>`).join("")}</div>`;
+  const who=fn=>`<div class="fmwho">${f.ps.map(p=>`<span class="fmwo${fn(p)?" on":""}${p.id===f.g.by?" host":""}" title="${esc(nickOf(p.id))}">${pic(p.id)}</span>`).join("")}</div>`;
   const FMK={word:["💬","#2ec4b6"],pick:["🎭","#ff9ec4"],quote:["🎬","#ffb347"],rate:["⭐","#ffd36e"],vs:["⚖️","#ff8f6b"],ask:["❓","#b69cff"]};
   let h="",foot="",pc="";
+  $("fmBadge").innerHTML=host?'<span class="fmcrown">👑 Ведущая клуба</span>':"";
+  $("fmCodeBtn").textContent="🎟 "+f.c;
+  const ticket=`<div class="fmtk"><div class="fmtk-l"><small>Сеанс · «Миллионер из трущоб»</small><div class="fmcode">${esc(f.c)}</div></div><div class="fmqr">${qrSvg(GAME_URL+"#g="+f.c,260)}</div></div>`;
+  if(f.showCode&&st!=="wait"){
+    $("fmBody").innerHTML=`<div class="fmc">${ticket}<p class="fmw">Покажите код или QR тем, кто пришёл позже.</p></div>`;
+    $("fmFoot").innerHTML=`<button class="fmb" data-f="code">Вернуться к игре</button>`;filmFit();return;
+  }
   if(st==="wait"){
-    const link=GAME_URL+"#g="+f.c;
-    h=`<div class="fmc"><div class="fmtk"><div class="fmtk-l"><small>Сеанс · «Миллионер из трущоб»</small><div class="fmcode">${esc(f.c)}</div></div><div class="fmqr">${qrSvg(link,260)}</div></div><p class="fmw">Откройте игру, нажмите «для Полины» и введите код. Или наведите камеру на QR.</p></div>
-    <h2 class="fmh">Пришли: ${n}</h2><div class="fmpl">${f.ps.map(p=>`<div class="fmav">${pic(p.id)}<small>${esc(nickOf(p.id))}</small></div>`).join("")||'<p class="fmw">Ждём участниц…</p>'}</div>`;
+        h=`<div class="fmc">${ticket}<p class="fmw">${host?"":`Ведёт вечер: <b>👑 ${esc(nickOf(g.by))}</b>. `}Откройте игру, нажмите «для Полины» и введите код. Или наведите камеру на QR.</p></div>
+    <h2 class="fmh">Пришли: ${n}</h2><div class="fmpl">${f.ps.map(p=>`<div class="fmav${p.id===g.by?" host":""}">${pic(p.id)}<small>${esc(nickOf(p.id))}</small></div>`).join("")||'<p class="fmw">Ждём участниц…</p>'}</div>`;
     foot=host?`<button class="fmb" data-f="start">▶ Начать викторину</button>`:`<p class="fmw">Ждём, когда ведущая начнёт…</p>`;
   }else if(st==="q"||st==="rev"){
     const i=g.qi|0,Q=FILM_Q[i],rev=st==="rev",mine=f.my.a[i];
@@ -3217,7 +3240,7 @@ function filmDraw(){
         return sv?bar(j,o,cnt[j],tot,mine===j,`data-f="vote" data-k="${j}" `,tot>0&&cnt[j]===Math.max(...cnt)):`<button class="fmo" data-f="vote" data-k="${j}"><span>${"АБВГД"[j]}</span>${esc(o)}</button>`}).join("");
       if(rv)h+=`<div class="fmep"><small>Вспомним сцену</small>${esc(C.ep)}</div>`;
       else h+=sv?`<p class="fmw">Проголосовали: <b>${tot}</b> из ${n}</p>`:`<p class="fmw">Выберите ответ.</p>`;
-      if(k==="vs"&&g.tm&&g.tmi===i)h+=`<div class="fmep"><small>⏳ Время на обсуждение</small><b id="fmTm" data-t="${g.tm}"></b></div>`;
+      if(k==="vs"&&g.tm&&g.tmi===i){if(f.tmKey!==g.tm){f.tmKey=g.tm;f.tmEnd=Date.now()+(g.tmd||120000)}h+=`<div class="fmep"><small>⏳ Время на обсуждение</small><b id="fmTm" data-t="${f.tmEnd}"></b></div>`}
       if(k==="vs"&&g.sp&&g.spi===i)h+=`<div class="fmep"><small>🎤 Слово получает</small><b>${esc(nickOf(g.sp))}</b>. Объясните свой выбор вслух.</div>`;
     }else if(k==="rate"){
       const d=f.rd[i]||(f.rd[i]=C.r.map(()=>5)),sent=Array.isArray(mine),all=vals.filter(Array.isArray);
@@ -3235,12 +3258,15 @@ function filmDraw(){
         if(!sent)h+=`<input id="fmIn" class="fmin" maxlength="120" placeholder="${ph}" value="${esc(f.wd[i]||"")}"><button class="fmb" data-f="text">Отправить</button>`;
         else h+=`<p class="fmw">Вопрос отправлен.</p>`;
         const qs=f.ps.filter(p=>p.v&&typeof p.v[i]==="string");
-        if(sent||host)h+=qs.map(p=>`<div class="fmep"><small>${esc(nickOf(p.id))}</small>${esc(p.v[i])}</div>`).join("");
+        const on=g.aqi===i&&qs.find(p=>p.id===g.aq);
+        if(on)h+=`<div class="fmep fmbig"><small>🎤 Обсуждаем вопрос от ${esc(nickOf(on.id))}</small>${esc(on.v[i])}</div>`;
+        if(host)h+=qs.filter(p=>p!==on).map(p=>`<button class="fmo" data-f="aq" data-u="${esc(p.id)}"><span>?</span><span class="fmqt"><small>${esc(nickOf(p.id))}</small> ${esc(p.v[i])}</span></button>`).join("")+(qs.length?`<p class="fmw">Нажмите на вопрос, чтобы показать его всем.</p>`:`<p class="fmw">Вопросов пока нет.</p>`);
+        else if(sent&&!on)h+=`<p class="fmw">Полина выберет вопрос и покажет его всем.</p>`;
       }
     }
     h+=who(p=>p.v&&p.v[i]!==undefined&&p.v[i]!==null);
     if(host){
-      const mid=k==="quote"&&g.rv!==i?`<button class="fmb alt" data-f="rv">Показать ответ</button>`:(k==="vs"?`<div class="fmrow"><button class="fmb alt" data-f="sp">🎤 Дать слово</button><button class="fmb alt" data-f="tm">⏳ 2 минуты</button></div>`:"");
+      const mid=k==="quote"&&g.rv!==i?`<button class="fmb alt" data-f="rv">Показать ответ</button>`:(k==="vs"?`<div class="fmrow"><button class="fmb alt" data-f="sp">🎤 Дать слово</button><button class="fmb alt" data-f="tm">${g.tm&&g.tmi===i?"⏹ Стоп":"⏳ 2 минуты"}</button></div>`:"");
       foot=mid+`<div class="fmrow">${i>0?`<button class="fmb alt" data-f="cprev">← Назад</button>`:""}<button class="fmb" data-f="cnext">${last?"Итоги вечера →":"Дальше →"}</button></div>`;
     }
   }else{
@@ -3255,6 +3281,7 @@ function filmDraw(){
   const pi=st==="q"||st==="rev"?(g.qi|0)+1:st==="c"?tq+(g.ci|0)+1:st==="mid"?tq:0;
   if(pi){const lt=f.late&&!Object.keys(f.my.a).length&&!Object.keys(f.my.v).length?`<p class="fmw">Вы вошли в середине вечера. Подключайтесь с этого места.</p>`:"";
     h=`<div class="fmpr"><i style="width:${Math.round(pi*100/(tq+tc))}%;background:${pc||"var(--gold)"}"></i></div>`+lt+h}
+  if(f.err)foot=`<p class="fmw" style="color:var(--bad)">${esc(f.err)}</p>`+foot;
   $("fmBody").innerHTML=h;$("fmFoot").innerHTML=foot;filmFit();filmTick();
 }
 document.addEventListener("input",e=>{const t=e.target;if(!film||!t)return;const i=film.g.ci|0;if(t.id==="fmIn")film.wd[i]=t.value;else if(t.classList&&t.classList.contains("fmrg")){const d=film.rd[i]||(film.rd[i]=[]);d[+t.dataset.j]=+t.value;const l=$("fmrv"+t.dataset.j);if(l)l.textContent=t.value}});
@@ -3263,7 +3290,8 @@ document.addEventListener("click",e=>{
   const b=e.target.closest("[data-f]");if(!b)return;const k=b.dataset.f;
   if(k==="aa"){filmFz(1);if(film)filmDraw();return}
   if(!film)return;
-  if(k==="exit"){filmLeave();nav("home");return}
+  if(k==="code"){film.showCode=!film.showCode;filmDraw();return}
+  if(k==="exit"){if(!b.dataset.sure){b.dataset.sure="1";b.textContent="Точно выйти?";setTimeout(()=>{if(b.isConnected){delete b.dataset.sure;b.textContent="← Выйти"}},3000);return}delete b.dataset.sure;b.textContent="← Выйти";filmLeave();nav("home");return}
   const g=film.g;
   if(k==="ans"){const i=g.qi|0;if(g.st==="q"&&film.my.a[i]===undefined){film.sel[i]=+b.dataset.k;filmDraw()}return}
   if(k==="send"){const i=g.qi|0;if(g.st==="q"&&film.sel[i]!==undefined&&film.my.a[i]===undefined){film.my.a[i]=film.sel[i];filmDraw();filmSave()}return}
@@ -3279,9 +3307,10 @@ document.addEventListener("click",e=>{
   else if(k==="next")filmSet(i<FILM_Q.length-1?{st:"q",qi:i+1}:{st:"mid"});
   else if(k==="cnext")filmSet(c<FILM_C.length-1?{ci:c+1}:{st:"end"});
   else if(k==="go")filmSet({st:"c",ci:0});
-  else if(k==="tm")filmSet({tm:Date.now()+120000,tmi:c});
+  else if(k==="tm")filmSet(g.tm&&g.tmi===c?{tm:0}:{tm:Date.now(),tmd:120000,tmi:c});
   else if(k==="rv")filmSet({rv:c});
-  else if(k==="sp"){const ids=film.ps.map(p=>p.id);if(ids.length)filmSet({sp:ids[Math.floor(Math.random()*ids.length)],spi:c})}
+  else if(k==="aq")filmSet({aq:b.dataset.u,aqi:c});
+  else if(k==="sp"){const all=film.ps.map(p=>p.id),vt=film.ps.filter(p=>p.v&&p.v[c]!==undefined&&p.v[c]!==null).map(p=>p.id);let ids=(vt.length?vt:all).filter(x=>!(g.spi===c&&x===g.sp));if(!ids.length)ids=vt.length?vt:all;if(ids.length)filmSet({sp:ids[Math.floor(Math.random()*ids.length)],spi:c})}
   else if(k==="cprev"&&c>0)filmSet({ci:c-1});
 });
 
@@ -4529,7 +4558,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="28dcaa00c7f1";
+  const BUILD="92ada00d30da";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4586,6 +4615,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u70",d:"18 ноября",t:"Вечер кино: удобнее для ведущей и участниц",items:["У Полины значок «Ведущая клуба», код комнаты можно показать в любой момент","Крупный шрифт без мелкого текста, сохранение афиши на iPhone, вопрос участницы можно вывести всем на экран","Выход из комнаты с подтверждением, таймер можно остановить"]},
   {id:"u69",d:"7 ноября",t:"Вечер кино в стиле фильма",items:["Комната оформлена под «Миллионера из трущоб»: закат над Мумбаи, огни, билет на сеанс с кодом и QR, киноплёнка вместо прогресса","Афиша итогов вечера, которую можно сохранить картинкой"]},
   {id:"u68",d:"6 ноября",t:"Ещё 145 вопросов",items:["🎬 Больше сложных вопросов в «Кино», «Музыке», «Видеоиграх», «Науке» и «Книгах»","🍳 Дополнили «Еду и кулинарию» и «Моду и дизайн»"]},
   {id:"u67",d:"6 ноября",t:"Новая тема: «Счёт в уме»",items:["3450 примеров на сложение, вычитание, умножение, деление, проценты, дроби, квадраты, ряды и задачи на скорость и площадь","Три уровня сложности: от таблицы умножения до двузначных множителей и процентов от больших чисел"]},{id:"u66",d:"6 ноября",t:"Ещё 915 вопросов и три новые темы",items:["🍳 Новые темы: «Еда и кулинария», «Космос», «Мода и дизайн»","📚 Больше вопросов в «Кино», «Музыке», «Истории», «Видеоиграх», «Животных», «Науке», «Книгах»","🚆 Подтянули «Транспорт», «Гаджеты», «Комиксы», «Политику» и «Что? Где? Зачем?»"]},{id:"u65",d:"6 ноября",t:"Картины мастеров и флаги",items:["246 новых вопросов с картинами в теме «Искусство»: узнайте автора и век","139 новых флагов в «Географии»","Картины из открытой коллекции Метрополитен-музея"]},
