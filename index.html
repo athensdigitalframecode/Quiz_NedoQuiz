@@ -261,6 +261,12 @@ body[data-scr="s-film"]::before,body[data-scr="s-polina"]::before{background:url
 #s-film .fmep{padding:.55em .8em;margin:.35em 0}
 #s-film .fmwho{margin:.25em 0}
 #s-film .fmw{margin:.25em 0}
+.fmsign{justify-content:center;min-height:3.2em!important;font-size:1.15em;font-weight:800;border-width:3px}
+.fmsign.yes{border-color:var(--ok);background:linear-gradient(180deg,rgba(79,214,160,.28),#1f3a45)}
+.fmsign.no{border-color:var(--bad);background:linear-gradient(180deg,rgba(255,122,107,.28),#35194f)}
+.fmhs{display:flex;flex-wrap:wrap;gap:.35em;justify-content:center;margin:.3em 0}
+.fmheart{border:1px solid var(--line);background:var(--card);color:var(--txt);border-radius:99px;padding:.3em .7em;font:600 .85em system-ui,sans-serif;cursor:pointer}
+.fmheart small{color:var(--mut)}.fmheart.on{border-color:#ff6b9a;background:rgba(255,107,154,.2)}.fmheart:disabled{opacity:.6;cursor:default}
 </style>
 <style>
 .pic{border-radius:50%;object-fit:cover;background:#111;display:block}
@@ -3098,15 +3104,19 @@ const FILM_Q=[
 ];
 const FILM_C=[
  {k:"word",t:"Одним словом",q:"Опишите фильм одним словом"},
+ {k:"agree",t:"Согласна или нет",q:"Деньги в этом фильме важнее любви",o:["👍 Согласна","👎 Не согласна"]},
  {k:"pick",t:"Роли",q:"Кого бы вы сыграли?",o:["Джамала","Салима","Латику","Прем Кумара","Маману"]},
+ {k:"scene",t:"Угадай кадр",d:"Братья и Латика убегают от людей Мамана к уходящему поезду. Салим уже в вагоне и тянет Латику за руку.",q:"Что было дальше?",o:["Латика успевает запрыгнуть","Салим отпускает её руку, и она остаётся на перроне","Джамал спрыгивает к ней","Поезд останавливается"],a:1,ep:"Салим нарочно разжимает руку, и Латика остаётся у Мамана. Джамал потом годами её ищет."},
  {k:"quote",t:"Цитата вслух",q:"В начале фильма на экране появляется вопрос «Как он это сделал?» и четыре ответа. Какой из них верный?",o:["Он жульничал","Ему повезло","Он гений","Так было написано"],a:3,ep:"Финальный титр отвечает именно так: «Так было написано». Вспомните, как фильм подводит к этому: каждый вопрос шоу связан с эпизодом жизни Джамала."},
  {k:"quote",t:"Цитата вслух",q:"Реплика по смыслу: «Простой разносчик чая не может знать столько ответов. Тут что-то нечисто». Кто так думает?",o:["Прем Кумар","Салим","Латика","Маман"],a:0,ep:"Прем Кумар, ведущий шоу. Вспомните, как он ведёт себя с Джамалом в студии и что происходит после эфира."},
  {k:"quote",t:"Цитата вслух",q:"Реплика по смыслу: «Я участвую не ради денег. Я хочу, чтобы она меня увидела». Кто это говорит?",o:["Джамал","Салим","Латика","Прем Кумар"],a:0,ep:"Джамал: он пришёл в шоу ради Латики, надеясь, что она увидит его по телевизору. Вспомните, как они в итоге встретились."},
  {k:"rate",t:"Оценки",q:"Поставьте оценку от 1 до 10",r:["Сюжет","Музыка","Жестокость","Финал"]},
  {k:"vs",t:"Спорный вопрос",q:"Салим: предатель или жертва?",o:["Предатель","Жертва"]},
  {k:"vs",t:"Спорный вопрос",q:"Финальный танец: достойная награда или лишний эпизод?",o:["Достойная награда","Лишний эпизод"]},
+ {k:"agree",t:"Согласна или нет",q:"Джамалу просто повезло",o:["👍 Согласна","👎 Не согласна"]},
  {k:"pick",t:"Что бы вы изменили",q:"Что бы вы изменили в фильме?",o:["Убрала бы финальный танец","Убрала бы жестокие сцены","Добавила бы историю Салима","Ничего, оставила бы как есть"]},
  {k:"word",t:"Одним словом",q:"Опишите Салима одним словом"},
+ {k:"scene",t:"Угадай кадр",d:"Джамал ответил на последний вопрос и выиграл. Он приходит на вокзал.",q:"Что было дальше?",o:["Латика не пришла","Салим приводит Латику за руку","Латика приходит, и Джамал целует шрам на её щеке","Они сразу уезжают на поезде"],a:2,ep:"Встреча на вокзале, о которой Джамал мечтал весь фильм. Сразу за ней начинается финальный танец."},
  {k:"ask",t:"Вопрос от участницы",q:"Напишите свой вопрос группе. Ведущая зачитает его вслух"}
 ];
 /* состояние комнаты лежит в games/КОД (mode:"film", без status, чтобы комната не попадала в «Открытые игры»), ответы каждой участницы в games/КОД/fp/uid */
@@ -3128,9 +3138,9 @@ async function filmEnter(c){
   leaveGame(true);filmLeave();
   const gref=db.doc("games/"+c),pcol=gref.collection("fp"),s=await gref.get();
   if(!s.exists||!s.data()||s.data().mode!=="film")throw new Error("комната не найдена");
-  const f=film={c,gref,pcol,g:s.data(),ps:[],my:{a:{},v:{},at:Date.now()},rd:{},wd:{},sel:{},epo:{},late:false,un:[]};
+  const f=film={c,gref,pcol,g:s.data(),ps:[],my:{a:{},v:{},h:{},at:Date.now()},rd:{},wd:{},sel:{},epo:{},late:false,un:[]};
   const mine=await pcol.doc(uid).get();
-  if(mine.exists&&mine.data())f.my=Object.assign({a:{},v:{}},mine.data());else{f.late=f.g.st!=="wait";await pcol.doc(uid).set(f.my)}
+  if(mine.exists&&mine.data())f.my=Object.assign({a:{},v:{},h:{}},mine.data());if(!f.my.h)f.my.h={};else{f.late=f.g.st!=="wait";await pcol.doc(uid).set(f.my)}
   f.iv=setInterval(filmTick,500);
   f.un.push(gref.onSnapshot(x=>{if(film!==f)return;if(!x.exists){filmLeave();nav("home");return}f.g=x.data();filmDraw()},()=>{}));
   f.un.push(pcol.onSnapshot(x=>{if(film!==f)return;f.ps=x.docs.map(d=>({id:d.id,...d.data()}));filmDraw()},()=>{}));
@@ -3145,19 +3155,26 @@ function filmCloud(ws){
   const mx=Math.max(...Object.values(m));
   return `<div class="fmcl">${Object.entries(m).map(([w,c])=>`<span style="font-size:${(0.9+c/mx*1.1).toFixed(2)}em">${esc(w)}</span>`).join(" ")}</div>`;
 }
+function filmHeartN(i,u){return film.ps.filter(p=>p.h&&Array.isArray(p.h[i])&&p.h[i].includes(u)).length}
 function filmSum(){
   const f=film,v=i=>f.ps.map(p=>p.v&&p.v[i]).filter(x=>x!==undefined&&x!==null);
-  const S={hero:"",rates:[],vs:"",words:[]};
+  const S={hero:"",rates:[],vs:"",words:[],best:null,same:"",split:"",host:nickOf(f.g.by),names:f.ps.filter(p=>p.id!==f.g.by).map(p=>nickOf(p.id))};
   const ri=FILM_C.findIndex(c=>c.k==="pick"),hv=v(ri);
   if(hv.length){const cn=FILM_C[ri].o.map((_,j)=>hv.filter(x=>x===j).length),mx=Math.max(...cn);const nm=FILM_C[ri].o.filter((_,j)=>cn[j]===mx),gl=x=>x%10===1&&x%100!==11?"голос":x%10>=2&&x%10<=4&&(x%100<10||x%100>=20)?"голоса":"голосов";S.hero=nm.length>1?nm.join(" и ")+" (поровну, по "+mx+" "+gl(mx)+")":nm[0]+" ("+mx+" "+gl(mx)+" из "+hv.length+")"}
   const ti=FILM_C.findIndex(c=>c.k==="rate"),rv=v(ti).filter(Array.isArray);
   if(rv.length)S.rates=FILM_C[ti].r.map((r,j)=>[r,(rv.reduce((p,a)=>p+a[j],0)/rv.length).toFixed(1)]);
-  let best=-1;FILM_C.forEach((C,i)=>{if(C.k!=="vs")return;const x=v(i);if(x.length<2)return;const a=x.filter(y=>y===0).length,sp=1-Math.abs(a-(x.length-a))/x.length;if(sp>best){best=sp;S.vs=C.q+" ("+C.o[0]+": "+a+", "+C.o[1]+": "+(x.length-a)+")"}});
+  const items=[];FILM_Q.forEach((Q,i)=>items.push({q:Q.q,o:Q.o,x:f.ps.map(p=>p.a&&p.a[i]).filter(z=>typeof z==="number")}));
+  FILM_C.forEach((C,i)=>{if(C.o&&C.o.length)items.push({q:C.q,o:C.o,x:v(i).filter(z=>typeof z==="number")})});
+  let hi=-1,lo=2;items.forEach(it=>{if(!it.o||it.x.length<2)return;const cn=it.o.map((_,j)=>it.x.filter(z=>z===j).length),mx=Math.max(...cn),sh=mx/it.x.length,top=it.o[cn.indexOf(mx)];
+    if(sh>hi){hi=sh;S.same=(sh===1?"Все ответили одинаково: ":"Больше всего согласия: ")+it.q+" — «"+top+"» ("+mx+" из "+it.x.length+")"}
+    if(sh<lo){lo=sh;S.split=it.q+" ("+it.o.map((o,j)=>o+": "+cn[j]).filter((_,j)=>cn[j]).join(", ")+")"}});
+  if(S.split===S.same.replace(/^[^:]*: /,""))S.split="";
+  FILM_C.forEach((C,i)=>{if(C.k!=="word"&&C.k!=="ask")return;f.ps.forEach(p=>{if(!p.v||typeof p.v[i]!=="string")return;const n=filmHeartN(i,p.id);if(n&&(!S.best||n>S.best.n))S.best={t:p.v[i],who:nickOf(p.id),n}})});
   const wi=FILM_C.findIndex(c=>c.k==="word");S.words=v(wi).filter(x=>typeof x==="string");
   return S;
 }
 function filmPng(){
-  const S=filmSum(),W=1080,H=1350,cv=document.createElement("canvas");cv.width=W;cv.height=H;const x=cv.getContext("2d");
+  const S=filmSum(),W=1080,H=1920,cv=document.createElement("canvas");cv.width=W;cv.height=H;const x=cv.getContext("2d");
   const gr=x.createLinearGradient(0,0,0,H);gr.addColorStop(0,"#2a1442");gr.addColorStop(1,"#1b0e2d");x.fillStyle=gr;x.fillRect(0,0,W,H);
   const sg=x.createRadialGradient(W/2,H+60,20,W/2,H+60,820);sg.addColorStop(0,"rgba(255,122,26,.75)");sg.addColorStop(1,"rgba(255,122,26,0)");x.fillStyle=sg;x.fillRect(0,0,W,H);
   x.fillStyle="rgba(13,5,24,.8)";x.beginPath();x.moveTo(0,H);x.lineTo(0,H-90);for(let k=0;k<=W;k+=60){const hh=40+((k*37)%70);x.lineTo(k,H-hh);x.lineTo(k+60,H-hh)}x.lineTo(W,H);x.fill();
@@ -3170,14 +3187,18 @@ function filmPng(){
   ctr("Миллионер",215,100,"#ffc542","bold");ctr("из трущоб",315,100,"#ff9a3c","bold");
   ctr(new Date().toLocaleDateString("ru-RU",{day:"numeric",month:"long",year:"numeric"}),370,30,"#e2c9a0");
   let y=450;x.textAlign="left";
-  const sec=t=>{x.textAlign="left";F(28,"bold");x.fillStyle="#ffb347";x.fillText(t.toUpperCase(),90,y);y+=52};
+  const sec=t=>{x.textAlign="left";F(28,"bold");x.fillStyle="#ffb347";x.fillText(t.toUpperCase(),90,y);y+=52};const room=()=>y<H-380;
   if(S.hero){sec("Любимая роль");F(46,"bold");x.fillStyle="#fff3df";wrap(S.hero,W-180).forEach(l=>{x.fillText(l,90,y);y+=58});y+=30}
   if(S.rates.length){sec("Средние оценки");S.rates.forEach(r=>{F(34);x.textAlign="left";x.fillStyle="#fff3df";x.fillText(r[0],90,y);x.fillStyle="rgba(255,255,255,.15)";x.fillRect(360,y-30,520,34);x.fillStyle="#ffb347";x.fillRect(360,y-30,520*r[1]/10,34);x.fillStyle="#fff3df";x.textAlign="right";x.fillText(r[1],990,y);y+=58});y+=24}
-  if(S.vs){sec("Самый спорный вопрос");F(36);x.fillStyle="#fff3df";x.textAlign="left";wrap(S.vs,W-180).forEach(l=>{x.fillText(l,90,y);y+=48});y+=30}
-  if(S.words.length&&y<1150){sec("Фильм одним словом");y+=34;const m={};S.words.forEach(w=>{w=w.trim().toLowerCase();if(w)m[w]=(m[w]||0)+1});const mx=Math.max(...Object.values(m));
+  const para=(t,txt)=>{if(!txt||!room())return;sec(t);F(34);x.fillStyle="#fff3df";x.textAlign="left";wrap(txt,W-180).slice(0,3).forEach(l=>{x.fillText(l,90,y);y+=46});y+=26};
+  para("Слово вечера",S.best?"«"+S.best.t+"» — "+S.best.who+" ("+S.best.n+" ♥)":"");
+  para("Где мы совпали",S.same);para("Где мнения разошлись",S.split);
+  if(S.words.length&&room()){sec("Фильм одним словом");y+=34;const m={};S.words.forEach(w=>{w=w.trim().toLowerCase();if(w)m[w]=(m[w]||0)+1});const mx=Math.max(...Object.values(m));
     const it=Object.entries(m).map(([w,c])=>{const z=38+Math.round(c/mx*30);F(z,"bold");return{w,z,wd:x.measureText(w).width}});
     const rows=[];let r=[],rw=0;it.forEach(i=>{if(rw+i.wd>880&&r.length){rows.push(r);r=[];rw=0}r.push(i);rw+=i.wd+30});rows.push(r);
-    rows.forEach(r=>{if(y>1260)return;let t=r.reduce((p,i)=>p+i.wd+30,-30),px=(W-t)/2;r.forEach(i=>{F(i.z,"bold");x.fillStyle="#ffb347";x.textAlign="left";x.fillText(i.w,px,y);px+=i.wd+30});y+=84})}
+    rows.forEach(r=>{if(y>H-330)return;let t=r.reduce((p,i)=>p+i.wd+30,-30),px=(W-t)/2;r.forEach(i=>{F(i.z,"bold");x.fillStyle="#ffb347";x.textAlign="left";x.fillText(i.w,px,y);px+=i.wd+30});y+=84})}
+  ctr("Ведущая вечера: 👑 "+S.host,H-270,34,"#ffc542","bold");
+  if(S.names.length){F(26);const ln=wrap("Участницы: "+S.names.join(", "),W-200).slice(0,2);ln.forEach((l,k)=>ctr(l,H-225+k*34,26,"#fff3df"))}
   ctr("Квиз или Недоквиз",H-135,28,"#ffe08a");
   cv.toBlob(b=>{if(b)deliverImg(b,"afisha-vecher-kino.png")},"image/png");
 }
@@ -3195,8 +3216,11 @@ function filmDraw(){
   const g=f.g,host=g.by===uid,st=g.st,n=f.ps.length,tq=FILM_Q.length,tc=FILM_C.length;
   const bar=(k,label,cnt,tot,on,att,lead)=>{const p=tot?Math.round(cnt*100/tot):0;return `<button class="fmo fmbar${on?" me":""}${lead?" lead":""}" ${att}><i class="fbar" style="width:${p}%"></i><span>${"АБВГД"[k]}</span><b class="fmt">${esc(label)}</b><em>${cnt}</em></button>`};
   const who=fn=>`<div class="fmwho">${f.ps.map(p=>`<span class="fmwo${fn(p)?" on":""}${p.id===f.g.by?" host":""}" title="${esc(nickOf(p.id))}">${pic(p.id)}</span>`).join("")}</div>`;
-  const FMK={word:["💬","#2ec4b6"],pick:["🎭","#ff9ec4"],quote:["🎬","#ffb347"],rate:["⭐","#ffd36e"],vs:["⚖️","#ff8f6b"],ask:["❓","#b69cff"]};
+  const FMK={agree:["🪧","#4fd6a0"],scene:["🎞","#ffc542"],word:["💬","#2ec4b6"],pick:["🎭","#ff9ec4"],quote:["🎬","#ffb347"],rate:["⭐","#ffd36e"],vs:["⚖️","#ff8f6b"],ask:["❓","#b69cff"]};
   let h="",foot="",pc="";
+  const hearts=(i,full)=>{const ps=f.ps.filter(p=>p.v&&typeof p.v[i]==="string");if(!ps.length)return"";
+    return `<div class="fmhs">${ps.map(p=>{const n=filmHeartN(i,p.id),me=((f.my.h||{})[i]||[]).includes(p.id),own=p.id===uid;
+      return `<button class="fmheart${me?" on":""}" data-f="heart" data-u="${esc(p.id)}"${own?" disabled":""}>${full?`<small>${esc(nickOf(p.id))}</small> `:""}${esc(p.v[i])} <b>${me?"❤️":"🤍"} ${n}</b></button>`}).join("")}</div><p class="fmw">Поставьте ❤️ ответу, который понравился.</p>`};
   $("fmBadge").innerHTML=host?'<span class="fmcrown">👑 Ведущая клуба</span>':"";
   $("fmCodeBtn").textContent="🎟 "+f.c;
   const ticket=`<div class="fmtk"><div class="fmtk-l"><small>Сеанс · «Миллионер из трущоб»</small><div class="fmcode">${esc(f.c)}</div></div><div class="fmqr">${qrSvg(GAME_URL+"#g="+f.c,260)}</div></div>`;
@@ -3229,14 +3253,15 @@ function filmDraw(){
     foot=host?`<button class="fmb" data-f="go">Начать обсуждение →</button>`:`<p class="fmw">Ждём ведущую…</p>`;
   }else if(st==="c"){
     const i=g.ci|0,C=FILM_C[i],mine=f.my.v[i],k=C.k,last=i>=tc-1;
-    pc=(FMK[k]||["","#ffb347"])[1];h=`<div class="fmhead" style="color:${pc}">${(FMK[k]||[""])[0]} ${esc(C.t)} · карточка ${i+1} из ${tc}</div><h2 class="fmq">${esc(C.q)}</h2>`;
+    pc=(FMK[k]||["","#ffb347"])[1];h=`<div class="fmhead" style="color:${pc}">${(FMK[k]||[""])[0]} ${esc(C.t)} · карточка ${i+1} из ${tc}</div>`+(k==="scene"&&host&&g.rv!==i?"":`<h2 class="fmq">${esc(C.q)}</h2>`);
     const vals=f.ps.map(p=>p.v&&p.v[i]).filter(x=>x!==undefined&&x!==null);
-    if(k==="pick"||k==="vs"||k==="quote"){
-      const cnt=C.o.map((_,j)=>vals.filter(x=>x===j).length),tot=vals.length,sv=host||mine!==undefined,rv=k==="quote"&&g.rv===i;
-      h+=C.o.map((o,j)=>{
+    if(k==="pick"||k==="vs"||k==="quote"||k==="agree"||k==="scene"){
+      const qz=k==="quote"||k==="scene",cnt=C.o.map((_,j)=>vals.filter(x=>x===j).length),tot=vals.length,sv=host||mine!==undefined,rv=qz&&g.rv===i;
+      if(k==="scene"&&!rv)h+=host?`<div class="fmep fmbig"><small>📖 Прочитайте вслух</small>${esc(C.d)} Что было дальше?</div>`:`<p class="fmw">Слушайте Полину: она читает описание сцены.</p>`;
+      if(!(k==="scene"&&host&&!rv))h+=C.o.map((o,j)=>{
         if(rv){const c="fmo"+(j===C.a?" ok":(mine===j?" bad":" dim"));return `<button class="${c}" disabled><span>${"АБВГД"[j]}</span>${esc(o)}<em>${j===C.a?"✓ ":""}${cnt[j]}</em></button>`}
-        return sv?bar(j,o,cnt[j],tot,mine===j,`data-f="vote" data-k="${j}" `,tot>0&&cnt[j]===Math.max(...cnt)):`<button class="fmo" data-f="vote" data-k="${j}"><span>${"АБВГД"[j]}</span>${esc(o)}</button>`}).join("");
-      if(rv)h+=`<div class="fmep"><small>Вспомним сцену</small>${esc(C.ep)}</div>`;
+        return k==="agree"&&!sv?`<button class="fmo fmsign ${j?"no":"yes"}" data-f="vote" data-k="${j}">${esc(o)}</button>`:sv?bar(j,o,cnt[j],tot,mine===j,`data-f="vote" data-k="${j}" `,tot>0&&cnt[j]===Math.max(...cnt)):`<button class="fmo" data-f="vote" data-k="${j}"><span>${"АБВГД"[j]}</span>${esc(o)}</button>`}).join("");
+      if(rv)h+=f.epo["c"+i]?`<div class="fmep"><small>Вспомним сцену</small>${esc(C.ep)}</div>`:`<button class="fmb alt" data-f="cep">Вспомним сцену</button>`;
       else h+=sv?`<p class="fmw">Проголосовали: <b>${tot}</b> из ${n}</p>`:`<p class="fmw">Выберите ответ.</p>`;
       if(k==="vs"&&g.tm&&g.tmi===i){if(f.tmKey!==g.tm){f.tmKey=g.tm;f.tmEnd=Date.now()+(g.tmd||120000)}h+=`<div class="fmep"><small>⏳ Время на обсуждение</small><b id="fmTm" data-t="${f.tmEnd}"></b></div>`}
       if(k==="vs"&&g.sp&&g.spi===i)h+=`<div class="fmep"><small>🎤 Слово получает</small><b>${esc(nickOf(g.sp))}</b>. Объясните свой выбор вслух.</div>`;
@@ -3251,7 +3276,7 @@ function filmDraw(){
       if(k==="word"){
         if(!sent)h+=`<input id="fmIn" class="fmin" maxlength="24" placeholder="${ph}" value="${esc(f.wd[i]||"")}"><button class="fmb" data-f="text">Отправить</button>`;
         else h+=`<p class="fmw">Ваше слово: <b>${esc(mine)}</b></p>`;
-        if(sent||host)h+=filmCloud(vals.filter(x=>typeof x==="string"));
+        if(sent||host)h+=filmCloud(vals.filter(x=>typeof x==="string"))+hearts(i,false);
       }else{
         if(!sent)h+=`<input id="fmIn" class="fmin" maxlength="120" placeholder="${ph}" value="${esc(f.wd[i]||"")}"><button class="fmb" data-f="text">Отправить</button>`;
         else h+=`<p class="fmw">Вопрос отправлен.</p>`;
@@ -3259,22 +3284,25 @@ function filmDraw(){
         const on=g.aqi===i&&qs.find(p=>p.id===g.aq);
         if(on)h+=`<div class="fmep fmbig"><small>🎤 Обсуждаем вопрос от ${esc(nickOf(on.id))}</small>${esc(on.v[i])}</div>`;
         if(host)h+=qs.filter(p=>p!==on).map(p=>`<button class="fmo" data-f="aq" data-u="${esc(p.id)}"><span>?</span><span class="fmqt"><small>${esc(nickOf(p.id))}</small> ${esc(p.v[i])}</span></button>`).join("")+(qs.length?`<p class="fmw">Нажмите на вопрос, чтобы показать его всем.</p>`:`<p class="fmw">Вопросов пока нет.</p>`);
-        else if(sent&&!on)h+=`<p class="fmw">Полина выберет вопрос и покажет его всем.</p>`;
+        else if(sent){if(!on)h+=`<p class="fmw">Полина выберет вопрос и покажет его всем.</p>`;h+=hearts(i,true)}
       }
     }
-    h+=who(p=>p.v&&p.v[i]!==undefined&&p.v[i]!==null);
+    if(!((k==="quote"||k==="scene")&&g.rv===i))h+=who(p=>p.v&&p.v[i]!==undefined&&p.v[i]!==null);
     if(host){
-      const mid=k==="quote"&&g.rv!==i?`<button class="fmb alt" data-f="rv">Показать ответ</button>`:(k==="vs"?`<div class="fmrow"><button class="fmb alt" data-f="sp">🎤 Дать слово</button><button class="fmb alt" data-f="tm">${g.tm&&g.tmi===i?"⏹ Стоп":"⏳ 2 минуты"}</button></div>`:"");
+      const mid=(k==="quote"||k==="scene")&&g.rv!==i?`<button class="fmb alt" data-f="rv">Показать ответ</button>`:(k==="vs"?`<div class="fmrow"><button class="fmb alt" data-f="sp">🎤 Дать слово</button><button class="fmb alt" data-f="tm">${g.tm&&g.tmi===i?"⏹ Стоп":"⏳ 2 минуты"}</button></div>`:"");
       foot=mid+`<div class="fmrow">${i>0?`<button class="fmb alt" data-f="cprev">← Назад</button>`:""}<button class="fmb" data-f="cnext">${last?"Итоги вечера →":"Дальше →"}</button></div>`;
     }
   }else{
     const S=filmSum();
-    h=`<div class="fmposter"><small>Книжный клуб · вечер кино</small><h2>Миллионер из трущоб</h2></div>`+
+    const p2=f.endPg===1;
+    h=`<div class="fmposter"><small>Книжный клуб · вечер кино</small><h2>Миллионер из трущоб</h2></div>`+(!p2?
       (S.hero?`<div class="fmep"><small>Любимая роль</small>${esc(S.hero)}</div>`:"")+
-      (S.rates.length?`<div class="fmep"><small>Средние оценки</small>${S.rates.map(r=>`<div class="fmrb"><span>${esc(r[0])}</span><div><i style="width:${r[1]*10}%"></i></div><b>${r[1]}</b></div>`).join("")}</div>`:"")+
-      (S.vs?`<div class="fmep"><small>Самый спорный вопрос</small>${esc(S.vs)}</div>`:"")+
-      (S.words.length?`<div class="fmep"><small>Фильм одним словом</small>${filmCloud(S.words)}</div>`:"")+
-      `<button class="fmb" data-f="png">💾 Сохранить афишу</button>`;
+      (S.rates.length?`<div class="fmep"><small>Средние оценки</small>${S.rates.map(r=>`${esc(r[0])} <b>${r[1]}</b>`).join(" · ")}</div>`:"")+
+      (S.best?`<div class="fmep"><small>❤️ Слово вечера</small>«${esc(S.best.t)}» — ${esc(S.best.who)} (${S.best.n} ❤️)</div>`:"")
+     :(S.same?`<div class="fmep"><small>Где мы совпали</small>${esc(S.same)}</div>`:"")+
+      (S.split?`<div class="fmep"><small>Где мнения разошлись</small>${esc(S.split)}</div>`:"")+
+      `<p class="fmw">Ведущая вечера: <b>👑 ${esc(S.host)}</b>${S.names.length?`<br>Участницы: ${S.names.map(esc).join(", ")}`:""}</p>`);
+    foot=`<div class="fmrow"><button class="fmb alt" data-f="epg">${p2?"‹ Назад":"Дальше ›"}</button><button class="fmb" data-f="png">💾 Афиша</button></div>`;
   }
   const pi=st==="q"||st==="rev"?(g.qi|0)+1:st==="c"?tq+(g.ci|0)+1:st==="mid"?tq:0;
   if(pi){const lt=f.late&&!Object.keys(f.my.a).length&&!Object.keys(f.my.v).length?`<p class="fmw">Вы вошли в середине вечера. Подключайтесь с этого места.</p>`:"";
@@ -3294,10 +3322,13 @@ document.addEventListener("click",e=>{
   if(k==="ans"){const i=g.qi|0;if(g.st==="q"&&film.my.a[i]===undefined){film.sel[i]=+b.dataset.k;filmDraw()}return}
   if(k==="send"){const i=g.qi|0;if(g.st==="q"&&film.sel[i]!==undefined&&film.my.a[i]===undefined){film.my.a[i]=film.sel[i];filmDraw();filmSave()}return}
   if(k==="ep"){film.epo[g.qi|0]=1;filmDraw();return}
+  if(k==="cep"){film.epo["c"+(g.ci|0)]=1;filmDraw();return}
+  if(k==="epg"){film.endPg=film.endPg?0:1;filmDraw();return}
   if(k==="vote"){if(g.st==="c"){film.my.v[g.ci|0]=+b.dataset.k;filmDraw();filmSave()}return}
   if(k==="rate"){if(g.st==="c"){const i=g.ci|0;film.my.v[i]=(film.rd[i]||[]).slice();filmDraw();filmSave()}return}
   if(k==="text"){const el=$("fmIn"),t=el&&el.value.trim();if(g.st==="c"&&t){film.my.v[g.ci|0]=t.slice(0,120);if(el)el.blur();filmDraw();filmSave()}return}
   if(k==="png"){filmPng();return}
+  if(k==="heart"){if(g.st!=="c")return;const i=g.ci|0,u=b.dataset.u;if(u===uid)return;const h=film.my.h||(film.my.h={}),a=h[i]||(h[i]=[]),j=a.indexOf(u);if(j<0)a.push(u);else a.splice(j,1);filmDraw();filmSave();return}
   if(g.by!==uid)return;
   const i=g.qi|0,c=g.ci|0;
   if(k==="start")filmSet({st:"q",qi:0});
@@ -4556,7 +4587,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="f60a4157d6a1";
+  const BUILD="5dff11d1ad95";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4613,6 +4644,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u72",d:"18 ноября",t:"Вечер кино: новые карточки",items:["«Угадай кадр»: Полина читает сцену, участницы угадывают, что было дальше","«Согласна / Не согласна» и сердечки к ответам участниц","В итогах: слово вечера, где мы совпали и где разошлись, имена ведущей и участниц на афише"]},
  {id:"u71",d:"18 ноября",t:"Чище главная",items:["Убрана плашка «Сделано для» в левом верхнем углу"]},
   {id:"u70",d:"18 ноября",t:"Вечер кино: удобнее для ведущей и участниц",items:["У Полины значок «Ведущая клуба», код комнаты можно показать в любой момент","Крупный шрифт без мелкого текста, сохранение афиши на iPhone, вопрос участницы можно вывести всем на экран","Выход из комнаты с подтверждением, таймер можно остановить"]},
   {id:"u69",d:"7 ноября",t:"Вечер кино в стиле фильма",items:["Комната оформлена под «Миллионера из трущоб»: закат над Мумбаи, огни, билет на сеанс с кодом и QR, киноплёнка вместо прогресса","Афиша итогов вечера, которую можно сохранить картинкой"]},
