@@ -1202,8 +1202,6 @@ body[data-scr="s-home"] #bestFloat{display:block}
 </section>
 
 <!-- Главная -->
-<div class="madewrap"><div class="madeby" aria-hidden="false">Сделано для <b>Наших афинских</b></div>
-</div>
 <section id="s-home" class="screen">
   <h1>Квиз <em>или</em> Недоквиз</h1>
   <p class="sub">Блиц-квиз · дуэли команд · массовые турниры</p>
@@ -4558,7 +4556,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="92ada00d30da";
+  const BUILD="f60a4157d6a1";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4615,6 +4613,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+ {id:"u71",d:"18 ноября",t:"Чище главная",items:["Убрана плашка «Сделано для» в левом верхнем углу"]},
   {id:"u70",d:"18 ноября",t:"Вечер кино: удобнее для ведущей и участниц",items:["У Полины значок «Ведущая клуба», код комнаты можно показать в любой момент","Крупный шрифт без мелкого текста, сохранение афиши на iPhone, вопрос участницы можно вывести всем на экран","Выход из комнаты с подтверждением, таймер можно остановить"]},
   {id:"u69",d:"7 ноября",t:"Вечер кино в стиле фильма",items:["Комната оформлена под «Миллионера из трущоб»: закат над Мумбаи, огни, билет на сеанс с кодом и QR, киноплёнка вместо прогресса","Афиша итогов вечера, которую можно сохранить картинкой"]},
   {id:"u68",d:"6 ноября",t:"Ещё 145 вопросов",items:["🎬 Больше сложных вопросов в «Кино», «Музыке», «Видеоиграх», «Науке» и «Книгах»","🍳 Дополнили «Еду и кулинарию» и «Моду и дизайн»"]},
