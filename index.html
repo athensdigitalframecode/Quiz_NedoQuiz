@@ -283,6 +283,7 @@ body[data-scr="s-film"]::before,body[data-scr="s-polina"]::before{background:url
 #fmFx i{position:absolute;top:-2em;font-style:normal;font-size:1.4em;animation:fmfall linear infinite;opacity:.85}
 @keyframes fmfall{to{transform:translateY(110vh) rotate(360deg)}}
 #s-film .wrap,#s-film .top,#s-film .fmmq,#fmBadge{position:relative;z-index:1}
+.fmprev{display:block;height:min(52vh,60vw*16/9);aspect-ratio:9/16;margin:.3em auto;border-radius:12px;border:2px solid var(--gold);box-shadow:0 8px 24px rgba(0,0,0,.5)}
 </style>
 <style>
 .pic{border-radius:50%;object-fit:cover;background:#111;display:block}
@@ -3191,7 +3192,7 @@ function filmSum(){
   const wi=FILM_C.findIndex(c=>c.k==="word");S.words=v(wi).filter(x=>typeof x==="string");
   return S;
 }
-function filmPng(){
+function filmPoster(){
   const S=filmSum(),W=1080,H=1920,cv=document.createElement("canvas");cv.width=W;cv.height=H;const x=cv.getContext("2d");
   const gr=x.createLinearGradient(0,0,0,H);gr.addColorStop(0,"#2a1442");gr.addColorStop(1,"#1b0e2d");x.fillStyle=gr;x.fillRect(0,0,W,H);
   const sg=x.createRadialGradient(W/2,H+60,20,W/2,H+60,820);sg.addColorStop(0,"rgba(255,122,26,.75)");sg.addColorStop(1,"rgba(255,122,26,0)");x.fillStyle=sg;x.fillRect(0,0,W,H);
@@ -3211,15 +3212,16 @@ function filmPng(){
   const para=(t,txt)=>{if(!txt||!room())return;sec(t);F(34);x.fillStyle="#fff3df";x.textAlign="left";wrap(txt,W-180).slice(0,3).forEach(l=>{x.fillText(l,90,y);y+=46});y+=26};
   para("Слово вечера",S.best?"«"+S.best.t+"» — "+S.best.who+" ("+S.best.n+" ♥)":"");
   para("Где мы совпали",S.same);para("Где мнения разошлись",S.split);
-  if(S.words.length&&room()){sec("Фильм одним словом");y+=34;const m={};S.words.forEach(w=>{w=w.trim().toLowerCase();if(w)m[w]=(m[w]||0)+1});const mx=Math.max(...Object.values(m));
+  if(S.words.length&&y<H-480){sec("Фильм одним словом");y+=34;const m={};S.words.forEach(w=>{w=w.trim().toLowerCase();if(w)m[w]=(m[w]||0)+1});const mx=Math.max(...Object.values(m));
     const it=Object.entries(m).map(([w,c])=>{const z=38+Math.round(c/mx*30);F(z,"bold");return{w,z,wd:x.measureText(w).width}});
     const rows=[];let r=[],rw=0;it.forEach(i=>{if(rw+i.wd>880&&r.length){rows.push(r);r=[];rw=0}r.push(i);rw+=i.wd+30});rows.push(r);
     rows.forEach(r=>{if(y>H-330)return;let t=r.reduce((p,i)=>p+i.wd+30,-30),px=(W-t)/2;r.forEach(i=>{F(i.z,"bold");x.fillStyle="#ffb347";x.textAlign="left";x.fillText(i.w,px,y);px+=i.wd+30});y+=84})}
   ctr("Ведущая вечера: 👑 "+S.host,H-270,34,"#ffc542","bold");
   if(S.names.length){F(26);const ln=wrap("Участницы: "+S.names.join(", "),W-200).slice(0,2);ln.forEach((l,k)=>ctr(l,H-225+k*34,26,"#fff3df"))}
   ctr("Квиз или Недоквиз",H-135,28,"#ffe08a");
-  cv.toBlob(b=>{if(b)deliverImg(b,"afisha-vecher-kino.png")},"image/png");
+  return cv;
 }
+function filmPng(){filmPoster().toBlob(b=>{if(b)deliverImg(b,"afisha-vecher-kino.png")},"image/png")}
 function filmTick(){const e=$("fmTm");if(!e)return;const t=Math.round((+e.dataset.t-Date.now())/1000);e.textContent=t>0?Math.floor(t/60)+":"+String(t%60).padStart(2,"0"):"Время вышло"}
 function filmFit(){
   const b=$("fmBody");if(!b)return;let i=0;try{i=+localStorage.getItem("fmz")||0}catch(e){}
@@ -3333,9 +3335,10 @@ function filmDraw(){
       if(host)foot=op?`<div class="fmrow">${aw?`<button class="fmb alt" data-f="awb">‹</button>`:""}<button class="fmb" data-f="awn">${aw<A.length-1?"Следующая номинация →":"Финал вечера →"}</button></div>`
                      :`<div class="fmrow">${aw?`<button class="fmb alt" data-f="awb">‹</button>`:""}<button class="fmb pulse" data-f="awo">✉️ Открыть конверт</button></div>`;
     }else{
-      h=`<div class="fmposter"><small>Книжный клуб · вечер кино</small><h2>Спасибо за вечер!</h2></div>
-        <div class="fmep"><small>«Миллионер из трущоб»</small>Ведущая вечера: <b>👑 ${esc(S.host)}</b>${S.names.length?`<br>Участницы: ${S.names.map(esc).join(", ")}`:""}</div>`+
-        (S.words.length?`<div class="fmep"><small>Фильм одним словом</small>${filmCloud(S.words)}</div>`:"");
+      const key=JSON.stringify(S);if(f.pvKey!==key){f.pvKey=key;try{f.pv=filmPoster().toDataURL("image/jpeg",.82)}catch(e){f.pv=""}}
+      h=`<div class="fmposter"><small>Книжный клуб · вечер кино</small><h2>Спасибо за вечер!</h2></div>`+
+        (f.pv?`<img class="fmprev" src="${f.pv}" alt="Афиша вечера">`:"")+
+        (A.length?"":`<p class="fmw">Итогов пока нет: участницы не успели ответить. Афиша заполнится, когда в комнате будут ответы.</p>`);
       foot=`<div class="fmrow">${host&&A.length?`<button class="fmb alt" data-f="awb">‹</button>`:""}<button class="fmb" data-f="png">💾 Сохранить афишу</button></div>`;
       f.fx=1;
     }
@@ -4627,7 +4630,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="7f7fa8bfce6a";
+  const BUILD="a02d6749f346";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
