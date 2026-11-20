@@ -303,6 +303,8 @@ body[data-scr="s-film"]::before,body[data-scr="s-polina"]::before{background:url
 @keyframes fmslide{from{opacity:0;transform:translateY(14px)}}
 body[data-scr="s-film"] #fmSky,body[data-scr="s-film"] #fmRx{display:block}
 body:not([data-scr="s-film"]) #fmSky,body:not([data-scr="s-film"]) #fmRx{display:none}
+#s-film .fmcus{min-height:2em;padding:.35em .8em;font-size:.85em}
+#s-film .fmo.fm5{min-height:2.05em;padding:.28em .7em;margin:.16em 0}
 </style>
 <style>
 .pic{border-radius:50%;object-fit:cover;background:#111;display:block}
@@ -3260,7 +3262,7 @@ window.addEventListener("resize",()=>{if(film&&cur==="film")filmDraw()});
 function filmDraw(){
   const f=film;if(!f||cur!=="film")return;if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#fmBody")&&/INPUT/.test(document.activeElement.tagName))return;
   const g=f.g,host=g.by===uid,st=g.st,n=f.ps.length,tq=FILM_Q.length,tc=FILM_C.length;
-  const bar=(k,label,cnt,tot,on,att,lead)=>{const p=tot?Math.round(cnt*100/tot):0;return `<button class="fmo fmbar${on?" me":""}${lead?" lead":""}" ${att}><i class="fbar" style="width:${p}%"></i><span>${"АБВГД"[k]}</span><b class="fmt">${esc(label)}</b><em>${cnt}</em></button>`};
+  const bar=(k,label,cnt,tot,on,att,lead)=>{const p=tot?Math.round(cnt*100/tot):0;return `<button class="fmo fmbar${on?" me":""}${f.g.st==="c"&&(FILM_C[f.g.ci|0].o||[]).length>4?" fm5":""}${lead?" lead":""}" ${att}><i class="fbar" style="width:${p}%"></i><span>${"АБВГД"[k]}</span><b class="fmt">${esc(label)}</b><em>${cnt}</em></button>`};
   const who=fn=>`<div class="fmwho">${f.ps.map(p=>`<span class="fmwo${fn(p)?" on":""}${p.id===f.g.by?" host":""}" title="${esc(nickOf(p.id))}">${pic(p.id)}</span>`).join("")}</div>`;
   const FMK={agree:["🪧","#4fd6a0"],scene:["🎞","#ffc542"],word:["💬","#2ec4b6"],pick:["🎭","#ff9ec4"],quote:["🎬","#ffb347"],rate:["⭐","#ffd36e"],vs:["⚖️","#ff8f6b"],ask:["❓","#b69cff"]};
   let h="",foot="",pc="";
@@ -3309,7 +3311,12 @@ function filmDraw(){
       if(k==="scene"&&!rv)h+=host?`<div class="fmep fmbig"><small>📖 Прочитайте вслух</small>${esc(C.d)} Что было дальше?</div>`:`<p class="fmw">Слушайте Полину: она читает описание сцены.</p>`;
       if(!(k==="scene"&&host&&!rv))h+=C.o.map((o,j)=>{
         if(rv){const c="fmo"+(j===C.a?" ok":(mine===j?" bad":" dim"));return `<button class="${c}" disabled><span>${"АБВГД"[j]}</span>${esc(o)}<em>${j===C.a?"✓ ":""}${cnt[j]}</em></button>`}
-        return k==="agree"&&!sv?`<button class="fmo fmsign ${j?"no":"yes"}" data-f="vote" data-k="${j}">${esc(o)}</button>`:sv?bar(j,o,cnt[j],tot,mine===j,`data-f="vote" data-k="${j}" `,tot>0&&cnt[j]===Math.max(...cnt)):`<button class="fmo" data-f="vote" data-k="${j}"><span>${"АБВГД"[j]}</span>${esc(o)}</button>`}).join("");
+        return k==="agree"&&!sv?`<button class="fmo fmsign ${j?"no":"yes"}" data-f="vote" data-k="${j}">${esc(o)}</button>`:sv?bar(j,o,cnt[j],tot,mine===j,`data-f="vote" data-k="${j}" `,tot>0&&cnt[j]===Math.max(...cnt)):`<button class="fmo${C.o.length>4?" fm5":""}" data-f="vote" data-k="${j}"><span>${"АБВГД"[j]}</span>${esc(o)}</button>`}).join("");
+      if(k==="pick"||k==="vs"){
+        const cu=f.ps.filter(p=>p.v&&typeof p.v[i]==="string"),my=typeof mine==="string";
+        if(!my&&!host)h+=f.cus&&f.cus[i]?`<input id="fmIn" class="fmin" maxlength="60" placeholder="Ваш вариант" value="${esc(f.wd[i]||"")}"><button class="fmb" data-f="text">Отправить свой вариант</button>`:`<button class="fmb alt fmcus" data-f="cus">✏️ Свой вариант</button>`;
+        if((host||mine!==undefined)&&cu.length)h+=`<div class="fmhs">${cu.map(p=>`<span class="fmheart${p.id===uid?" on":""}"><small>${esc(nickOf(p.id))}</small> ${esc(p.v[i])}</span>`).join("")}</div>`;
+      }
       if(rv)h+=f.epo["c"+i]?`<div class="fmep"><small>Вспомним сцену</small>${esc(C.ep)}</div>`:`<button class="fmb alt" data-f="cep">Вспомним сцену</button>`;
       else h+=sv?`<p class="fmw">Проголосовали: <b>${tot}</b> из ${n}</p>`:`<p class="fmw">Выберите ответ.</p>`;
       if(k==="vs"&&g.tm&&g.tmi===i){if(f.tmKey!==g.tm){f.tmKey=g.tm;f.tmEnd=Date.now()+(g.tmd||120000)}h+=`<div class="fmep"><small>⏳ Время на обсуждение</small><b id="fmTm" data-t="${f.tmEnd}"></b></div>`}
@@ -3398,6 +3405,7 @@ document.addEventListener("click",e=>{
   if(k==="rate"){if(g.st==="c"){const i=g.ci|0;film.my.v[i]=(film.rd[i]||[]).slice();filmDraw();filmSave()}return}
   if(k==="text"){const el=$("fmIn"),t=el&&el.value.trim();if(g.st==="c"&&t){film.my.v[g.ci|0]=t.slice(0,120);if(el)el.blur();filmDraw();filmSave()}return}
   if(k==="png"){filmPng();return}
+  if(k==="cus"){film.cus=film.cus||{};film.cus[g.ci|0]=1;filmDraw();setTimeout(()=>{const e=$("fmIn");if(e)e.focus()},50);return}
   if(k==="re"){const n=Date.now();if(film.reAt&&n-film.reAt<1500)return;film.reAt=n;film.my.r={e:b.dataset.e,t:n};filmFloat(esc(b.dataset.e)+"<small>вы</small>","mine");filmSave();return}
   if(k==="heart"){if(g.st!=="c")return;const i=g.ci|0,u=b.dataset.u;if(u===uid)return;const h=film.my.h||(film.my.h={}),a=h[i]||(h[i]=[]),j=a.indexOf(u);if(j<0)a.push(u);else a.splice(j,1);filmDraw();filmSave();return}
   if(g.by!==uid)return;
@@ -4661,7 +4669,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="576d29687435";
+  const BUILD="c2e01256dac2";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
