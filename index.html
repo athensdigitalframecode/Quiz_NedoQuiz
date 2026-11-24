@@ -2049,7 +2049,7 @@ function guestHome(){
   document.body.classList.add("guest");show("s-home");cur="home";
   try{bestDraw({u:"guest",n:"Это ты?",p:GUEST_BEST})}catch(e){}
   try{fillTopics()}catch(e){}
-  if(typeof IG_URL!=="undefined"&&IG_URL){$("donate").href=IG_URL;$("donate").hidden=false}
+  if(typeof IG_URL!=="undefined"&&IG_URL){$("donate").href=IG_URL;$("donate").hidden=true}
 }
 async function guestBest(){
   try{
@@ -2238,7 +2238,7 @@ function drawChallengeTopic(){const e=$("chTopic");if(e)e.textContent="Тема 
 function drawHome(){
   if(!ME)return;
   fillTopics();
-  if(IG_URL){$("donate").href=IG_URL;$("donate").hidden=false}
+  if(IG_URL){$("donate").href=IG_URL;$("donate").hidden=true}
   if(!BANK.length)$("home-err").textContent="Вопросы пока не загружены, игры временно недоступны";
   $("homePic").src=photoOfProfile(ME);$("homePic").className="pic "+frCls(ME);$("homeNick").textContent=ME.nick;$("homeStatus").textContent=ME.status||"";
   $("homeTeam").innerHTML=ME.team?teamLabel(ME.team):"Без команды";
@@ -4669,7 +4669,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="6767007b68fe";
+  const BUILD="1ec347ecf995";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
