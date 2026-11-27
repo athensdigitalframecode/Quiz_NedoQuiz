@@ -4678,7 +4678,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="f0c3752b634f";
+  const BUILD="8560b1b33876";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4856,7 +4856,11 @@ async function drawGStats(){
    (картинки — временными ссылками на час). Ничего не пишет в профиль, рейтинг и статистику. */
 (()=>{
 const FN="https://tfgynsfmnrxumftuiflm.supabase.co/functions/v1/team-room",N=15;
-let TB=null,TC="",TM=null;const SEEN=new Set(),SEL=new Set();
+let TB=null,TC="",TM=null,IV=0;const SEL=new Set(),T=180;
+/* просмотренные помнятся в этом браузере, пока их не сбросят */
+const SEEN=new Set((()=>{try{return JSON.parse(localStorage.getItem("quiz_team_seen"))||[]}catch(e){return[]}})()),save=()=>{try{localStorage.setItem("quiz_team_seen",JSON.stringify([...SEEN]))}catch(e){}};
+const clock=s=>{s=Math.max(0,Math.ceil(s-.01));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};/* −.01: шаги по 0,1 с копят погрешность */
+const stopT=()=>{clearInterval(IV);IV=0},snd=ok=>{try{ok?beep(1):buzz()}catch(e){}};
 const E=esc,B=h=>{$("trBody").innerHTML=h};
 const call=b=>fetch(FN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code:TC,...b})});
 const tNorm=s=>String(s||"").toLowerCase().replace(/ё/g,"е").replace(/&/g," and ").replace(/[^\p{L}\p{N}\s]/gu," ").replace(/\s+/g," ").trim();
@@ -4872,50 +4876,59 @@ async function enter(){const c=$("trIn").value.trim(),err=$("trErr");err.textCon
   if(!/^[\w-]{1,40}$/.test(c)){err.textContent="Код — буквы латиницей, цифры, «-» или «_»";return}
   TC=c;err.textContent="Проверяем…";
   try{const r=await call({op:"bank"});if(r.status===403){err.textContent="Неверный код";return}if(!r.ok)throw 0;const b=await r.json();if(!b||!Array.isArray(b.q))throw 0;
-    TB=b;Object.keys(TB.cats).filter(k=>TB.cats[k].on&&TB.cats[k].n).forEach(k=>SEL.add(k));hubR()}
+    TB=b;hubR()}
   catch(e){err.textContent="Не удалось загрузить комнату, попробуйте ещё раз"}}
-function hubR(){TM=null;
-  const rows=Object.keys(TB.cats).filter(k=>TB.cats[k].n).map(k=>{const c=TB.cats[k],on=c.on,sel=on&&SEL.has(k);
-    return `<button type="button" class="btn alt trc" data-tr="c:${E(k)}"${on?"":" disabled"}>${on?(sel?"✅":"⬜"):"🔒"} <b>${E(c.ico+" "+c.name)}</b><small>${on?`осталось ${left(k)} из ${c.n}`:"ждёт согласования прав"}</small></button>`}).join("");
-  const n=[...SEL].filter(k=>TB.cats[k]&&TB.cats[k].on).reduce((s,k)=>s+left(k),0);
-  B(`<p class="hint">Выберите одну или несколько тем. Вопросы идут в случайном порядке и не повторяются, пока не обновите страницу.</p><div class="trcats">${rows||"<p class='hint'>Вопросов пока нет</p>"}</div>
-  <button type="button" class="btn" data-tr="s"${n?"":" disabled"} style="margin-top:12px">▶ Начать · ${Math.min(N,n)} вопр.</button>${SEEN.size?`<button type="button" class="btn alt" data-tr="r" style="margin-top:8px">↺ Сбросить просмотренные (${SEEN.size})</button>`:""}
+const cats=()=>Object.keys(TB.cats).filter(k=>TB.cats[k].on&&TB.cats[k].n);
+function hubR(){TM=null;stopT();
+  const rows=Object.keys(TB.cats).filter(k=>TB.cats[k].n).map(k=>{const c=TB.cats[k],on=c.on,l=left(k);
+    return `<button type="button" class="btn alt trc" data-tr="c:${E(k)}"${on&&l?"":" disabled"}>${on?"▶":"🔒"} <b>${E(c.ico+" "+c.name)}</b><small>${on?`осталось ${l} из ${c.n}`:"ждёт согласования прав"}</small></button>`}).join("");
+  const n=cats().reduce((s,k)=>s+left(k),0);
+  B(`<button type="button" class="btn trc" data-tr="m"${n?"":" disabled"}>🎲 <b>Микс доступных тем</b><small>вопросы всех открытых тем вперемешку · ${n} вопр.</small></button>
+  <p class="hint" style="margin-top:12px">Или выберите одну тему. Вопросы идут в случайном порядке и не повторяются: просмотренные запоминаются в этом браузере.</p><div class="trcats">${rows||"<p class='hint'>Вопросов пока нет</p>"}</div>
+  ${SEEN.size?`<button type="button" class="btn alt" data-tr="r" style="margin-top:12px">↺ Сбросить просмотренные (${SEEN.size})</button>`:""}
   <p class="hint" style="margin-top:10px">Вопросы импортированы автоматически из открытых наборов и не проверены вручную. Тренировка не влияет на рейтинг и статистику.</p>`)}
 async function start(){
   const pool=TB.q.filter(x=>SEL.has(x.c)&&TB.cats[x.c]&&TB.cats[x.c].on&&!SEEN.has(x.id));if(!pool.length)return hubR();
   const list=shuffled(pool,Math.random).slice(0,N),need=list.filter(x=>x.i).map(x=>x.i);let urls={};
   B(`<p class="hint">Загружаем картинки…</p>`);
   if(need.length){try{const r=await call({op:"img",paths:need});if(!r.ok)throw 0;urls=(await r.json()).urls||{}}catch(e){B(`<div class="err">Не удалось загрузить картинки</div><button type="button" class="btn alt" data-tr="h">К темам</button>`);return}}
-  TM={list:list.filter(x=>!x.i||urls[x.i]),urls,n:0,ok:0};next()}
+  TM={list:list.filter(x=>!x.i||urls[x.i]),urls,n:0,ok:0,wrong:0,combo:0,pc:0,max:0};next();stopT();IV=setInterval(tick,100)}
+/* таймер как в обычной игре: кольцо, 3 минуты на вопрос; стоит, пока показан ответ или вкладка скрыта */
+function tick(){if(!TM||!$("s-troom").classList.contains("on"))return stopT();if(TM.ans||document.hidden)return;TM.left-=.1;upd();if(TM.left<=0){TM.left=0;answer(true,true)}}
+function upd(){const f=$("trFg"),nm=$("trNum"),r=$("trRing");if(!f)return;const l=TM.left,hu=Math.round(125*Math.max(0,Math.min(1,l/T)));
+  nm.textContent=clock(l);f.style.strokeDashoffset=282.7*(1-Math.min(1,l/T));r.className="ring"+(l<=10?" hot":l<=T*.4?" warn":"");f.style.stroke="hsl("+hu+",85%,55%)";nm.style.color=l<=10?"":"hsl("+hu+",90%,72%)"}
 function next(){
   if(TM.n>=TM.list.length)return fin();
-  const x=TM.list[TM.n],c=TB.cats[x.c]||{};SEEN.add(x.id);TM.ans=false;
-  B(`<p class="hint">${E((c.ico||"")+" "+(c.name||""))} · вопрос ${TM.n+1} из ${TM.list.length} · ✅ ${TM.ok}</p>
-  ${x.i?`<img class="trimg" src="${E(TM.urls[x.i])}" alt="">`:`<div class="trem">${E(x.em||"")}</div>`}<h2 style="margin:10px 0">${E(x.q)}</h2>
+  const x=TM.list[TM.n],c=TB.cats[x.c]||{};SEEN.add(x.id);save();TM.ans=false;TM.left=T;
+  B(`${TM.combo>=2?`<div class="streakpill">🔥 Серия ${TM.combo}</div>`:""}<div class="qcard"><div class="ring" id="trRing"><svg viewBox="0 0 100 100"><circle class="bg" cx="50" cy="50" r="45"/><circle class="fg" id="trFg" cx="50" cy="50" r="45"/></svg><div class="num" id="trNum" style="font-size:22px">${clock(T)}</div></div>
+  <div style="min-width:0"><div class="qno">${E((c.ico||"")+" "+(c.name||""))} · вопрос ${TM.n+1} из ${TM.list.length} · ✅ ${TM.ok}</div><div class="qtxt">${E(x.q)}</div></div></div>
+  ${x.i?`<img class="qimg" src="${E(TM.urls[x.i])}" alt="">`:`<div class="trem">${E(x.em||"")}</div>`}
   <form id="tmF" autocomplete="off"><input type="text" id="tmIn" maxlength="120" placeholder="Ваш ответ" aria-label="Ваш ответ"></form>
   <div class="trrow"><button type="button" class="btn" data-tr="a">Ответить</button><button type="button" class="btn alt" data-tr="k">Не знаю</button></div><div id="tmR"></div>`);
-  $("tmF").onsubmit=e=>{e.preventDefault();answer(false)};try{$("tmIn").focus()}catch(e){}}
-function answer(skip){
+  $("tmF").onsubmit=e=>{e.preventDefault();answer(false)};upd();try{$("tmIn").focus()}catch(e){}}
+function answer(skip,late){
   if(!TM||TM.ans)return;const x=TM.list[TM.n],v=$("tmIn").value;if(!skip&&!v.trim()){$("tmIn").focus();return}
-  TM.ans=true;const ok=!skip&&tMatch(v,x);if(ok)TM.ok++;$("tmIn").disabled=true;
+  TM.ans=true;const ok=!skip&&tMatch(v,x);snd(ok);$("tmIn").disabled=true;
+  if(ok){TM.ok++;TM.combo++;TM.max=Math.max(TM.max,TM.combo)}else{TM.wrong++;TM.pc=TM.combo;TM.combo=0}
   document.querySelectorAll('#trBody [data-tr="a"],#trBody [data-tr="k"]').forEach(b=>b.disabled=true);
   const alt=(x.acc||[]).filter(s=>s!==x.a).slice(0,6),src=((TB.sources||{})[x.src]||{}).name||x.src;
-  $("tmR").innerHTML=`<div class="card" style="margin-top:12px;text-align:center"><h2 style="margin:0 0 6px">${ok?"✅ Верно":skip?"Ответ":"❌ Неверно"}</h2><div>Ответ: <b>${E(x.a)}</b></div>
+  $("tmR").innerHTML=`<div class="card" style="margin-top:12px;text-align:center"><h2 style="margin:0 0 6px">${ok?"✅ Верно":late?"⏰ Время вышло":skip?"Ответ":"❌ Неверно"}</h2><div>Ответ: <b>${E(x.a)}</b></div>
   ${alt.length?`<small class="hint">Также принимается: ${alt.map(E).join(" · ")}</small>`:""}${x.e?`<p class="hint">${E(x.e)}</p>`:""}<p class="hint">Источник: ${E(src)}</p>
   <div class="trrow"><button type="button" class="btn" data-tr="n">${TM.n+1<TM.list.length?"Дальше":"Итоги"}</button>${ok?"":`<button type="button" class="btn alt" data-tr="f">Я ответил(а) верно — засчитать</button>`}</div></div>`}
-function fin(){const n=TM.list.length;
-  B(`<div class="card" style="text-align:center"><h2 style="font-size:40px;margin:6px 0">${TM.ok} из ${n}</h2><p>${TM.ok===n?"Всё верно!":"Тренировка окончена"}</p><p class="hint">Результат нигде не сохраняется</p></div>
+function fin(){stopT();const n=TM.list.length;
+  B(`<div class="card" style="text-align:center"><h2 style="font-size:40px;margin:6px 0">${TM.ok} из ${n}</h2><p>${TM.ok===n?"Всё верно!":"Тренировка окончена"}</p><p>✅ верно: <b>${TM.ok}</b> · ❌ ошибок: <b>${TM.wrong}</b> · 🔥 лучшая серия: <b>${TM.max}</b></p><p class="hint">Результат нигде не сохраняется</p></div>
   <div class="trrow"><button type="button" class="btn" data-tr="s">Ещё раунд</button><button type="button" class="btn alt" data-tr="h">Выбрать темы</button></div>`)}
 document.addEventListener("click",e=>{
   if(e.target.closest("#teamBtn")){e.preventDefault();return open()}
   if(e.target.closest("#trBack")){e.preventDefault();return nav("home")}
   const b=e.target.closest("[data-tr]");if(!b||b.disabled)return;const k=b.dataset.tr;
   if(k==="in")enter();else if(!TB)return;
-  else if(k.startsWith("c:")){const c=k.slice(2);if(TB.cats[c]&&TB.cats[c].on){SEL.has(c)?SEL.delete(c):SEL.add(c);hubR()}}
-  else if(k==="s")start();else if(k==="h")hubR();else if(k==="r"){SEEN.clear();hubR()}
+  else if(k.startsWith("c:")){const c=k.slice(2);if(TB.cats[c]&&TB.cats[c].on){SEL.clear();SEL.add(c);start()}}// «Ещё раунд» — та же тема
+  else if(k==="m"){SEL.clear();cats().forEach(c=>SEL.add(c));start()}
+  else if(k==="s")start();else if(k==="h")hubR();else if(k==="r"){SEEN.clear();save();hubR()}
   else if(k==="a")answer(false);else if(k==="k")answer(true);
   else if(k==="n"){if(TM&&TM.ans){TM.n++;next()}}
-  else if(k==="f"){if(TM&&TM.ans){TM.ok++;TM.n++;next()}}
+  else if(k==="f"){if(TM&&TM.ans){TM.ok++;TM.wrong--;TM.combo=TM.pc+1;TM.max=Math.max(TM.max,TM.combo);TM.n++;next()}}
 });
 })();
 </script>
