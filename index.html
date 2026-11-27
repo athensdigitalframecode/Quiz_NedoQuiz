@@ -4678,7 +4678,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="8560b1b33876";
+  const BUILD="db12eb02d20e";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4856,7 +4856,7 @@ async function drawGStats(){
    (картинки — временными ссылками на час). Ничего не пишет в профиль, рейтинг и статистику. */
 (()=>{
 const FN="https://tfgynsfmnrxumftuiflm.supabase.co/functions/v1/team-room",N=15;
-let TB=null,TC="",TM=null,IV=0;const SEL=new Set(),T=180;
+let TB=null,TC="",TM=null,IV=0;const SEL=new Set(),T=180;let PLAY=new Set();/* SEL — отметки на экране тем, PLAY — темы текущего раунда («Ещё раунд») */
 /* просмотренные помнятся в этом браузере, пока их не сбросят */
 const SEEN=new Set((()=>{try{return JSON.parse(localStorage.getItem("quiz_team_seen"))||[]}catch(e){return[]}})()),save=()=>{try{localStorage.setItem("quiz_team_seen",JSON.stringify([...SEEN]))}catch(e){}};
 const clock=s=>{s=Math.max(0,Math.ceil(s-.01));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};/* −.01: шаги по 0,1 с копят погрешность */
@@ -4881,14 +4881,15 @@ async function enter(){const c=$("trIn").value.trim(),err=$("trErr");err.textCon
 const cats=()=>Object.keys(TB.cats).filter(k=>TB.cats[k].on&&TB.cats[k].n);
 function hubR(){TM=null;stopT();
   const rows=Object.keys(TB.cats).filter(k=>TB.cats[k].n).map(k=>{const c=TB.cats[k],on=c.on,l=left(k);
-    return `<button type="button" class="btn alt trc" data-tr="c:${E(k)}"${on&&l?"":" disabled"}>${on?"▶":"🔒"} <b>${E(c.ico+" "+c.name)}</b><small>${on?`осталось ${l} из ${c.n}`:"ждёт согласования прав"}</small></button>`}).join("");
-  const n=cats().reduce((s,k)=>s+left(k),0);
+    return `<button type="button" class="btn alt trc" data-tr="c:${E(k)}"${on&&l?"":" disabled"} aria-pressed="${SEL.has(k)}">${on?(SEL.has(k)?"✅":"⬜"):"🔒"} <b>${E(c.ico+" "+c.name)}</b><small>${on?`осталось ${l} из ${c.n}`:"ждёт согласования прав"}</small></button>`}).join("");
+  const n=cats().reduce((s,k)=>s+left(k),0),sk=cats().filter(k=>SEL.has(k)),ns=sk.reduce((s,k)=>s+left(k),0);
   B(`<button type="button" class="btn trc" data-tr="m"${n?"":" disabled"}>🎲 <b>Микс доступных тем</b><small>вопросы всех открытых тем вперемешку · ${n} вопр.</small></button>
-  <p class="hint" style="margin-top:12px">Или выберите одну тему. Вопросы идут в случайном порядке и не повторяются: просмотренные запоминаются в этом браузере.</p><div class="trcats">${rows||"<p class='hint'>Вопросов пока нет</p>"}</div>
+  <p class="hint" style="margin-top:12px">Или отметьте одну или несколько тем. Вопросы идут в случайном порядке и не повторяются: просмотренные запоминаются в этом браузере.</p><div class="trcats">${rows||"<p class='hint'>Вопросов пока нет</p>"}</div>
+  <button type="button" class="btn" data-tr="go"${ns?"":" disabled"} style="margin-top:12px">▶ ${sk.length?`Играть: ${sk.length===1?"1 тема":sk.length+(sk.length<5?" темы":" тем")} · ${Math.min(N,ns)} вопр.`:"Отметьте темы"}</button>
   ${SEEN.size?`<button type="button" class="btn alt" data-tr="r" style="margin-top:12px">↺ Сбросить просмотренные (${SEEN.size})</button>`:""}
   <p class="hint" style="margin-top:10px">Вопросы импортированы автоматически из открытых наборов и не проверены вручную. Тренировка не влияет на рейтинг и статистику.</p>`)}
 async function start(){
-  const pool=TB.q.filter(x=>SEL.has(x.c)&&TB.cats[x.c]&&TB.cats[x.c].on&&!SEEN.has(x.id));if(!pool.length)return hubR();
+  const pool=TB.q.filter(x=>PLAY.has(x.c)&&TB.cats[x.c]&&TB.cats[x.c].on&&!SEEN.has(x.id));if(!pool.length)return hubR();
   const list=shuffled(pool,Math.random).slice(0,N),need=list.filter(x=>x.i).map(x=>x.i);let urls={};
   B(`<p class="hint">Загружаем картинки…</p>`);
   if(need.length){try{const r=await call({op:"img",paths:need});if(!r.ok)throw 0;urls=(await r.json()).urls||{}}catch(e){B(`<div class="err">Не удалось загрузить картинки</div><button type="button" class="btn alt" data-tr="h">К темам</button>`);return}}
@@ -4923,8 +4924,9 @@ document.addEventListener("click",e=>{
   if(e.target.closest("#trBack")){e.preventDefault();return nav("home")}
   const b=e.target.closest("[data-tr]");if(!b||b.disabled)return;const k=b.dataset.tr;
   if(k==="in")enter();else if(!TB)return;
-  else if(k.startsWith("c:")){const c=k.slice(2);if(TB.cats[c]&&TB.cats[c].on){SEL.clear();SEL.add(c);start()}}// «Ещё раунд» — та же тема
-  else if(k==="m"){SEL.clear();cats().forEach(c=>SEL.add(c));start()}
+  else if(k.startsWith("c:")){const c=k.slice(2);if(TB.cats[c]&&TB.cats[c].on){SEL.has(c)?SEL.delete(c):SEL.add(c);hubR()}}
+  else if(k==="go"){PLAY=new Set(cats().filter(c=>SEL.has(c)));start()}
+  else if(k==="m"){PLAY=new Set(cats());start()}
   else if(k==="s")start();else if(k==="h")hubR();else if(k==="r"){SEEN.clear();save();hubR()}
   else if(k==="a")answer(false);else if(k==="k")answer(true);
   else if(k==="n"){if(TM&&TM.ans){TM.n++;next()}}
