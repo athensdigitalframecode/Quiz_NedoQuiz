@@ -4678,7 +4678,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="c58db66868b9";
+  const BUILD="0affbdd231ee";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4904,18 +4904,18 @@ function next(){
   B(`${TM.combo>=2?`<div class="streakpill">🔥 Серия ${TM.combo}</div>`:""}<div class="qcard"><div class="ring" id="trRing"><svg viewBox="0 0 100 100"><circle class="bg" cx="50" cy="50" r="45"/><circle class="fg" id="trFg" cx="50" cy="50" r="45"/></svg><div class="num" id="trNum" style="font-size:22px">${clock(T)}</div></div>
   <div style="min-width:0"><div class="qno">${E((c.ico||"")+" "+(c.name||""))} · вопрос ${TM.n+1} из ${TM.list.length} · ✅ ${TM.ok}</div><div class="qtxt">${E(x.q)}</div></div></div>
   ${x.i?`<img class="qimg" src="${E(TM.urls[x.i])}" alt="">`:`<div class="trem">${E(x.em||"")}</div>`}
-  <form id="tmF" autocomplete="off"><input type="text" id="tmIn" maxlength="120" placeholder="Ваш ответ" aria-label="Ваш ответ"></form>
-  <div class="trrow"><button type="button" class="btn" data-tr="a">Ответить</button><button type="button" class="btn alt" data-tr="k">Не знаю</button></div><div id="tmR"></div>`);
-  $("tmF").onsubmit=e=>{e.preventDefault();answer(false)};upd();if(matchMedia("(pointer:fine)").matches)try{$("tmIn").focus()}catch(e){}}// на телефоне поле само не активируется — клавиатура не закрывает вопрос
+  ${x.self?`<div class="trrow"><button type="button" class="btn" data-tr="k">Показать ответ</button></div>`:`<form id="tmF" autocomplete="off"><input type="text" id="tmIn" maxlength="120" placeholder="Ваш ответ" aria-label="Ваш ответ"></form>
+  <div class="trrow"><button type="button" class="btn" data-tr="a">Ответить</button><button type="button" class="btn alt" data-tr="k">Не знаю</button></div>`}<div id="tmR"></div>`);
+  if(!x.self){$("tmF").onsubmit=e=>{e.preventDefault();answer(false)};if(matchMedia("(pointer:fine)").matches)try{$("tmIn").focus()}catch(e){}}upd()}// на телефоне поле само не активируется — клавиатура не закрывает вопрос
 function answer(skip,late){
-  if(!TM||TM.ans)return;const x=TM.list[TM.n],v=$("tmIn").value;if(!skip&&!v.trim()){$("tmIn").focus();return}
-  TM.ans=true;const ok=!skip&&tMatch(v,x);snd(ok);$("tmIn").disabled=true;
+  if(!TM||TM.ans)return;const x=TM.list[TM.n],inp=$("tmIn"),v=inp?inp.value:"";if(!skip&&!v.trim()){if(inp)inp.focus();return}
+  TM.ans=true;const ok=!skip&&tMatch(v,x);if(!x.self)snd(ok);if(inp)inp.disabled=true;/* x.self — самопроверка: поля нет, игрок сам решает «засчитать» */
   if(ok){TM.ok++;TM.combo++;TM.max=Math.max(TM.max,TM.combo)}else{TM.wrong++;TM.pc=TM.combo;TM.combo=0}
   document.querySelectorAll('#trBody [data-tr="a"],#trBody [data-tr="k"]').forEach(b=>b.disabled=true);
   const alt=(x.acc||[]).filter(s=>s!==x.a).slice(0,6),src=((TB.sources||{})[x.src]||{}).name||x.src;
-  $("tmR").innerHTML=`<div class="card" style="margin-top:12px;text-align:center"><h2 style="margin:0 0 6px">${ok?"✅ Верно":late?"⏰ Время вышло":skip?"Ответ":"❌ Неверно"}</h2><div>Ответ: <b>${E(x.a)}</b></div>
+  $("tmR").innerHTML=`<div class="card" style="margin-top:12px;text-align:center"><h2 style="margin:0 0 6px">${ok?"✅ Верно":late?"⏰ Время вышло":x.self?"Значение":skip?"Ответ":"❌ Неверно"}</h2><div>${x.self?E(x.a):`Ответ: <b>${E(x.a)}</b>`}</div>
   ${alt.length?`<small class="hint">Также принимается: ${alt.map(E).join(" · ")}</small>`:""}${x.e?`<p class="hint">${E(x.e)}</p>`:""}<p class="hint">Источник: ${E(src)}</p>
-  <div class="trrow"><button type="button" class="btn" data-tr="n">${TM.n+1<TM.list.length?"Дальше":"Итоги"}</button>${ok?"":`<button type="button" class="btn alt" data-tr="f">Я ответил(а) верно — засчитать</button>`}</div></div>`}
+  <div class="trrow"><button type="button" class="btn" data-tr="n">${TM.n+1<TM.list.length?"Дальше":"Итоги"}</button>${ok?"":`<button type="button" class="btn alt" data-tr="f">${x.self?"Я знал(а) — засчитать":"Я ответил(а) верно — засчитать"}</button>`}</div></div>`}
 function fin(){stopT();const n=TM.list.length;
   B(`<div class="card" style="text-align:center"><h2 style="font-size:40px;margin:6px 0">${TM.ok} из ${n}</h2><p>${TM.ok===n?"Всё верно!":"Тренировка окончена"}</p><p>✅ верно: <b>${TM.ok}</b> · ❌ ошибок: <b>${TM.wrong}</b> · 🔥 лучшая серия: <b>${TM.max}</b></p><p class="hint">Результат нигде не сохраняется</p></div>
   <div class="trrow"><button type="button" class="btn" data-tr="s">Ещё раунд</button><button type="button" class="btn alt" data-tr="h">Выбрать темы</button></div>`)}
