@@ -4678,7 +4678,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="db12eb02d20e";
+  const BUILD="c88c2f6125c0";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4881,9 +4881,9 @@ async function enter(){const c=$("trIn").value.trim(),err=$("trErr");err.textCon
 const cats=()=>Object.keys(TB.cats).filter(k=>TB.cats[k].on&&TB.cats[k].n);
 function hubR(){TM=null;stopT();
   const rows=Object.keys(TB.cats).filter(k=>TB.cats[k].n).map(k=>{const c=TB.cats[k],on=c.on,l=left(k);
-    return `<button type="button" class="btn alt trc" data-tr="c:${E(k)}"${on&&l?"":" disabled"} aria-pressed="${SEL.has(k)}">${on?(SEL.has(k)?"✅":"⬜"):"🔒"} <b>${E(c.ico+" "+c.name)}</b><small>${on?`осталось ${l} из ${c.n}`:"ждёт согласования прав"}</small></button>`}).join("");
+    return `<button type="button" class="btn alt trc" data-tr="c:${E(k)}"${on&&l?"":" disabled"} aria-pressed="${SEL.has(k)}">${on?(SEL.has(k)?"✅":"⬜"):"🔒"} <b>${E(c.ico+" "+c.name)}</b>${on?(l?"":"<small>все вопросы пройдены</small>"):"<small>ждёт согласования прав</small>"}</button>`}).join("");
   const n=cats().reduce((s,k)=>s+left(k),0),sk=cats().filter(k=>SEL.has(k)),ns=sk.reduce((s,k)=>s+left(k),0);
-  B(`<button type="button" class="btn trc" data-tr="m"${n?"":" disabled"}>🎲 <b>Микс доступных тем</b><small>вопросы всех открытых тем вперемешку · ${n} вопр.</small></button>
+  B(`<button type="button" class="btn trc" data-tr="m"${n?"":" disabled"}>🎲 <b>Микс доступных тем</b><small>вопросы всех открытых тем вперемешку</small></button>
   <p class="hint" style="margin-top:12px">Или отметьте одну или несколько тем. Вопросы идут в случайном порядке и не повторяются: просмотренные запоминаются в этом браузере.</p><div class="trcats">${rows||"<p class='hint'>Вопросов пока нет</p>"}</div>
   <button type="button" class="btn" data-tr="go"${ns?"":" disabled"} style="margin-top:12px">▶ ${sk.length?`Играть: ${sk.length===1?"1 тема":sk.length+(sk.length<5?" темы":" тем")} · ${Math.min(N,ns)} вопр.`:"Отметьте темы"}</button>
   ${SEEN.size?`<button type="button" class="btn alt" data-tr="r" style="margin-top:12px">↺ Сбросить просмотренные (${SEEN.size})</button>`:""}
