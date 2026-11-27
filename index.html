@@ -40,6 +40,9 @@ h2{font:700 20px/1.2 var(--disp);margin:6px 0 8px}
 .btn[hidden],[hidden]{display:none!important}
 .gap{height:10px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px}
+.roundbtn{display:none;position:fixed;right:12px;bottom:calc(92px + env(safe-area-inset-bottom,0px));z-index:60;width:56px;height:56px;border-radius:50%;border:2px solid var(--gold);background:var(--card);font-size:24px;cursor:pointer;box-shadow:0 8px 20px -8px rgba(0,0,0,.8)}body.on-home .roundbtn{display:block}.roundbtn:active{transform:scale(.94)}
+.trcats{display:grid;gap:8px}.trc{text-align:left}.trc small{display:block;font-weight:400;opacity:.8}.trc:disabled{opacity:.5}.trrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.trrow .btn{flex:1;min-width:130px}
+.trimg{display:block;max-width:100%;max-height:340px;margin:0 auto;border-radius:12px}.trem{font-size:44px;line-height:1.3;text-align:center;margin:8px 0 12px;overflow-wrap:anywhere}#s-troom input{width:100%;box-sizing:border-box}
 input[type=text]{width:100%;background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:12px;padding:14px;font:600 18px system-ui;outline:none}
 input[type=text]:focus,textarea:focus{border-color:var(--gold)}
 #code-in{text-transform:uppercase;letter-spacing:6px;text-align:center;font-size:24px}
@@ -1387,6 +1390,11 @@ body[data-scr="s-home"] #bestFloat{display:block}
   <button class="btn" id="teamSave">Создать и вступить</button>
 </section>
 
+<section id="s-troom" class="screen">
+  <div class="top"><button class="btn alt small" id="trBack" type="button">← Назад</button></div>
+  <h1>🔒 Тренировочная комната</h1>
+  <div id="trBody"></div>
+</section>
 <section id="s-team" class="screen">
   <div class="top"><button class="btn alt small" data-act="teams">← Назад</button></div>
   <div id="teamBox"></div>
@@ -1732,6 +1740,7 @@ body[data-scr="s-home"] #bestFloat{display:block}
 </div>
 
 
+<button type="button" class="roundbtn" id="teamBtn" aria-label="Войти в комнату по коду" title="Комната по коду">🔒</button>
 <button id="updBtn" class="updbtn" type="button" aria-label="Обновления игры">🆕<span>Обновления</span><i id="updDot"></i></button>
 <button id="polBtn" class="polbtn" type="button" aria-label="Для Полины (книжный клуб)">📚 для Полины<small>(книжный клуб)</small></button>
 <div id="updBg" class="updbg" hidden></div>
@@ -4669,7 +4678,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="1ec347ecf995";
+  const BUILD="f0c3752b634f";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4841,6 +4850,73 @@ async function drawGStats(){
 (function(){
   const f=()=>{const e=document.documentElement,end=(window.scrollY||e.scrollTop)+innerHeight>=Math.max(e.scrollHeight,document.body.scrollHeight)-60;document.body.classList.toggle("at-end",end)};
   addEventListener("scroll",f,{passive:true});addEventListener("resize",f);setInterval(f,500);f();
+})();
+/* ---------- Тренировочная комната: круглая кнопка 🔒 на главной, вход только по коду, без регистрации ----------
+   Вопросы и картинки — в закрытом бакете Supabase team-room; функция team-room отдаёт их только по верному коду
+   (картинки — временными ссылками на час). Ничего не пишет в профиль, рейтинг и статистику. */
+(()=>{
+const FN="https://tfgynsfmnrxumftuiflm.supabase.co/functions/v1/team-room",N=15;
+let TB=null,TC="",TM=null;const SEEN=new Set(),SEL=new Set();
+const E=esc,B=h=>{$("trBody").innerHTML=h};
+const call=b=>fetch(FN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code:TC,...b})});
+const tNorm=s=>String(s||"").toLowerCase().replace(/ё/g,"е").replace(/&/g," and ").replace(/[^\p{L}\p{N}\s]/gu," ").replace(/\s+/g," ").trim();
+function tLev(a,b){let p=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){const c=[i];for(let j=1;j<=b.length;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c}return p[b.length]}
+/* верно: совпадение с любым принятым вариантом без учёта регистра, ё, знаков и пробелов; опечатка — 1 на каждые 6 букв */
+function tMatch(v,x){const n0=tNorm(v).replace(/ /g,"");if(!n0)return false;return [x.a,...(x.acc||[])].some(s=>{const t0=tNorm(s).replace(/ /g,"");return t0===n0||(t0.length>=6&&tLev(t0,n0)<=Math.floor(t0.length/6))})}
+window.teamMatch=tMatch;
+const left=k=>TB.q.filter(x=>x.c===k&&!SEEN.has(x.id)).length;
+function open(){show("s-troom");scrollTo(0,0);if(TB)return hubR();
+  B(`<p class="hint">Комната для своей команды. Введите код комнаты.</p><form id="trF" autocomplete="off"><input type="text" id="trIn" maxlength="40" autocapitalize="off" spellcheck="false" aria-label="Код комнаты" placeholder="Код комнаты"></form><div class="err" id="trErr"></div><button type="button" class="btn" data-tr="in">Войти</button>`);
+  $("trF").onsubmit=e=>{e.preventDefault();enter()};setTimeout(()=>{try{$("trIn").focus()}catch(e){}},50)}
+async function enter(){const c=$("trIn").value.trim(),err=$("trErr");err.textContent="";
+  if(!/^[\w-]{1,40}$/.test(c)){err.textContent="Код — буквы латиницей, цифры, «-» или «_»";return}
+  TC=c;err.textContent="Проверяем…";
+  try{const r=await call({op:"bank"});if(r.status===403){err.textContent="Неверный код";return}if(!r.ok)throw 0;const b=await r.json();if(!b||!Array.isArray(b.q))throw 0;
+    TB=b;Object.keys(TB.cats).filter(k=>TB.cats[k].on&&TB.cats[k].n).forEach(k=>SEL.add(k));hubR()}
+  catch(e){err.textContent="Не удалось загрузить комнату, попробуйте ещё раз"}}
+function hubR(){TM=null;
+  const rows=Object.keys(TB.cats).filter(k=>TB.cats[k].n).map(k=>{const c=TB.cats[k],on=c.on,sel=on&&SEL.has(k);
+    return `<button type="button" class="btn alt trc" data-tr="c:${E(k)}"${on?"":" disabled"}>${on?(sel?"✅":"⬜"):"🔒"} <b>${E(c.ico+" "+c.name)}</b><small>${on?`осталось ${left(k)} из ${c.n}`:"ждёт согласования прав"}</small></button>`}).join("");
+  const n=[...SEL].filter(k=>TB.cats[k]&&TB.cats[k].on).reduce((s,k)=>s+left(k),0);
+  B(`<p class="hint">Выберите одну или несколько тем. Вопросы идут в случайном порядке и не повторяются, пока не обновите страницу.</p><div class="trcats">${rows||"<p class='hint'>Вопросов пока нет</p>"}</div>
+  <button type="button" class="btn" data-tr="s"${n?"":" disabled"} style="margin-top:12px">▶ Начать · ${Math.min(N,n)} вопр.</button>${SEEN.size?`<button type="button" class="btn alt" data-tr="r" style="margin-top:8px">↺ Сбросить просмотренные (${SEEN.size})</button>`:""}
+  <p class="hint" style="margin-top:10px">Вопросы импортированы автоматически из открытых наборов и не проверены вручную. Тренировка не влияет на рейтинг и статистику.</p>`)}
+async function start(){
+  const pool=TB.q.filter(x=>SEL.has(x.c)&&TB.cats[x.c]&&TB.cats[x.c].on&&!SEEN.has(x.id));if(!pool.length)return hubR();
+  const list=shuffled(pool,Math.random).slice(0,N),need=list.filter(x=>x.i).map(x=>x.i);let urls={};
+  B(`<p class="hint">Загружаем картинки…</p>`);
+  if(need.length){try{const r=await call({op:"img",paths:need});if(!r.ok)throw 0;urls=(await r.json()).urls||{}}catch(e){B(`<div class="err">Не удалось загрузить картинки</div><button type="button" class="btn alt" data-tr="h">К темам</button>`);return}}
+  TM={list:list.filter(x=>!x.i||urls[x.i]),urls,n:0,ok:0};next()}
+function next(){
+  if(TM.n>=TM.list.length)return fin();
+  const x=TM.list[TM.n],c=TB.cats[x.c]||{};SEEN.add(x.id);TM.ans=false;
+  B(`<p class="hint">${E((c.ico||"")+" "+(c.name||""))} · вопрос ${TM.n+1} из ${TM.list.length} · ✅ ${TM.ok}</p>
+  ${x.i?`<img class="trimg" src="${E(TM.urls[x.i])}" alt="">`:`<div class="trem">${E(x.em||"")}</div>`}<h2 style="margin:10px 0">${E(x.q)}</h2>
+  <form id="tmF" autocomplete="off"><input type="text" id="tmIn" maxlength="120" placeholder="Ваш ответ" aria-label="Ваш ответ"></form>
+  <div class="trrow"><button type="button" class="btn" data-tr="a">Ответить</button><button type="button" class="btn alt" data-tr="k">Не знаю</button></div><div id="tmR"></div>`);
+  $("tmF").onsubmit=e=>{e.preventDefault();answer(false)};try{$("tmIn").focus()}catch(e){}}
+function answer(skip){
+  if(!TM||TM.ans)return;const x=TM.list[TM.n],v=$("tmIn").value;if(!skip&&!v.trim()){$("tmIn").focus();return}
+  TM.ans=true;const ok=!skip&&tMatch(v,x);if(ok)TM.ok++;$("tmIn").disabled=true;
+  document.querySelectorAll('#trBody [data-tr="a"],#trBody [data-tr="k"]').forEach(b=>b.disabled=true);
+  const alt=(x.acc||[]).filter(s=>s!==x.a).slice(0,6),src=((TB.sources||{})[x.src]||{}).name||x.src;
+  $("tmR").innerHTML=`<div class="card" style="margin-top:12px;text-align:center"><h2 style="margin:0 0 6px">${ok?"✅ Верно":skip?"Ответ":"❌ Неверно"}</h2><div>Ответ: <b>${E(x.a)}</b></div>
+  ${alt.length?`<small class="hint">Также принимается: ${alt.map(E).join(" · ")}</small>`:""}${x.e?`<p class="hint">${E(x.e)}</p>`:""}<p class="hint">Источник: ${E(src)}</p>
+  <div class="trrow"><button type="button" class="btn" data-tr="n">${TM.n+1<TM.list.length?"Дальше":"Итоги"}</button>${ok?"":`<button type="button" class="btn alt" data-tr="f">Я ответил(а) верно — засчитать</button>`}</div></div>`}
+function fin(){const n=TM.list.length;
+  B(`<div class="card" style="text-align:center"><h2 style="font-size:40px;margin:6px 0">${TM.ok} из ${n}</h2><p>${TM.ok===n?"Всё верно!":"Тренировка окончена"}</p><p class="hint">Результат нигде не сохраняется</p></div>
+  <div class="trrow"><button type="button" class="btn" data-tr="s">Ещё раунд</button><button type="button" class="btn alt" data-tr="h">Выбрать темы</button></div>`)}
+document.addEventListener("click",e=>{
+  if(e.target.closest("#teamBtn")){e.preventDefault();return open()}
+  if(e.target.closest("#trBack")){e.preventDefault();return nav("home")}
+  const b=e.target.closest("[data-tr]");if(!b||b.disabled)return;const k=b.dataset.tr;
+  if(k==="in")enter();else if(!TB)return;
+  else if(k.startsWith("c:")){const c=k.slice(2);if(TB.cats[c]&&TB.cats[c].on){SEL.has(c)?SEL.delete(c):SEL.add(c);hubR()}}
+  else if(k==="s")start();else if(k==="h")hubR();else if(k==="r"){SEEN.clear();hubR()}
+  else if(k==="a")answer(false);else if(k==="k")answer(true);
+  else if(k==="n"){if(TM&&TM.ans){TM.n++;next()}}
+  else if(k==="f"){if(TM&&TM.ans){TM.ok++;TM.n++;next()}}
+});
 })();
 </script>
 
